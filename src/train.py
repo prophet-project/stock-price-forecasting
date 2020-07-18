@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import datasets
+import checkpoints
+from save_and_restore import save
 from normalize import normalize_datasets
 from model import build_model
 from test import test
@@ -23,14 +25,15 @@ training, validation, testing, input_shape = normalize_datasets(train_data, vali
 model = build_model(input_shape)
 
 # Train network
-train(model, training, validation)
+model.fit(
+        training.shuffle(BUFFER_SIZE).batch(BATCHES),
+        epochs=10,
+        validation_data=validation.batch(BATCHES),
+        callbacks=[checkpoints.save_weights()]
+    )
 
 # Test network
 test(model, testing)
 
-def train(model, train_data, validation_data):
-    model.fit(
-        train_data.shuffle(BUFFER_SIZE).batch(BATCHES),
-        epochs=10,
-        validation_data=validation_data.batch(BATCHES)
-    )
+# Save for restore in next time
+save(model)

@@ -7,7 +7,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 train:
-	python ./src/index.py
+	python ./src/train.py
 
 # Will load medium size model for spacy
 spacy-load-md:

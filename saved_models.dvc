@@ -1,0 +1,3 @@
+outs:
+- md5: 06bc5d737d73f024000cfd2a7644220e.dir
+  path: saved_models

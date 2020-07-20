@@ -32,8 +32,3 @@ def get_item(dataset, index):
     (text, label) = list(dataset.take(index+1).as_numpy_iterator())[index]
     return text, label
 
-
-def print_first_items_of_datasets(dataset, normalised):
-    # By defaul all data encoded as bytes
-    print(get_item(dataset, 3)[0].decode("utf-8"))
-    print(get_item(normalised, 3))

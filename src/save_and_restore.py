@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-PATH_TO_SAVED_MODEL='saved_model/main'
-PATH_TO_SAVE_HD5_MODEL='saved_model/main.h5'
+PATH_TO_SAVED_MODEL='saved_models/main'
+PATH_TO_SAVE_HD5_MODEL='saved_models/main.h5'
 
 # Save model in SavedModel format, which can be fully respored
 def save(model):

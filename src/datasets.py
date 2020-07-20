@@ -2,6 +2,7 @@ import tensorflow_datasets as tfds
 import tensorflow as tf
 
 dataset_name = 'imdb_reviews'
+datasets_folder = './data'
 
 # Will return: 
 #  20 000 train data
@@ -11,6 +12,7 @@ dataset_name = 'imdb_reviews'
 def download():
     train_data, validation_data, test_data = tfds.load(
         name=dataset_name, 
+        data_dir=datasets_folder,
         split=('train[:80%]', 'train[80%:]', 'test'),
         as_supervised=True
     )

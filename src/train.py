@@ -11,7 +11,7 @@ from tensorflow.keras.callbacks import CSVLogger
 BUFFER_SIZE=500 # Must be grater or equal to batches size
 BATCHES=256 # Allow parallel training, but bigger batch may overfit
 
-METRICS_FILE='metrics.csv'
+metrics_file='metrics.csv'
 
 print("Tensorflow:", tf.__version__)
 
@@ -34,7 +34,7 @@ model.fit(
         validation_data=validation.batch(BATCHES),
         callbacks=[
             checkpoints.save_weights(), 
-            CSVLogger(METRICS_FILE)
+            CSVLogger(metrics_file)
         ]
     )
 

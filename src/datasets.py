@@ -33,5 +33,3 @@ def print_dataset_sizes(train_data, validation_data, test_data):
 def get_item(dataset, index):
     (text, label) = list(dataset.take(index+1).as_numpy_iterator())[index]
     return text, label
-
-download()

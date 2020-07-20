@@ -15,7 +15,7 @@ FROM base as second
 RUN pip install \
     tensorflow==2.2 \
     tensorflow_datasets \
-    dvc
+    dvc && pydrive2
 
 FROM second
 

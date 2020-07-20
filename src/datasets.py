@@ -34,3 +34,4 @@ def get_item(dataset, index):
     (text, label) = list(dataset.take(index+1).as_numpy_iterator())[index]
     return text, label
 
+download()

@@ -131,3 +131,6 @@ dmypy.json
 # Model data
 training_checkpoints/
 saved_models/
+
+# Input data
+data/

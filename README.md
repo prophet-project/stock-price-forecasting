@@ -15,6 +15,7 @@ Can be run in docker enviroment, or if you on linux:
 * Spacy - version 2.*
 * Tensorflow - version 2.2 or bigger
 * Make - optional, all commands can be run manually
+* DVC - Git for machine learning
 
 ## Development
 

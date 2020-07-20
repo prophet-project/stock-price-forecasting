@@ -2,6 +2,9 @@
 
 .PHONY: train docker-build docker-console spacy-load-model
 
+DOCKER_IMAGE_VERSION=0.4.1
+DOCKER_IMAGE_TAG=leovs09/sentiment:$(DOCKER_IMAGE_VERSION)
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DEVELOPMENT
 # ---------------------------------------------------------------------------------------------------------------------
@@ -22,10 +25,10 @@ spacy-load-md:
 
 # Will build docker image for development
 docker-build:
-	docker build --tag nlp:0.3.0-py .
+	docker build --tag $(DOCKER_IMAGE_TAG) .
 
 # Will start in docker develoment environment
 docker-console:
-	docker run -it --rm -v ${PWD}:/work -w /work nlp:0.3.0-py bash
+	docker run -it --rm -v ${PWD}:/work -w /work $(DOCKER_IMAGE_TAG) bash
 
 

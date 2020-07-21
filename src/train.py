@@ -5,13 +5,12 @@ import checkpoints
 from save_and_restore import save
 from normalize import normalize_datasets
 from model import build_model
-from test import test
 from tensorflow.keras.callbacks import CSVLogger
 
 BUFFER_SIZE=500 # Must be grater or equal to batches size
 BATCHES=256 # Allow parallel training, but bigger batch may overfit
 
-metrics_file='metrics.csv'
+metrics_file='training_metrics.csv'
 
 print("Tensorflow:", tf.__version__)
 
@@ -37,9 +36,6 @@ model.fit(
             CSVLogger(metrics_file)
         ]
     )
-
-# Test network
-test(model, testing)
 
 # Save for restore in next time
 save(model)

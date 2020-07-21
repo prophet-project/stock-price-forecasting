@@ -15,6 +15,9 @@ train:
 predict:
 	python ./src/predict.py
 
+test:
+	python ./src/test.py
+
 # Will load medium size model for spacy
 spacy-load-md:
 	python -m spacy download en_core_web_md

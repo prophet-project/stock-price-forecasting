@@ -3,6 +3,7 @@ import datasets
 from normalize import normalize_datasets
 from save_and_restore import load
 from model import build_model
+import numpy as np
 
 print("Tensorflow:", tf.__version__)
 
@@ -14,6 +15,11 @@ training, validation, testing, input_shape = normalize_datasets(train_data, vali
 
 # load model
 model = load()
+probability_model = tf.keras.Sequential([
+    model, 
+    # Convert logits to predictions
+    tf.keras.layers.Softmax()
+])
 
 # print first items of datasets
 # By defaul all data encoded as bytes
@@ -24,9 +30,10 @@ vector_of_text, label =  datasets.get_item(training, 3)
 input_data = tf.data.Dataset.from_tensors([vector_of_text])
 
 # Predict
-[predicted_label] = model.predict(input_data).flatten()
+[predictions] = model.predict(input_data).flatten()
+predicted_label = np.argmax(predictions[0])
 
-print('Predicted label:', predicted_label, 'real label: ', label)
+print('Predicted label:', predicted_label, 'real label: ', label, 'predictions:', predictions)
 if (predicted_label == label):
     print('Successfully predicted')
 else:

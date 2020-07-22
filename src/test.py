@@ -32,4 +32,4 @@ for name, value in zip(model.metrics_names, results):
     metrics[name] = value
 
 with open(metrics_file, 'w') as outfile:
-    json.dump(metrics, outfile)
+    json.dump(metrics, outfile, indent=4)

@@ -6,13 +6,14 @@ def build_model(input_shape):
     model = Sequential([
         layers.InputLayer(input_shape=input_shape),
         layers.Dense(128, activation='relu'),
-        layers.Dense(1)
+        # Two dense layer allow make separate predictions about each class
+        layers.Dense(2)
     ])
 
     model.summary()
     model.compile(
         optimizer='adam',
-        loss=losses.BinaryCrossentropy(from_logits=True),
+        loss=losses.SparseCategoricalCrossentropy(from_logits=True),
         metrics=['accuracy']
     )
 

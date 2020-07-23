@@ -130,7 +130,7 @@ dmypy.json
 
 # Model data
 training_checkpoints/
-saved_models/
+saved_models/*.h5
 
 # Input data
 data/

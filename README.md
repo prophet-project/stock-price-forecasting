@@ -35,6 +35,10 @@ If you not in docker you need load Spacy model
 make spacy-load-md
 ```
 
+### Requirements
+
+All requirement Python libraries and models described in Dockerfile
+
 ## Training
 
 For train model just run
@@ -44,6 +48,24 @@ make train
 ```
 
 It will load dataset and start training
+
+## Testing
+
+For test model just run
+
+```bash
+make test
+```
+
+## Jupiter Notebook
+
+In docker image insatlled Jupiter Notebook
+
+For run notebook
+
+```bash
+make notebook
+```
 
 ## Five main steps for build Neural Network
 

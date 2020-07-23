@@ -2,7 +2,7 @@
 
 .PHONY: train docker-build docker-console spacy-load-model
 
-DOCKER_IMAGE_VERSION=0.4.1
+DOCKER_IMAGE_VERSION=0.5.0
 DOCKER_IMAGE_TAG=leovs09/sentiment:$(DOCKER_IMAGE_VERSION)
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -22,6 +22,10 @@ test:
 spacy-load-md:
 	python -m spacy download en_core_web_md
 
+# Will start notebook environment on http://0.0.0.0:8888
+notebook: 
+	jupyter notebook --ip=0.0.0.0 --allow-root
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DOCKER
 # ---------------------------------------------------------------------------------------------------------------------
@@ -32,6 +36,6 @@ docker-build:
 
 # Will start in docker develoment environment
 docker-console:
-	docker run -it --rm -v ${PWD}:/work -w /work $(DOCKER_IMAGE_TAG) bash
+	docker run -it --rm -v ${PWD}:/work -w /work -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
 
 

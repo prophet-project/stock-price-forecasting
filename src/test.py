@@ -6,7 +6,7 @@ import json
 
 print("Tensorflow:", tf.__version__)
 
-metrics_file='test_metrics.json'
+metrics_file='metrics/test.json'
 
 # Load dataset
 train_data, validation_data, test_data = datasets.download()

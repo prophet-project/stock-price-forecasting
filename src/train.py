@@ -10,7 +10,7 @@ from tensorflow.keras.callbacks import CSVLogger
 BUFFER_SIZE=500 # Must be grater or equal to batches size
 BATCHES=256 # Allow parallel training, but bigger batch may overfit
 
-metrics_file='training_metrics.csv'
+metrics_file='metrics/training.csv'
 
 print("Tensorflow:", tf.__version__)
 

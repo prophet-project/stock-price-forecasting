@@ -1,0 +1,43 @@
+predict:
+  cmd: python ./src/predict.py
+  deps:
+  - path: data
+    md5: a9204af33b6043bc2e0f4752452db9cc.dir
+  - path: saved_models/main.h5
+    md5: df8ef7c07467d0a888a84d663a97dee7
+  - path: src/datasets.py
+    md5: 77b358dbeb0143d37ef9dad48323c147
+  - path: src/normalize.py
+    md5: 36cc5dfda3c3625da8f9522371035696
+  - path: src/predict.py
+    md5: 2809dd4815e4ab11c4b7942da5c46891
+train:
+  cmd: python ./src/train.py
+  deps:
+  - path: ./src/model.py
+    md5: efee1e54056a9e3aa922ea9bf9a93a6d
+  - path: ./src/normalize.py
+    md5: 36cc5dfda3c3625da8f9522371035696
+  - path: ./src/train.py
+    md5: 0c84a0e2b70cc911de9b97d13e94bde7
+  - path: data
+    md5: a9204af33b6043bc2e0f4752452db9cc.dir
+  outs:
+  - path: ./metrics/training.csv
+    md5: fd3b421f1b17cdd682d7ddc7873d5a3d
+  - path: ./saved_models/main.h5
+    md5: df8ef7c07467d0a888a84d663a97dee7
+test:
+  cmd: python ./src/test.py
+  deps:
+  - path: data
+    md5: a9204af33b6043bc2e0f4752452db9cc.dir
+  - path: saved_models/main.h5
+    md5: df8ef7c07467d0a888a84d663a97dee7
+  - path: src/normalize.py
+    md5: 36cc5dfda3c3625da8f9522371035696
+  - path: src/test.py
+    md5: 6d476d800ae100b994fbf5ff22477e4d
+  outs:
+  - path: metrics/test.json
+    md5: c2498634e4fed12e48dbb52c3ba2b7de

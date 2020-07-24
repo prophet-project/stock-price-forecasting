@@ -17,6 +17,8 @@ Can be run in docker enviroment, or if you on linux:
 * Make - optional, all commands can be run manually
 * DVC - Git for machine learning
 
+All Python libraries and models described in Dockerfile
+
 ## Development
 
 If you on Windows, build and run in-Docker development enviroment
@@ -35,9 +37,15 @@ If you not in docker you need load Spacy model
 make spacy-load-md
 ```
 
-### Requirements
+For rebuild model or test it after data or code changes, just run
 
-All requirement Python libraries and models described in Dockerfile
+```bash
+make
+# or
+dvc repro
+```
+
+it will calculate all affected files and changed stages and start rebuild process
 
 ## Training
 

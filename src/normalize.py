@@ -1,8 +1,14 @@
 import spacy
 import tensorflow as tf
+from datasets import download
+
+# Unfortunately Tensorflow doesn't allow save dataset or tensor in easy way,
+# but Spacy process mostly work fast on data processing,
+# so we can direcly load datasets and normalaise data each time
+
+VECTOR_SIZE = 300
 
 nlp = spacy.load("en_core_web_md")
-
 
 def extract_sentences(text):
     doc = nlp(text)
@@ -14,7 +20,6 @@ def print_sentencies(text):
     for sentence in extract_sentences(text):
         print(sentence)
 
-VECTOR_SIZE = 300
 # normalise text to 300 dimension vector
 def text_to_vector(text):
     doc = nlp(text)
@@ -26,10 +31,9 @@ def bytes_to_tensor(bytes):
 
     return tf.constant(vector)
 
-
 def map_func(bytes, label):
     [tensor, ] = tf.py_function(bytes_to_tensor, [bytes], [tf.float32])
-    tensor.set_shape([300])
+    tensor.set_shape([VECTOR_SIZE])
     return tensor, label
 
 def normalize_datasets(train, validation, test):
@@ -37,3 +41,7 @@ def normalize_datasets(train, validation, test):
     norm_valid = validation.map(map_func)
     norm_test = test.map(map_func)
     return (norm_train, norm_valid, norm_test, VECTOR_SIZE)
+
+def datasets():
+    train_data, validation_data, test_data = download()
+    return normalize_datasets(train_data, validation_data, test_data)

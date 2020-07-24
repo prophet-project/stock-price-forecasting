@@ -22,7 +22,7 @@ probability_model = tf.keras.Sequential([
 ])
 
 # print first items of datasets
-# By defaul all data encoded as bytes
+# By default all data encoded as bytes
 print(datasets.get_item(train_data, 3)[0].decode("utf-8"))
 # print(datasets.get_item(training, 3))
 
@@ -30,8 +30,8 @@ vector_of_text, label =  datasets.get_item(training, 3)
 input_data = tf.data.Dataset.from_tensors([vector_of_text])
 
 # Predict
-[predictions] = model.predict(input_data).flatten()
-predicted_label = np.argmax(predictions[0])
+predictions = model.predict(input_data).flatten()
+predicted_label = np.argmax(predictions)
 
 print('Predicted label:', predicted_label, 'real label: ', label, 'predictions:', predictions)
 if (predicted_label == label):

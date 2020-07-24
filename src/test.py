@@ -1,6 +1,5 @@
 import tensorflow as tf
-import datasets
-from normalize import normalize_datasets
+from normalize import datasets
 from save_and_restore import load
 import json
 
@@ -8,11 +7,8 @@ print("Tensorflow:", tf.__version__)
 
 metrics_file='metrics/test.json'
 
-# Load dataset
-train_data, validation_data, test_data = datasets.download()
-
-# Normalise data
-training, validation, testing, input_shape = normalize_datasets(train_data, validation_data, test_data)
+# Load normalised datasets
+training, validation, testing, input_shape = datasets()
 
 # load model
 model = load()

@@ -9,6 +9,14 @@ DOCKER_IMAGE_TAG=leovs09/sentiment:$(DOCKER_IMAGE_VERSION)
 # DEVELOPMENT
 # ---------------------------------------------------------------------------------------------------------------------
 
+# Will reproduce all stages to generate model based on changes
+default:
+	dvc repro
+
+# Will load data and models which specifaed by dvc files
+checkout:
+	dvc pull
+
 train:
 	python ./src/train.py
 

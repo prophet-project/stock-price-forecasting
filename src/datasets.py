@@ -9,6 +9,7 @@ datasets_folder = './data'
 #   5 000 validation data
 #  10 000 test data
 # in tuples (string, int)
+# Download dataset if it not exists locally
 def download():
     train_data, validation_data, test_data = tfds.load(
         name=dataset_name, 

@@ -1,0 +1,31 @@
+stages:
+  train:
+    cmd: python ./src/train.py
+    deps:
+    - ./src/model.py
+    - ./src/normalize.py
+    - ./src/train.py
+    - data
+    outs:
+    - ./saved_models/main.h5
+    metrics:
+    - ./metrics/training.csv:
+        cache: false
+  test:
+    cmd: python ./src/test.py
+    deps:
+    - data
+    - saved_models/main.h5
+    - src/normalize.py
+    - src/test.py
+    metrics:
+    - metrics/test.json:
+        cache: false
+  predict:
+    cmd: python ./src/predict.py
+    deps:
+    - data
+    - saved_models/main.h5
+    - src/datasets.py
+    - src/normalize.py
+    - src/predict.py

@@ -21,11 +21,3 @@ stages:
     metrics:
     - metrics/test.json:
         cache: false
-  predict:
-    cmd: python ./src/predict.py
-    deps:
-    - data
-    - saved_models/main.h5
-    - src/datasets.py
-    - src/normalize.py
-    - src/predict.py

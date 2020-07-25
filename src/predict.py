@@ -1,40 +1,34 @@
 import tensorflow as tf
-import datasets
-from normalize import normalize_datasets
-from save_and_restore import load
-from model import build_model
+from . import datasets
+from . import normalize
+from .save_and_restore import load
 import numpy as np
 
-print("Tensorflow:", tf.__version__)
+def get_probability_model():
+    # Add probablity layer for easier understand class
+    model = load()
+    probability_model = tf.keras.Sequential([
+        model, 
+        # Convert logits to predictions
+        tf.keras.layers.Softmax()
+    ])
+    return probability_model
 
-# Load dataset
-train_data, validation_data, test_data = datasets.download()
+def get_text_and_label_from_dataset(index):
+    # Load dataset
+    train_data, validation_data, test_data = datasets.download()
+    encoded_text, label = datasets.get_item(train_data, index)
+    # all text data encoded as bytes
+    text = encoded_text.decode('utf-8')
+    return text, label
 
-# Normalise data
-training, validation, testing, input_shape = normalize_datasets(train_data, validation_data, test_data)
+def predict(text, model):
+    vector = normalize.text_to_vector(text)
+    tensor = tf.constant(vector)
+    tensor.set_shape([normalize.VECTOR_SIZE])
+    input_data = tf.data.Dataset.from_tensors([tensor])
 
-# load model
-model = load()
-probability_model = tf.keras.Sequential([
-    model, 
-    # Convert logits to predictions
-    tf.keras.layers.Softmax()
-])
+    predictions = model.predict(input_data)[0]
+    predicted_label = np.argmax(predictions)
+    return predicted_label, predictions
 
-# print first items of datasets
-# By default all data encoded as bytes
-print(datasets.get_item(train_data, 3)[0].decode("utf-8"))
-# print(datasets.get_item(training, 3))
-
-vector_of_text, label =  datasets.get_item(training, 3)
-input_data = tf.data.Dataset.from_tensors([vector_of_text])
-
-# Predict
-predictions = model.predict(input_data).flatten()
-predicted_label = np.argmax(predictions)
-
-print('Predicted label:', predicted_label, 'real label: ', label, 'predictions:', predictions)
-if (predicted_label == label):
-    print('Successfully predicted')
-else:
-    print('Failed to predict')

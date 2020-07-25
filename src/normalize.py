@@ -1,6 +1,6 @@
 import spacy
 import tensorflow as tf
-from datasets import download
+from .datasets import download
 
 # Unfortunately Tensorflow doesn't allow save dataset or tensor in easy way,
 # but Spacy process mostly work fast on data processing,

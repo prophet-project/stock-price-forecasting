@@ -2,7 +2,7 @@
 
 .PHONY: train docker-build docker-console spacy-load-model
 
-DOCKER_IMAGE_VERSION=0.5.0
+DOCKER_IMAGE_VERSION=0.6.0
 DOCKER_IMAGE_TAG=leovs09/sentiment:$(DOCKER_IMAGE_VERSION)
 
 # ---------------------------------------------------------------------------------------------------------------------

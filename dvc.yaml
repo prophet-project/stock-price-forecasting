@@ -1,6 +1,6 @@
 stages:
   train:
-    cmd: python ./src/train.py
+    cmd: python -m src.train
     deps:
     - ./src/model.py
     - ./src/normalize.py
@@ -12,7 +12,7 @@ stages:
     - ./metrics/training.csv:
         cache: false
   test:
-    cmd: python ./src/test.py
+    cmd: python -m src.test
     deps:
     - data
     - saved_models/main.h5

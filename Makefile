@@ -18,13 +18,12 @@ checkout:
 	dvc pull
 
 train:
-	python ./src/train.py
-
-predict:
-	python ./src/predict.py
+	echo "-m flag will run script in module mode, which accept relative imports"
+	python -m src.train
 
 test:
-	python ./src/test.py
+	echo "-m flag will run script in module mode, which accept relative imports"
+	python -m src.test
 
 # Will load medium size model for spacy
 spacy-load-md:

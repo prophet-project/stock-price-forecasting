@@ -1,9 +1,9 @@
 import tensorflow as tf
 import numpy as np
-import checkpoints
-from save_and_restore import save
-from normalize import datasets
-from model import build_model
+from . import checkpoints
+from .save_and_restore import save
+from .normalize import datasets
+from .model import build_model
 from tensorflow.keras.callbacks import CSVLogger
 
 BUFFER_SIZE=500 # Must be grater or equal to batches size

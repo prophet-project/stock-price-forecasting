@@ -1,6 +1,6 @@
 import tensorflow as tf
-from normalize import datasets
-from save_and_restore import load
+from .normalize import datasets
+from .save_and_restore import load
 import json
 
 print("Tensorflow:", tf.__version__)

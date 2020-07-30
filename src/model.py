@@ -1,18 +1,18 @@
-from tensorflow.keras import Sequential
-from tensorflow.keras import layers
-from tensorflow.keras import losses
+from tensorflow.keras import Sequential, layers, losses, optimizers
 
-def build_model(input_shape):
+def build_model(vector_dimensions):
     model = Sequential([
-        layers.InputLayer(input_shape=input_shape),
-        layers.Dense(128, activation='relu'),
+        layers.Bidirectional(layers.LSTM(64, return_sequences=True), input_shape=(None, vector_dimensions)),
+        layers.Bidirectional(layers.LSTM(32)),
+        layers.Dense(64, activation='relu'),
+        layers.Dropout(0.5),
         # Two dense layer allow make separate predictions about each class
         layers.Dense(2)
     ])
 
     model.summary()
     model.compile(
-        optimizer='adam',
+        optimizer=optimizers.Adam(1e-4),
         loss=losses.SparseCategoricalCrossentropy(from_logits=True),
         metrics=['accuracy']
     )

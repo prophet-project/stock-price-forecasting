@@ -15,17 +15,19 @@ model = load()
 
 # Test
 results = model.evaluate(
-    testing.batch(512), 
-    verbose=1, 
-    callbacks=[]
+    testing.padded_batch(16), 
+    verbose=1,
 )
 
 # Save metrics
-metrics = {}
+def save_metrict():
+    metrics = {}
 
-for name, value in zip(model.metrics_names, results):
-    print("%s: %.3f" % (name, value))   
-    metrics[name] = value
+    for name, value in zip(model.metrics_names, results):
+        print("%s: %.3f" % (name, value))   
+        metrics[name] = value
 
-with open(metrics_file, 'w') as outfile:
-    json.dump(metrics, outfile, indent=4)
+    with open(metrics_file, 'w') as outfile:
+        json.dump(metrics, outfile, indent=4)
+
+save_metrict()

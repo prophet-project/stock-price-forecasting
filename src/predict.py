@@ -25,7 +25,7 @@ def get_text_and_label_from_dataset(index):
 def predict(text, model):
     vector = normalize.text_to_vector(text)
     tensor = tf.constant(vector)
-    tensor.set_shape([normalize.VECTOR_SIZE])
+    tensor.set_shape([None, normalize.VECTOR_SIZE])
     input_data = tf.data.Dataset.from_tensors([tensor])
 
     predictions = model.predict(input_data)[0]

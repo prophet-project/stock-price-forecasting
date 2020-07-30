@@ -20,10 +20,18 @@ def print_sentencies(text):
     for sentence in extract_sentences(text):
         print(sentence)
 
-# normalise text to 300 dimension vector
+def token_to_vector(token):
+    return token.vector
+
+# normalise text vector of words (vectors of 300 dimension)
 def text_to_vector(text):
     doc = nlp(text)
-    return doc.vector
+
+    # map all tokens in sentence to his vectors
+    sentence = list(map(token_to_vector, doc))
+    # TODO: filter words which out of vocalabirity
+
+    return sentence 
 
 def bytes_to_tensor(bytes):
     text = bytes.numpy().decode("utf-8")
@@ -33,7 +41,7 @@ def bytes_to_tensor(bytes):
 
 def map_func(bytes, label):
     [tensor, ] = tf.py_function(bytes_to_tensor, [bytes], [tf.float32])
-    tensor.set_shape([VECTOR_SIZE])
+    tensor.set_shape([None, VECTOR_SIZE])
     return tensor, label
 
 def normalize_datasets(train, validation, test):

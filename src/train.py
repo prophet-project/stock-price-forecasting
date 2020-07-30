@@ -6,8 +6,8 @@ from .normalize import datasets
 from .model import build_model
 from tensorflow.keras.callbacks import CSVLogger
 
-BUFFER_SIZE=500 # Must be grater or equal to batches size
-BATCHES=256 # Allow parallel training, but bigger batch may overfit
+BUFFER_SIZE=64 # Must be grater or equal to batches size
+BATCHES=16 # Allow parallel training, but bigger batch may overfit
 
 metrics_file='metrics/training.csv'
 
@@ -24,11 +24,14 @@ training, validation, testing, input_shape = datasets()
 # Build neural network model
 model = build_model(input_shape)
 
+train_batches = training.shuffle(BUFFER_SIZE).padded_batch(BATCHES)
+validation_batches = validation.padded_batch(BATCHES)
+
 # Train network
 model.fit(
-        training.shuffle(BUFFER_SIZE).batch(BATCHES),
+        train_batches,
         epochs=10,
-        validation_data=validation.batch(BATCHES),
+        validation_data=validation_batches,
         callbacks=[
             checkpoints.save_weights(), 
             CSVLogger(metrics_file)

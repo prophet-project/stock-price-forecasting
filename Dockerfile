@@ -12,17 +12,10 @@ RUN python -m spacy download en_core_web_sm && \
 
 FROM base as second
 
-RUN pip install \
-    tensorflow_datasets \
-    dvc pydrive2
+COPY requirements.txt requirements.txt
+
+RUN pip install -r requirements.txt
 
 FROM second
-
-# Data visualisation
-RUN pip install \
-    plotly==4.9.0 cufflinks chart_studio \
-    pandas \
-    "notebook>=5.3" \
-    "ipywidgets>=7.2"
 
 WORKDIR /work

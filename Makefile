@@ -2,7 +2,7 @@
 
 .PHONY: train docker-build docker-console spacy-load-model
 
-DOCKER_IMAGE_VERSION=0.6.0
+DOCKER_IMAGE_VERSION=0.6.1
 DOCKER_IMAGE_TAG=leovs09/sentiment:$(DOCKER_IMAGE_VERSION)
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -32,6 +32,13 @@ spacy-load-md:
 # Will start notebook environment on http://0.0.0.0:8888
 notebook: 
 	jupyter notebook --ip=0.0.0.0 --allow-root
+
+install:
+	pip install -r requirements.txt
+
+# Will save all current dependencies to requirements.txt
+save-dependencies:
+	pip freeze > requirements.txt
 
 # ---------------------------------------------------------------------------------------------------------------------
 # DOCKER

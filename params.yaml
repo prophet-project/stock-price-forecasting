@@ -1,0 +1,6 @@
+
+input:
+    batch_size: 128 # Allow parallel training, but bigger batch may overfit
+
+train:
+    buffer_size: 128 # Must be grater or equal to batches size

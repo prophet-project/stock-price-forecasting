@@ -2,6 +2,7 @@ import tensorflow as tf
 from .normalize import datasets
 from .save_and_restore import load
 import json
+import yaml
 
 print("Tensorflow:", tf.__version__)
 
@@ -10,6 +11,13 @@ print("Tensorflow:", tf.__version__)
 physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], enable=True) 
 print("Enabled experimental memory growth for", physical_devices[0])
+
+BATCH_SIZE=None
+
+with open("params.yaml", 'r') as fd:
+    params = yaml.safe_load(fd)
+    BATCH_SIZE = params['input']['batch_size']
+    print('Params: BATCH_SIZE =', BATCH_SIZE)
 
 metrics_file='metrics/test.json'
 
@@ -21,7 +29,7 @@ model = load()
 
 # Test
 results = model.evaluate(
-    testing.padded_batch(16), 
+    testing.padded_batch(BATCH_SIZE), 
     verbose=1,
 )
 

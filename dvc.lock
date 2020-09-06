@@ -6,25 +6,32 @@ train:
   - path: ./src/normalize.py
     md5: 941426ea99ad2a81dee04ab8dba4b994
   - path: ./src/train.py
-    md5: d93c994f261cf04723f5a0b373e5166b
+    md5: 6efca663d04b7bb78bd788297d9cf09b
   - path: data
     md5: 5e1e1637ef6e7039a40a0ee22dd6f7e8.dir
+  params:
+    params.yaml:
+      input.batch_size: 128
+      train.buffer_size: 128
   outs:
   - path: ./metrics/training.csv
-    md5: f93e951f0d028511427dca798c6460ce
+    md5: 3372775ba59e30263fac2376e468e8f9
   - path: ./saved_models/main.h5
-    md5: b1aee890497513c89cc7a736cb43d6e3
+    md5: f17536ce4dc41f461bf9f20e9f0d39d7
 test:
   cmd: python -m src.test
   deps:
   - path: data
     md5: 5e1e1637ef6e7039a40a0ee22dd6f7e8.dir
   - path: saved_models/main.h5
-    md5: b1aee890497513c89cc7a736cb43d6e3
+    md5: f17536ce4dc41f461bf9f20e9f0d39d7
   - path: src/normalize.py
     md5: 941426ea99ad2a81dee04ab8dba4b994
   - path: src/test.py
-    md5: 2fd1d3c454d60d2cc0d5e1979667505d
+    md5: 7c2cc9bc8a8a02af73bae7ef2fcc7a44
+  params:
+    params.yaml:
+      input.batch_size: 128
   outs:
   - path: metrics/test.json
-    md5: d4233d255efe51f0e8235b78f7072299
+    md5: 517645e6f3a3f10e79f631fd14f88027

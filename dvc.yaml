@@ -6,6 +6,9 @@ stages:
     - ./src/normalize.py
     - ./src/train.py
     - data
+    params:
+    - input.batch_size
+    - train.buffer_size
     outs:
     - ./saved_models/main.h5
     metrics:
@@ -18,6 +21,8 @@ stages:
     - saved_models/main.h5
     - src/normalize.py
     - src/test.py
+    params:
+      - input.batch_size
     metrics:
     - metrics/test.json:
         cache: false

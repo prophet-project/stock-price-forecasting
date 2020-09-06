@@ -1,13 +1,26 @@
 import tensorflow as tf
 import numpy as np
+import yaml
 from . import checkpoints
 from .save_and_restore import save
 from .normalize import datasets
 from .model import build_model
 from tensorflow.keras.callbacks import CSVLogger
 
-BUFFER_SIZE=64 # Must be grater or equal to batches size
-BATCHES=16 # Allow parallel training, but bigger batch may overfit
+# fix issue with "cannot find dnn implementation"
+# https://github.com/tensorflow/tensorflow/issues/36508
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], enable=True) 
+print("Enabled experimental memory growth for", physical_devices[0])
+
+BUFFER_SIZE=None 
+BATCH_SIZE=None
+
+with open("params.yaml", 'r') as fd:
+    params = yaml.safe_load(fd)
+    BUFFER_SIZE = params['train']['buffer_size']
+    BATCH_SIZE = params['input']['batch_size']
+    print('Params: BUFFER_SIZE =', BUFFER_SIZE, 'BATCH_SIZE =', BATCH_SIZE)
 
 metrics_file='metrics/training.csv'
 
@@ -24,8 +37,8 @@ training, validation, testing, input_shape = datasets()
 # Build neural network model
 model = build_model(input_shape)
 
-train_batches = training.shuffle(BUFFER_SIZE).padded_batch(BATCHES)
-validation_batches = validation.padded_batch(BATCHES)
+train_batches = training.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
+validation_batches = validation.padded_batch(BATCH_SIZE)
 
 # Train network
 model.fit(

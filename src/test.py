@@ -5,6 +5,12 @@ import json
 
 print("Tensorflow:", tf.__version__)
 
+# fix issue with "cannot find dnn implementation"
+# https://github.com/tensorflow/tensorflow/issues/36508
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], enable=True) 
+print("Enabled experimental memory growth for", physical_devices[0])
+
 metrics_file='metrics/test.json'
 
 # Load normalised datasets

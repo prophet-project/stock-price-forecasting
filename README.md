@@ -19,6 +19,12 @@ Can be run in docker enviroment, or if you on linux:
 
 All Python libraries and models described in Dockerfile
 
+### Hardware
+
+* NVidia videocard with DLSS version >= 10 - actually GPU optional, and learning can be run on CPU,
+    but models and enviroment configurated to run on GPU,
+    in base case tenserflow can fallback to CPU, so not need change anything for start development
+
 ## Development
 
 If you on Windows, build and run in-Docker development enviroment

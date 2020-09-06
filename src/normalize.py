@@ -8,7 +8,7 @@ from .datasets import download
 
 VECTOR_SIZE = 300
 
-nlp = spacy.load("en_core_web_md")
+nlp = spacy.load("en_core_web_lg")
 
 def extract_sentences(text):
     doc = nlp(text)

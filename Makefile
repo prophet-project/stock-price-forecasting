@@ -43,6 +43,6 @@ docker-build:
 
 # Will start in docker develoment environment
 docker-console:
-	docker run -it --rm -v ${PWD}:/work -w /work -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
+	docker run --gpus all -it --rm -v ${PWD}:/work -w /work -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
 
 

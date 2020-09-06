@@ -4,27 +4,27 @@ train:
   - path: ./src/model.py
     md5: f2d2fe914061e31ab9a9b126273b0032
   - path: ./src/normalize.py
-    md5: 1e468f96edf82078bafa4fd6afe105b7
+    md5: 941426ea99ad2a81dee04ab8dba4b994
   - path: ./src/train.py
     md5: d93c994f261cf04723f5a0b373e5166b
   - path: data
-    md5: a9204af33b6043bc2e0f4752452db9cc.dir
+    md5: 5e1e1637ef6e7039a40a0ee22dd6f7e8.dir
   outs:
   - path: ./metrics/training.csv
-    md5: af1be0b754ba0cb8a6f1a97ddb9bfa70
+    md5: f93e951f0d028511427dca798c6460ce
   - path: ./saved_models/main.h5
-    md5: 04263a7f31aababf4949702b3f5ceb1a
+    md5: b1aee890497513c89cc7a736cb43d6e3
 test:
   cmd: python -m src.test
   deps:
   - path: data
-    md5: a9204af33b6043bc2e0f4752452db9cc.dir
+    md5: 5e1e1637ef6e7039a40a0ee22dd6f7e8.dir
   - path: saved_models/main.h5
-    md5: 04263a7f31aababf4949702b3f5ceb1a
+    md5: b1aee890497513c89cc7a736cb43d6e3
   - path: src/normalize.py
-    md5: 1e468f96edf82078bafa4fd6afe105b7
+    md5: 941426ea99ad2a81dee04ab8dba4b994
   - path: src/test.py
-    md5: 1b04bc50552b3b16345ffe4e2dffe6db
+    md5: 2fd1d3c454d60d2cc0d5e1979667505d
   outs:
   - path: metrics/test.json
-    md5: c02593eb341008ae5f3d27e1190f0d98
+    md5: d4233d255efe51f0e8235b78f7072299

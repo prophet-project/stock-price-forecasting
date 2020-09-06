@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-py3 as base
+FROM tensorflow/tensorflow:2.2.0-gpu as base
 
 RUN apt update && \
     apt install -y make git
@@ -13,7 +13,6 @@ RUN python -m spacy download en_core_web_sm && \
 FROM base as second
 
 RUN pip install \
-    tensorflow==2.2 \
     tensorflow_datasets \
     dvc pydrive2
 

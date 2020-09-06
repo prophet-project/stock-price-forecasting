@@ -4,3 +4,4 @@ input:
 
 train:
     buffer_size: 128 # Must be grater or equal to batches size
+    epochs: 10

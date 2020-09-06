@@ -9,6 +9,7 @@ stages:
     params:
     - input.batch_size
     - train.buffer_size
+    - train.epochs
     outs:
     - ./saved_models/main.h5
     metrics:

@@ -1,7 +1,7 @@
 import tensorflow as tf
 from . import datasets
 from . import normalize
-from .save_and_restore import load
+from .libs import load
 import numpy as np
 
 def get_probability_model():

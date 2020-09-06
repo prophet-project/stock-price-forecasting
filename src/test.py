@@ -1,30 +1,21 @@
 import tensorflow as tf
 from .normalize import datasets
-from .save_and_restore import load
-import json
-import yaml
+from .libs import params, prepare, save_metrict, load
 
-print("Tensorflow:", tf.__version__)
+prepare(tf)
 
-# fix issue with "cannot find dnn implementation"
-# https://github.com/tensorflow/tensorflow/issues/36508
-physical_devices = tf.config.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(physical_devices[0], enable=True) 
-print("Enabled experimental memory growth for", physical_devices[0])
-
-BATCH_SIZE=None
-
-with open("params.yaml", 'r') as fd:
-    params = yaml.safe_load(fd)
-    BATCH_SIZE = params['input']['batch_size']
-    print('Params: BATCH_SIZE =', BATCH_SIZE)
+BATCH_SIZE = params['input']['batch_size']
 
 metrics_file='metrics/test.json'
+
+# For test model need prepare dataset like training dataset,
+# except batch size, batches can be another
+# Load existing model and train
+# For track results better save metrics
 
 # Load normalised datasets
 training, validation, testing, input_shape = datasets()
 
-# load model
 model = load()
 
 # Test
@@ -33,15 +24,5 @@ results = model.evaluate(
     verbose=1,
 )
 
-# Save metrics
-def save_metrict():
-    metrics = {}
-
-    for name, value in zip(model.metrics_names, results):
-        print("%s: %.3f" % (name, value))   
-        metrics[name] = value
-
-    with open(metrics_file, 'w') as outfile:
-        json.dump(metrics, outfile, indent=4)
-
-save_metrict()
+with open(metrics_file, 'w') as outfile:
+    save_metrict(model, results, outfile)

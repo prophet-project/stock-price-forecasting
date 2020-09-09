@@ -1,33 +1,46 @@
 import tensorflow_datasets as tfds
 import tensorflow as tf
+from .libs import params
+import pandas as pd
+import os
 
-dataset_name = 'imdb_reviews'
+# Loaded from http://help.sentiment140.com/for-students
+# kaggle copy https://www.kaggle.com/kazanova/sentiment140
+
 datasets_folder = './data'
 
-# Will return: 
-#  20 000 train data
-#   5 000 validation data
-#  10 000 test data
-# in tuples (string, int)
-# Download dataset if it not exists locally
-def download():
-    train_data, validation_data, test_data = tfds.load(
-        name=dataset_name, 
-        data_dir=datasets_folder,
-        split=('train[:80%]', 'train[80%:]', 'test'),
-        as_supervised=True
-    )
+train_dataset_path = os.path.join(datasets_folder, 'training.1600000.processed.noemoticon.csv')
+test_dataset_path = os.path.join(datasets_folder, 'testdata.manual.2009.06.14.csv')
 
-    return train_data, validation_data, test_data
+LABEL_COLUMN = 'target'
+TEXT_COLUMN = 'text'
+BATCH_SIZE = params['input']['batch_size']
+COLUMNS = ["target", "id", "date", "flag", "user", "text"]
+
+def get_dataset(file_path):
+    df = pd.read_csv(file_path, encoding = "ISO-8859-1", names=COLUMNS)
+    
+    df[LABEL_COLUMN] = pd.Categorical(df[LABEL_COLUMN])
+    df[LABEL_COLUMN] = df[LABEL_COLUMN].cat.codes
+
+    labels = df.pop(LABEL_COLUMN)
+    texts = df.pop(TEXT_COLUMN)
+
+    return tf.data.Dataset.from_tensor_slices((texts.values, labels.values))
+
+def download():
+    train_dataset = get_dataset(train_dataset_path)
+    test_dataset = get_dataset(test_dataset_path)
+
+    return train_dataset, test_dataset
 
 # Will print dataset sizes
 # Not use it in production, 
 # size of dataset can be computed only by transformation to list
-def print_dataset_sizes(train_data, validation_data, test_data):
+def print_dataset_sizes(train_data, test_data):
     print(
         '\nLoaded dataset',
-        '\ntrain size:', len(list(train_data)), 
-        '\nvalidation sise:', len(list(validation_data)),
+        '\ntrain size:', len(list(train_data)),
         '\ntest size:', len(list(test_data)), '\n'
     )
 

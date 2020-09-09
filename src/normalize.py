@@ -1,55 +1,59 @@
 import spacy
 import tensorflow as tf
+import tensorflow_datasets as tfds
 from .datasets import download
 
 # Unfortunately Tensorflow doesn't allow save dataset or tensor in easy way,
 # but Spacy process mostly work fast on data processing,
 # so we can direcly load datasets and normalaise data each time
 
-VECTOR_SIZE = 300
+tokenizer = tfds.features.text.Tokenizer()
 
-nlp = spacy.load("en_core_web_lg")
+encoder=None
 
-def extract_sentences(text):
-    doc = nlp(text)
-    return list(doc.sents)
+def build_encoder(labeled_data):
+    vocabulary_set = set()
+    for text_tensor, _ in labeled_data:
+        some_tokens = tokenizer.tokenize(text_tensor.numpy())
+        vocabulary_set.update(some_tokens)
 
-# text = "Peach emoji is where it has always been. Peach is the superior emoji. It's outranking eggplant 🍑 "
+    encoder = tfds.features.text.TokenTextEncoder(vocabulary_set)
 
-def print_sentencies(text):
-    for sentence in extract_sentences(text):
-        print(sentence)
+    vocab_size = len(vocabulary_set)
+    return vocab_size
 
-def token_to_vector(token):
-    return token.vector
+def print_text(labeled_data, index = 0):
+    text = next(iter(labeled_data))[index].numpy()
+    print(text)
 
-# normalise text vector of words (vectors of 300 dimension)
 def text_to_vector(text):
-    doc = nlp(text)
+    return encoder.encode(text)
 
-    # map all tokens in sentence to his vectors
-    sentence = list(map(token_to_vector, doc))
-    # TODO: filter words which out of vocalabirity
+def encode(text_tensor, label):
+    encoded_text = text_to_vector(text_tensor.numpy())
 
-    return sentence 
-
-def bytes_to_tensor(bytes):
-    text = bytes.numpy().decode("utf-8")
-    vector = text_to_vector(text)
-
-    return tf.constant(vector)
+    return encoded_text, label
 
 def map_func(bytes, label):
-    [tensor, ] = tf.py_function(bytes_to_tensor, [bytes], [tf.float32])
-    tensor.set_shape([None, VECTOR_SIZE])
-    return tensor, label
+    # py_func doesn't set the shape of the returned tensors.
+    encoded_text, label = tf.py_function(encode, [bytes, label], Tout=[tf.int64, tf.int64])
+    
+    # `tf.data.Datasets` work best if all components have a shape set
+    #  so set the shapes manually: 
+    encoded_text.set_shape([None])
+    label.set_shape([])
 
-def normalize_datasets(train, validation, test):
-    norm_train = train.map(map_func)
-    norm_valid = validation.map(map_func)
-    norm_test = test.map(map_func)
-    return (norm_train, norm_valid, norm_test, VECTOR_SIZE)
+    return encoded_text, label
+
+def normalize_dataset(dataset):
+    return dataset.map(map_func)
 
 def datasets():
-    train_data, validation_data, test_data = download()
-    return normalize_datasets(train_data, validation_data, test_data)
+    train_data, test_data = download()
+
+    vocab_size = build_encoder(train_data)
+
+    train_data = normalize_dataset(train_data)
+    test_data = normalize_dataset(test_data)
+
+    return train_data, test_data, vocab_size

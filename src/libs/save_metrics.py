@@ -1,6 +1,6 @@
 import json
 
-def save_metrict(model, results, outfile):
+def save_metrics(model, results, outfile):
     metrics = {}
 
     for name, value in zip(model.metrics_names, results):

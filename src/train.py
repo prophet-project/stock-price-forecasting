@@ -13,28 +13,27 @@ EPOCHS = params['train']['epochs']
 metrics_file='metrics/training.csv'
 
 # Load normalised datasets
-training, validation, testing, input_shape = datasets()
+training, testing, vocab_size = datasets()
 # Dataset data is array of tensors
 # if symplify array of tuples: (text: string, label: int)
-# where 0 mean bad, and 1 mean good,
-# text normalised to input_shape dimension embeed vector
+# where 0 mean bad, and 1 mean good
 
 # Build neural network model
-model = build_model(input_shape)
+model = build_model(vocab_size=vocab_size)
 
 train_batches = training.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
-validation_batches = validation.padded_batch(BATCH_SIZE)
+validation_batches = testing.padded_batch(BATCH_SIZE)
 
 # Train network
 model.fit(
-        train_batches,
-        epochs=EPOCHS,
-        validation_data=validation_batches,
-        callbacks=[
-            checkpoints.save_weights(), 
-            CSVLogger(metrics_file)
-        ]
-    )
+    train_batches,
+    epochs=EPOCHS,
+    validation_data=validation_batches,
+    callbacks=[
+        checkpoints.save_weights(), 
+        CSVLogger(metrics_file)
+    ]
+)
 
 # Save for restore in next time
 save(model)

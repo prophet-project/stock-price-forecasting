@@ -1,6 +1,6 @@
 import tensorflow as tf
 from .normalize import datasets
-from .libs import params, prepare, save_metrict, load
+from .libs import params, prepare, save_metrics, load
 
 prepare(tf)
 
@@ -14,7 +14,7 @@ metrics_file='metrics/test.json'
 # For track results better save metrics
 
 # Load normalised datasets
-training, validation, testing, input_shape = datasets()
+training, testing, vocab_size = datasets()
 
 model = load()
 
@@ -25,4 +25,4 @@ results = model.evaluate(
 )
 
 with open(metrics_file, 'w') as outfile:
-    save_metrict(model, results, outfile)
+    save_metrics(model, results, outfile)

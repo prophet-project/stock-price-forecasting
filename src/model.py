@@ -1,9 +1,10 @@
 from tensorflow.keras import Sequential, layers, losses, optimizers
 
-def build_model(vector_dimensions):
+def build_model(vocab_size):
     model = Sequential([
-        layers.Bidirectional(layers.LSTM(64, return_sequences=True), input_shape=(None, vector_dimensions)),
-        layers.Bidirectional(layers.LSTM(32)),
+        layers.Embedding(vocab_size, 1000),
+        # layers.Bidirectional(layers.LSTM(64, return_sequences=True), input_shape=(None, vector_dimensions)),
+        layers.Bidirectional(layers.LSTM(64)),
         layers.Dense(64, activation='relu'),
         layers.Dropout(0.5),
         # Two dense layer allow make separate predictions about each class

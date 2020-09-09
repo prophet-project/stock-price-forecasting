@@ -134,3 +134,6 @@ saved_models/*.h5
 
 # Input data
 data/
+
+# Embeding encoder
+encoder/

@@ -35,3 +35,17 @@ test:
   outs:
   - path: metrics/test.json
     md5: 517645e6f3a3f10e79f631fd14f88027
+build_encoder:
+  cmd: python -m src.build_encoder
+  deps:
+  - path: ./src/build_encoder.py
+    md5: ec406fee035be7966fea0bfb1a47d8c3
+  - path: ./src/datasets.py
+    md5: f8ee9779fe8a44d60bc5ca75bca0b772
+  - path: data
+    md5: 7dafc45044d12a46008aebfb6bf28435.dir
+  outs:
+  - path: ./encoder/encoder.tokens
+    md5: d4016f638364037b684447f4ea184017
+  - path: ./encoder/info.json
+    md5: 0bcf7a6925d930966a4355b3fac6f83f

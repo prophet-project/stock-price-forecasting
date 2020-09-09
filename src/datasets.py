@@ -3,6 +3,7 @@ import tensorflow as tf
 from .libs import params
 import pandas as pd
 import os
+from progressbar import ProgressBar
 
 # Loaded from http://help.sentiment140.com/for-students
 # kaggle copy https://www.kaggle.com/kazanova/sentiment140
@@ -16,21 +17,49 @@ LABEL_COLUMN = 'target'
 TEXT_COLUMN = 'text'
 BATCH_SIZE = params['input']['batch_size']
 COLUMNS = ["target", "id", "date", "flag", "user", "text"]
+CHUNK_SIZE = 10 ** 3 # Read thousand records at once
 
-def get_dataset(file_path):
-    df = pd.read_csv(file_path, encoding = "ISO-8859-1", names=COLUMNS)
+def get_dataset_generator(file_path, display_progress=False):
+    print('Start reading dataset from', train_dataset_path)
+
+    bar = None
+    if display_progress:
+        bar = ProgressBar(max_value=1600, max_error=False).start()
     
-    df[LABEL_COLUMN] = pd.Categorical(df[LABEL_COLUMN])
-    df[LABEL_COLUMN] = df[LABEL_COLUMN].cat.codes
+    for i, chunk in enumerate(pd.read_csv(file_path, encoding = "ISO-8859-1", names=COLUMNS, chunksize=CHUNK_SIZE)):
+        if bar != None:
+            bar.update(i)
 
-    labels = df.pop(LABEL_COLUMN)
-    texts = df.pop(TEXT_COLUMN)
+        for item in chunk.index:
+            text = chunk[TEXT_COLUMN][item]
+            label = chunk[LABEL_COLUMN][item]
+            
+            # Dataset must contain labels in format: 0 = negative, 2 = neutral, 4 = positive
+            # but actually conain only "0" and "4"
+            label = 0 if label == "0" else 1
+            
+            yield (text, label)
 
-    return tf.data.Dataset.from_tensor_slices((texts.values, labels.values))
+    if bar != None:
+        bar.finish()
+
+def get_dataset(file_path, display_progress=False):
+    generator = lambda: get_dataset_generator(file_path, display_progress=display_progress)
+    return tf.data.Dataset.from_generator(
+        generator, 
+        (tf.string, tf.int64), 
+        ((), ())
+    )
+
+def get_train_dataset(display_progress=False):
+    return get_dataset(train_dataset_path, display_progress=display_progress)
+
+def get_test_dataset(display_progress=False):
+    return get_dataset(test_dataset_path, display_progress=display_progress) 
 
 def download():
-    train_dataset = get_dataset(train_dataset_path)
-    test_dataset = get_dataset(test_dataset_path)
+    train_dataset = get_train_dataset()
+    test_dataset = get_test_dataset()
 
     return train_dataset, test_dataset
 

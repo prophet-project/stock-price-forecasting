@@ -1,4 +1,13 @@
 stages:
+  build_encoder:
+    cmd: python -m src.build_encoder
+    deps:
+    - ./src/build_encoder.py
+    - ./src/datasets.py
+    - data
+    outs:
+    - ./encoder/encoder.tokens
+    - ./encoder/info.json
   train:
     cmd: python -m src.train
     deps:
@@ -23,7 +32,7 @@ stages:
     - src/normalize.py
     - src/test.py
     params:
-      - input.batch_size
+    - input.batch_size
     metrics:
     - metrics/test.json:
         cache: false

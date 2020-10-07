@@ -12,6 +12,7 @@ def build_model(vocab_size):
     ])
 
     model.summary()
+    
     model.compile(
         optimizer=optimizers.Adam(1e-4),
         loss=losses.SparseCategoricalCrossentropy(from_logits=True),

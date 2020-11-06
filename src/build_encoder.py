@@ -1,18 +1,17 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from .datasets import get_train_dataset
-from .normalize import encoder_filename, encoder_info_filename
+from .normalize import encoder_filename, encoder_info_filename, preprocess_text
 import json
 
 # Need firstly build encoder on training dataset, 
 # for embeding of all text input
 
 def build_encoder(labeled_data):
-    tokenizer = tfds.features.text.Tokenizer()
     vocabulary_set = set()
     for text_tensor, _ in labeled_data:
-        some_tokens = tokenizer.tokenize(text_tensor.numpy())
-        vocabulary_set.update(some_tokens)
+        text_tokens = preprocess_text(text_tensor.numpy())
+        vocabulary_set.update(text_tokens)
 
     encoder = tfds.features.text.TokenTextEncoder(vocabulary_set)
 

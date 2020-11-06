@@ -39,13 +39,15 @@ build_encoder:
   cmd: python -m src.build_encoder
   deps:
   - path: ./src/build_encoder.py
-    md5: ec406fee035be7966fea0bfb1a47d8c3
+    md5: 9f6829fcd05f5cfe32e215d0a72ed5cb
   - path: ./src/datasets.py
-    md5: f8ee9779fe8a44d60bc5ca75bca0b772
+    md5: c296ab35083a05c573f54523f0fde88c
+  - path: ./src/normalize.py
+    md5: 95f05148c888d1752f9d74b18ee28333
   - path: data
     md5: 7dafc45044d12a46008aebfb6bf28435.dir
   outs:
   - path: ./encoder/encoder.tokens
-    md5: d4016f638364037b684447f4ea184017
-  - path: ./encoder/info.json
-    md5: 0bcf7a6925d930966a4355b3fac6f83f
+    md5: fe2e4524091b8a6538ad0ece788c2069
+  - path: ./metrics/encoder.json
+    md5: efbcf82e15e12cb30420d671b4d8c805

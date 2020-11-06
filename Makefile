@@ -44,6 +44,8 @@ save-dependencies:
 # DOCKER
 # ---------------------------------------------------------------------------------------------------------------------
 
+dev: docker-build docker-console
+
 # Will build docker image for development
 docker-build:
 	docker build --tag $(DOCKER_IMAGE_TAG) .

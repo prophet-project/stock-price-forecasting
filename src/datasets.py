@@ -13,6 +13,9 @@ datasets_folder = './data'
 train_dataset_path = os.path.join(datasets_folder, 'training.1600000.processed.noemoticon.csv')
 test_dataset_path = os.path.join(datasets_folder, 'testdata.manual.2009.06.14.csv')
 
+# TODO: split initial train dataset into smallest development dataset (with same distribution of classes)
+#  for allow train locally and build smallest vocabulary
+
 LABEL_COLUMN = 'target'
 TEXT_COLUMN = 'text'
 BATCH_SIZE = params['input']['batch_size']

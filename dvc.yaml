@@ -4,10 +4,13 @@ stages:
     deps:
     - ./src/build_encoder.py
     - ./src/datasets.py
+    - ./src/normalize.py
     - data
     outs:
     - ./encoder/encoder.tokens
-    - ./encoder/info.json
+    metrics:
+    - ./metrics/encoder.json:
+        cache: false
   train:
     cmd: python -m src.train
     deps:

@@ -4,26 +4,47 @@ Sentiment Analyse Neural Network Model
 
 Can classificate given text as bad or good review.
 
-Based on Spacy - for text embedding. Spacy contain big multilanguage dataset, and can build 300 dimensions vector on text entityes.
-Model build on Tensorflow - easy for build network model fraemwork, but possible for production requires additional tuning.
+Target dataset is ----
+
+## Text preprocessing
+
+Will use multiple pre trained embeding vectors for different tasks.
+
+For tokenization and base lingustic analyse use spacy `en_core_web_lg` model.
+Large english corpus. Will be downloaded automatically by space in Docker.
+
+For misspelling and contractions replacement will use `GoogleNews-vectors-negative300.bin`
+as biggest open accessable embeding corpus.
+It must be enought for all tasks, but if for you task other corpus will be enough use it.
+
+List of most accessable embeding corpuses and tool for download them
+there: <https://github.com/RaRe-Technologies/gensim-data>
+
+### GoogleNews-vectors-negative300
+
+Pre-trained vectors trained on a part of the Google News dataset (about 100 billion words).
+The model contains 300-dimensional vectors for 3 million words and phrases.
+
+<https://code.google.com/archive/p/word2vec/>
 
 ## Requirements
 
 Can be run in docker enviroment, or if you on linux:
 
 * Python - version 3.*
-* Spacy - version 2.*
 * Tensorflow - version 2.2 or bigger
 * Make - optional, all commands can be run manually
-* DVC - Git for machine learning
+* DVC - Git for machine learning, need for load datasets and trained models.
 
-All Python libraries and models described in Dockerfile
+All other Python libraries and models described in `Dockerfile` and `requirements.txt`
 
 ### Hardware
 
-* NVidia videocard with DLSS version >= 10 - actually GPU optional, and learning can be run on CPU,
+* NVidia videocard with DLSS version >= 10 - actually GPU optional,
+    and learning can be run on CPU,
     but models and enviroment configurated to run on GPU,
-    in base case tenserflow can fallback to CPU, so not need change anything for start development
+    in base case tenserflow can fallback to CPU,
+    so not need change anything for start development
 
 ## Development
 

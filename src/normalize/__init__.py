@@ -1,12 +1,10 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
-from .datasets import download
+from ..datasets import download
 import json
 import spacy
 import sys
 import re
-
-
 
 # Link to encoder object
 # global links not best preactice, but simple enoght

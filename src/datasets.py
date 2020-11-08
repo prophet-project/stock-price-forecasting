@@ -21,13 +21,15 @@ TEXT_COLUMN = 'text'
 BATCH_SIZE = params['input']['batch_size']
 COLUMNS = ["target", "id", "date", "flag", "user", "text"]
 CHUNK_SIZE = 10 ** 3 # Read thousand records at once
+TRAINING_RECORDS_COUNT = 1600000
+CHUNKS_COUNT = TRAINING_RECORDS_COUNT // CHUNK_SIZE
 
 def get_dataset_generator(file_path, display_progress=False):
     print('Start reading dataset from', train_dataset_path)
 
     bar = None
     if display_progress:
-        bar = ProgressBar(max_value=1600, max_error=False).start()
+        bar = ProgressBar(max_value=CHUNKS_COUNT, max_error=False).start()
     
     for i, chunk in enumerate(pd.read_csv(file_path, encoding = "ISO-8859-1", names=COLUMNS, chunksize=CHUNK_SIZE)):
         if bar != None:
@@ -38,8 +40,8 @@ def get_dataset_generator(file_path, display_progress=False):
             label = chunk[LABEL_COLUMN][item]
             
             # Dataset must contain labels in format: 0 = negative, 2 = neutral, 4 = positive
-            # but actually conain only "0" and "4"
-            label = 0 if label == "0" else 1
+            # but actually conain only "0" and "4", can be string or number
+            label = 0 if label == "0" or label == 0 else 1
             
             yield (text, label)
 
@@ -60,9 +62,9 @@ def get_train_dataset(display_progress=False):
 def get_test_dataset(display_progress=False):
     return get_dataset(test_dataset_path, display_progress=display_progress) 
 
-def download():
-    train_dataset = get_train_dataset()
-    test_dataset = get_test_dataset()
+def download(display_train_progress=False, display_test_progress=False):
+    train_dataset = get_train_dataset(display_progress=display_train_progress)
+    test_dataset = get_test_dataset(display_progress=display_test_progress)
 
     return train_dataset, test_dataset
 

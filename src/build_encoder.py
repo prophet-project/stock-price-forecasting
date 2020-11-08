@@ -4,6 +4,9 @@ from .datasets import get_train_dataset
 from .normalize import encoder_filename, encoder_info_filename, preprocess_text
 import json
 
+encoder_filename = 'encoder/encoder'
+encoder_info_filename ='metrics/encoder.json'
+
 # Need firstly build encoder on training dataset, 
 # for embeding of all text input
 
@@ -27,12 +30,21 @@ def save(encoder, info_data):
     
     print('Encoder info saved to', encoder_info_filename)
 
+def load():
+    encoder = tfds.features.text.TokenTextEncoder.load_from_file(encoder_filename)
+    vocab_size = None
+    
+    with open(encoder_info_filename) as info_file:
+        info = json.load(info_file)
+        vocab_size = info['vocab_size']
 
+    return encoder, vocab_size
 
-print('Start building encoder...')
+if __name__ == '__main__':
+    print('Start building encoder...')
 
-train_data = get_train_dataset(display_progress=True)
-encoder, vocab_size = build_encoder(train_data)
+    train_data = get_train_dataset(display_progress=True)
+    encoder, vocab_size = build_encoder(train_data)
 
-print('Encoder was build, saving...')
-save(encoder, { 'vocab_size': vocab_size })
+    print('Encoder was build, saving...')
+    save(encoder, { 'vocab_size': vocab_size })

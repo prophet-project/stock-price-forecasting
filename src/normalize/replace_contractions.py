@@ -16,4 +16,9 @@ cont.load_models()
     expand_texts produce generator of texts
 """
 def replace_contractions(batch_of_texts):
-    return cont.expand_texts(batch_of_texts, precise=True)
+    try:
+        return list(cont.expand_texts(batch_of_texts, precise=True))
+
+    # can fail on some words, like `he's`
+    except Exception:
+        return batch_of_texts

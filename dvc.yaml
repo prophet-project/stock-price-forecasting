@@ -1,8 +1,9 @@
 stages:
-  preprocess_text:
-    cmd: python -m src.normalize
+  prepare_datasets:
+    cmd: python -m src.prepare_datasets
     deps:
       - ./src/normalize
+      - ./src/prepare_datasets.py
       - data
     outs:
       - processed/*.csv

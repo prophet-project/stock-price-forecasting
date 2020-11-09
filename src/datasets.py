@@ -24,7 +24,7 @@ CHUNK_SIZE = 10 ** 3 # Read thousand records at once
 TRAINING_RECORDS_COUNT = 1600000
 CHUNKS_COUNT = TRAINING_RECORDS_COUNT // CHUNK_SIZE
 
-def get_dataset_generator(file_path, display_progress=False):
+def get_dataset_iterator(file_path, display_progress=False):
     print('Start reading dataset from', train_dataset_path)
 
     bar = None
@@ -49,7 +49,7 @@ def get_dataset_generator(file_path, display_progress=False):
         bar.finish()
 
 def get_dataset(file_path, display_progress=False):
-    generator = lambda: get_dataset_generator(file_path, display_progress=display_progress)
+    generator = lambda: get_dataset_iterator(file_path, display_progress=display_progress)
     return tf.data.Dataset.from_generator(
         generator, 
         (tf.string, tf.int64), 
@@ -59,8 +59,14 @@ def get_dataset(file_path, display_progress=False):
 def get_train_dataset(display_progress=False):
     return get_dataset(train_dataset_path, display_progress=display_progress)
 
+def get_train_dataset_iterator(display_progress=False):
+    return get_dataset_iterator(train_dataset_path, display_progress=display_progress)
+
 def get_test_dataset(display_progress=False):
     return get_dataset(test_dataset_path, display_progress=display_progress) 
+
+def get_test_dataset_iterator(display_progress=False):
+    return get_dataset_iterator(test_dataset_path, display_progress=display_progress)
 
 def download(display_train_progress=False, display_test_progress=False):
     train_dataset = get_train_dataset(display_progress=display_train_progress)

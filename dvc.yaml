@@ -1,10 +1,17 @@
 stages:
+  preprocess_text:
+    cmd: python -m src.normalize
+    deps:
+      - ./src/normalize
+      - data
+    outs:
+      - processed/*.csv
   build_encoder:
     cmd: python -m src.build_encoder
     deps:
     - ./src/build_encoder.py
     - ./src/datasets.py
-    - ./src/normalize.py
+    - ./src/normalize
     - data
     outs:
     - ./encoder/encoder.tokens
@@ -15,7 +22,7 @@ stages:
     cmd: python -m src.train
     deps:
     - ./src/model.py
-    - ./src/normalize.py
+    - ./src/normalize
     - ./src/train.py
     - data
     params:
@@ -32,7 +39,7 @@ stages:
     deps:
     - data
     - saved_models/main.h5
-    - src/normalize.py
+    - src/normalize
     - src/test.py
     params:
     - input.batch_size

@@ -1,5 +1,8 @@
-# Will prepare text for processing
+import re
 
+"""
+ Will prepare text for processing
+"""
 
 # In that case need use only regex, 
 # because symbols can be and unicode symbols, 
@@ -11,23 +14,35 @@
 # symbol for identify hashtag (#), 
 # symbol for identify email (@),
 # symbols for identify links (/ :),
-special_symbols_re = r'[^a-zA-z0-9\s\!\#\.\'\-\@\/\:]'
+special_symbols_re = r'[^a-zA-z0-9\s\!\#\.\'\-\@\/\:]|[\_\\]'
 
 def remove_special_characters(text):
     return re.sub(special_symbols_re, '', text)
 
-def remove_hashtag_character(text):
+def remove_sharp_character(text):
     return text.replace('#', '')
 
-#! need reaplace numbers after we remove hastags
+def remove_repetative_spaces(text):
+    return re.sub(' {2,}', ' ', text)
+
+#! need replace numbers after we remove hastags
 #! and after lematization, for process it like 'Third' -> '3' -> '#'
 # Will replace numbers and add spaces, 
-# to parse them without errors
-def replace_numbers(text, replace_to=' # '):
+# for parse them without errors
+# will stay number size, for better processing
+def replace_numbers(text, ):
     if not bool(re.search(r'\d', text)):
         return text
         
-    return re.sub('[0-9]{1,}', replace_to, text)
+    text = re.sub('[0-9]{5,}', ' ##### ', text)
+    text = re.sub('[0-9]{4}', ' #### ', text)
+    text = re.sub('[0-9]{3}', ' ### ', text)
+    text = re.sub('[0-9]{2}', ' ## ', text)
+    text = re.sub('[0-9]{1}', ' # ', text)
+
+    text = remove_repetative_spaces(text)
+
+    return text
     
 def remove_quotes(text):
     return text.replace('"', '').replace("'", '')

@@ -1,11 +1,15 @@
 # Allow unfiy text for make specific tokens simular
 
 def is_username(word):
-    return word.startswith('@')
+    return word.startswith('@') and len(word) > 1
 
 common_domains = ['.com', '.net', '.org', '.edu', '.io']
+minimal_url_length = 5 # url like go.io is mostly shrter url
 
 def is_link(word):
+    if len(word) < minimal_url_length:
+        return False
+
     if word.startswith('http') or word.startswith('www.'):
         return True
 

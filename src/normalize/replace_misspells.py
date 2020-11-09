@@ -1,34 +1,41 @@
-from textblob import TextBlob
+import jamspell
+# JamSpell is good library, but it seems out of support.
+# It based on language model, 
+# instead of dictanory so must get better results then TextBlob and pyspellchecker.
+# But in some cases they will be enough
+
+corrector = jamspell.TSpellCorrector()
+if corrector.LoadLangModel('./data/en.jamspell.model.bin'):
+    print('JamSpell model loaded successfully')
+else:
+    print('JamSpell model failed to load')
 
 """ 
     Will replace typos and misspells in common words,
     better run after links, usernames and hashtags removed
 """
 def replace_misspells(text):
-    text = replace_misspells_by_text_blob(text)
-    # Possible also use pyspellchecker, but it have limited vocabulary
-    # in some cases it can be usefull if find bigger word frequence list
-    # https://github.com/barrust/pyspellchecker
-
-    # also good library is JamSpell, but it seems out of support.
-    # It based on language model, instead of dictanory
-    # And can be good in another cases
-    # https://github.com/bakwc/JamSpell
+    text = corrector.FixFragment(text)
     return text
 
 """ 
-    Will replace typos and misspells in common words,
-    dictianory based method 
+    Check is word correct 
+    rating - border when word is correct, number from 0 to 100
+        if correct not know word rating less 50, if know then more than 50.
+        But you can control this border
 """
-def replace_misspells_by_text_blob(text):
-    blob = TextBlob(text)
-    return str(blob.correct())
+def is_correct(word, rating = 50):
+    # jamspell not provide api for check is word correct
+    # so will make custom version
+    candidates = corrector.GetCandidatesWithScores([word], 0)
+    first, score = candidates[0] 
+
+    # first candidate must be same word if JamSpell know it
+    if first != word:
+        return False
+
+    score = abs(score) # score is negative, then less then better
+    return score < rating
+    
 
 
-
-def split_words_without_spaces(text):
-    # TODO  
-    # can be usefull for hastags parsing, like #wontfollow.
-    # one and two spaces will be enough,
-    # most hastags maximum two words and some with `the`
-    return text

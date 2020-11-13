@@ -134,6 +134,7 @@ saved_models/*.h5
 
 # Input data
 data/
+preprocessed
 
 # Embeding encoder
 encoder/

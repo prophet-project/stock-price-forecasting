@@ -3,7 +3,7 @@ from .normalize.normalize_text import normalize_text, decode_text_bytes
 import pandas as pd
 import os
 
-result_datasets_folder = './data'
+result_datasets_folder = './preprocessed'
 
 processed_train_dataset_path = os.path.join(result_datasets_folder, 'training.1600000.processed.noemoticon.csv')
 processed_test_dataset_path = os.path.join(result_datasets_folder, 'testdata.manual.2009.06.14.csv')
@@ -18,10 +18,7 @@ def build_prepared_dataset():
         df = create_dataframe(f)
         # TODO: use pool
         for (text, label) in train:
-            text = decode_text_bytes(text)
-            print('input', text)
             text = normalize_text(text)
-            print('result', text)
             append_to_dataframe(df, f, {'text': text, 'label': label})
 
     # TODO: make same for testing dataset
@@ -30,6 +27,7 @@ def build_prepared_dataset():
 def create_dataframe(f):
     df = pd.DataFrame({}, columns=['text', 'label'])
     df.to_csv(f, index=False)
+    return df
 
 # create temporal dataframe and append to file
 def append_to_dataframe(df, f, dict):

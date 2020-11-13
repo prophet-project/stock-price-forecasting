@@ -28,6 +28,9 @@ def is_correct(word, rating = 50):
     # jamspell not provide api for check is word correct
     # so will make custom version
     candidates = corrector.GetCandidatesWithScores([word], 0)
+    if len(candidates) == 0:
+        return False
+    
     first, score = candidates[0] 
 
     # first candidate must be same word if JamSpell know it

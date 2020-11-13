@@ -2,7 +2,7 @@
 
 .PHONY: train docker-build docker-console spacy-load-model
 
-DOCKER_IMAGE_VERSION=0.6.1
+DOCKER_IMAGE_VERSION=0.7.0
 DOCKER_IMAGE_TAG=leovs09/sentiment:$(DOCKER_IMAGE_VERSION)
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ save-dependencies:
 # DOCKER
 # ---------------------------------------------------------------------------------------------------------------------
 
-dev: docker-build docker-console
+dev: docker-build docker attach-console
 
 # Will build docker image for development
 docker-build:
@@ -52,6 +52,13 @@ docker-build:
 
 # Will start in docker develoment environment
 docker-console:
-	docker run --gpus all -it --rm -v ${PWD}:/work -w /work -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
+	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name sentiment -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
 
+docker:
+	docker run --gpus all --rm -v ${PWD}:/work -w /work --name sentiment -p 8888:8888 $(DOCKER_IMAGE_TAG) 
 
+docker-it:
+	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name sentiment -p 8888:8888 $(DOCKER_IMAGE_TAG) 
+
+attach-console:
+	docker exec -it sentiment bash

@@ -1,7 +1,8 @@
-from .datasets import get_train_dataset_iterator
+from .datasets import get_train_dataset_iterator, get_test_dataset_iterator
 from .normalize.normalize_text import normalize_text, decode_text_bytes
 import pandas as pd
 import os
+from pathlib import Path
 
 result_datasets_folder = './preprocessed'
 
@@ -11,17 +12,14 @@ processed_test_dataset_path = os.path.join(result_datasets_folder, 'testdata.man
 """
     Will normalize datasets and prepare for processing by NN
 """
-def build_prepared_dataset():
-    train = get_train_dataset_iterator(display_progress=True)
-
-    with open(processed_train_dataset_path, 'w') as f:
+def build_prepared_dataset(dataset_iterator, out_file_name):
+    with open(out_file_name, 'w') as f:
         df = create_dataframe(f)
         # TODO: use pool
-        for (text, label) in train:
+        for (text, label) in dataset_iterator:
             text = normalize_text(text)
             append_to_dataframe(df, f, {'text': text, 'label': label})
 
-    # TODO: make same for testing dataset
 
 # Create file and write header
 def create_dataframe(f):
@@ -39,5 +37,14 @@ def load():
     print('not implemented yet')
 
 if __name__ == '__main__':
-    build_prepared_dataset()
+    Path(result_datasets_folder).mkdir(parents=True, exist_ok=True)
+    build_prepared_dataset(
+        get_train_dataset_iterator(display_progress=True), 
+        processed_train_dataset_path
+    )
+    build_prepared_dataset(
+        get_test_dataset_iterator(display_progress=True), 
+        processed_test_dataset_path
+    )
+
 

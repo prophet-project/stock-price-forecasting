@@ -73,7 +73,7 @@ def get_test_dataset_iterator(display_progress=False):
 def get_dataset(generator):
     return tf.data.Dataset.from_generator(
         generator, 
-        (tf.string, tf.int64), 
+        (tf.string, tf.float64), 
         ((), ())
     )
 

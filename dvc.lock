@@ -56,10 +56,17 @@ prepare_datasets:
   deps:
   - path: ./src/normalize
     md5: 18f16dc524dab6b244e302c79f98f3a9.dir
+    size: 26827
+    nfiles: 24
   - path: ./src/prepare_datasets.py
-    md5: 491f19537618ee608fda01455efd5b5b
+    md5: ef01c4582fc641b2566dcba77a78500c
+    size: 2136
   - path: data
     md5: 8d33a41388d7d0c3ce98e2b0f9450114.dir
+    size: 3973508134
+    nfiles: 5
   outs:
   - path: preprocessed
-    md5: 061b01b3c2513a2bbe029193537a1d0f.dir
+    md5: a76a820a97e7c72a22fa37778d82f70d.dir
+    size: 59089756
+    nfiles: 2

@@ -29,18 +29,18 @@ def build_prepared_dataset(dataset_iterator, out_file_name):
             added = 0
             temporal_df = df
             for (text, label) in results:
-                temporal_df = temporal_df.append({'text': text, 'label': label}, ignore_index=True, index=False)
+                temporal_df = temporal_df.append({'text': text, 'label': label}, ignore_index=True)
                 added += 1
 
                 if added >= 100:
                     # flush data to disk
-                    temporal_df.to_csv(f, mode='a', header=False)
+                    temporal_df.to_csv(f, mode='a', header=False, index=False)
                     added = 0
                     temporal_df = df
 
             # flush possible last data
             if added != 0:
-                temporal_df.to_csv(f, mode='a', header=False)
+                temporal_df.to_csv(f, mode='a', header=False, index=False)
 
 
 # Create file and write header

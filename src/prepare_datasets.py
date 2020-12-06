@@ -29,7 +29,7 @@ def build_prepared_dataset(dataset_iterator, out_file_name):
             added = 0
             temporal_df = df
             for (text, label) in results:
-                temporal_df = temporal_df.append({'text': text, 'label': label}, ignore_index=True)
+                temporal_df = temporal_df.append({'text': text, 'label': label}, ignore_index=True, index=False)
                 added += 1
 
                 if added >= 100:
@@ -46,7 +46,7 @@ def build_prepared_dataset(dataset_iterator, out_file_name):
 # Create file and write header
 def create_dataframe(f):
     df = pd.DataFrame({}, columns=['text', 'label'])
-    df.to_csv(f)
+    df.to_csv(f, index=False)
     return df
 
 def load():

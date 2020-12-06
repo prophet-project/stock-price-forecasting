@@ -10,11 +10,11 @@ import re
 # will be not enough
 # This regex will remove all except 
 # letters, numbers, space, 
-# punctiations symbols (! . ' -), 
+# punctiations symbols (! . ' - ?), 
 # symbol for identify hashtag (#), 
 # symbol for identify email (@),
 # symbols for identify links (/ :),
-special_symbols_re = r'[^a-zA-z0-9\s\!\#\.\'\-\@\/\:]|[\_\\]'
+special_symbols_re = r'[^a-zA-z0-9\s\!\#\.\?\'\-\@\/\:]|[\_\\]'
 
 def remove_special_characters(text):
     return re.sub(special_symbols_re, '', text)
@@ -47,3 +47,17 @@ def replace_numbers(text, ):
 def remove_quotes(text):
     return text.replace('"', '').replace("'", '')
 
+def remove_continiues_dublications(words):
+    if len(words) < 2:
+        return words
+
+    last_word = words[0]
+    result = [last_word]
+    
+    for word in words[1:]:
+        if word != last_word:
+            result.append(word)
+
+        last_word = word
+
+    return result

@@ -3,7 +3,7 @@ import tensorflow as tf
 from .libs import params
 import pandas as pd
 import os
-from progressbar import ProgressBar, UnknownLength
+from progressbar import ProgressBar, UnknownLength, progressbar
 
 # Loaded from http://help.sentiment140.com/for-students
 # kaggle copy https://www.kaggle.com/kazanova/sentiment140
@@ -33,44 +33,43 @@ def normalize_label(label):
 
     return 1
 
-def get_dataset_iterator(file_path, display_progress=False, chunk_size=10, chunk_count=UnknownLength):
-    print('Start reading dataset from', file_path)
+def read_dataset_from_csv(filename, chunk_size, columns=None):
+    print('Start reading dataset from', filename)
+    return pd.read_csv(filename, encoding = "ISO-8859-1", names=columns, chunksize=chunk_size)
 
-    bar = None
-    if display_progress:
-        bar = ProgressBar(max_value=chunk_count, max_error=False).start()
-    
-    for i, chunk in enumerate(pd.read_csv(file_path, encoding = "ISO-8859-1", names=COLUMNS, chunksize=chunk_size)):
-        if bar != None:
-            bar.update(i)
-
+def get_dataset_iterator(iterator):
+    for chunk in iterator:
         for item in chunk.index:
             text = chunk[TEXT_COLUMN][item]
             label = chunk[LABEL_COLUMN][item]
-            
-            label = normalize_label(label)
-            
-            yield (text, label)
 
-    if bar != None:
-        bar.finish()
+            label = normalize_label(label)
+
+            yield (text, label)
 
 TRAINING_CHUNK_SIZE = 1000 # Read thousand records at once
 TRAINING_RECORDS_COUNT = 1600000
 TRAINING_CHUNKS_COUNT = TRAINING_RECORDS_COUNT // TRAINING_CHUNK_SIZE
 
 def get_train_dataset_iterator(display_progress=False):
-    return get_dataset_iterator(
-        train_dataset_path, 
-        display_progress=display_progress, 
-        chunk_size=TRAINING_CHUNK_SIZE,
-        chunk_count=TRAINING_CHUNKS_COUNT
-    )
+    iterator = read_dataset_from_csv(train_dataset_path, columns=COLUMNS, chunk_size=TRAINING_CHUNK_SIZE)
+    if display_progress:
+        iterator = progressbar(iterator, max_value=TRAINING_CHUNKS_COUNT, max_error=False)
+
+    return get_dataset_iterator(iterator)
+    
+TESTING_CHUNK_SIZE = 500
+TESTING_RECORDS_COUNT = 498
+TESTING_CHUNKS_COUNT = 1
 
 def get_test_dataset_iterator(display_progress=False):
-    return get_dataset_iterator(test_dataset_path, display_progress=display_progress, chunk_count=500)
+    iterator = read_dataset_from_csv(test_dataset_path, columns=COLUMNS, chunk_size=TESTING_CHUNK_SIZE)
+    if display_progress:
+        iterator = progressbar(iterator, max_value=TESTING_CHUNKS_COUNT, max_error=False)
 
-def get_dataset(generator):
+    return get_dataset_iterator(iterator)
+
+def wrap_to_tf_dataset(generator):
     return tf.data.Dataset.from_generator(
         generator, 
         (tf.string, tf.float64), 
@@ -79,11 +78,11 @@ def get_dataset(generator):
 
 def get_train_dataset(display_progress=False):
     generator = lambda: get_train_dataset_iterator(display_progress=display_progress)
-    return get_dataset(generator)
+    return wrap_to_tf_dataset(generator)
 
 def get_test_dataset(display_progress=False):
     generator = lambda: get_test_dataset_iterator(display_progress=display_progress)
-    return get_dataset(generator) 
+    return wrap_to_tf_dataset(generator) 
 
 def download(display_train_progress=False, display_test_progress=False):
     train_dataset = get_train_dataset(display_progress=display_train_progress)

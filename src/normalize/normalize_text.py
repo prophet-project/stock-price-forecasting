@@ -1,5 +1,5 @@
 from .spacy_nlp_model import nlp
-from .clean_text import remove_special_characters, replace_numbers, remove_quotes, remove_sharp_character
+from .clean_text import remove_special_characters, replace_numbers, remove_quotes, remove_sharp_character, remove_continiues_dublications
 from .replace_contractions import replace_contractions
 from .remove_stopwords import is_stopword
 from .replace_misspells import replace_misspells
@@ -89,6 +89,8 @@ def simplify_text(text):
     # and lematize known words and remove stopwords
     words = [process_token(token) for token in doc]
     words = [word for word in words if word is not None]
+    # in case expressions like "Very very cool!!!!"
+    words = remove_continiues_dublications(words)
 
     return ' '.join(words)
 
@@ -103,7 +105,9 @@ def process_token(token):
         # By some reason spacy sometimes return zero length toke
         return None
 
-    # TODO remove common nouns before lematization
+    # If word proper noun then stay it as it is
+    if is_proper_noun(token):
+        return word
     
     word = word.lower()
     # leematize word for decrease vocabulary size
@@ -115,6 +119,12 @@ def process_token(token):
         return None
 
     return word
+
+"""
+    If word is proper noun, like "U.S" or "Amazon" returns true
+"""
+def is_proper_noun(token):
+    return token.pos_ == "PROPN"
 
 """ Tenserflow process text in bytes, so need decode it firstly """
 def decode_text_bytes(text_bytes):

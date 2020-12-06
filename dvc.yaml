@@ -6,8 +6,7 @@ stages:
       - ./src/prepare_datasets.py
       - data
     outs:
-      - preprocessed:
-          persist: true
+      - preprocessed
   build_encoder:
     cmd: python -m src.build_encoder
     deps:

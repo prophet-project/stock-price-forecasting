@@ -17,7 +17,12 @@ stopwords_exceptions_list = {
     'what', 'you', 'yet', 'yours', 'yourself', 'yourselves', 'would',
     'with', 'within', 'without', 'at', 'all', 'it', 'here', 'see', 
     'all', 'over', 'there', 'only', 'how',' did', 'they', 'was', 
-    'got', 'miss', 'and', 'about'
+    'got', 'miss', 'and', 'about', 'still', 'up', 'this', 'too', 'much',
+    'nothing', 'where', 'everyone', 'very', 'down', 'last', 'back',
+    'anyone', 'so', 'already', 'empty', 'in', 'better', 'almost', 'out',
+    'off', 'will', 'skip', 'now', 'take', 'around', 'another', 'someone',
+    'move', 'enough', 'together', 'everithing', 'take', 'make',
+    'yes', 'no', 'out', 'get', 'from', 'under'
 }
 stopwords_list = set(word for word in nlp.Defaults.stop_words if word not in stopwords_exceptions_list)
 

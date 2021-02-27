@@ -1,6 +1,6 @@
 import tensorflow as tf
 from .libs import params, prepare, save, checkpoints
-from .normalize import datasets
+from .prepare_datasets import get_prepared_datasets
 from .model import build_model
 from tensorflow.keras.callbacks import CSVLogger
 
@@ -13,13 +13,13 @@ EPOCHS = params['train']['epochs']
 metrics_file='metrics/training.csv'
 
 # Load normalised datasets
-training, testing, vocab_size = datasets()
+training, testing = get_prepared_datasets()
 # Dataset data is array of tensors
 # if symplify array of tuples: (text: string, label: int)
 # where 0 mean bad, and 1 mean good
 
 # Build neural network model
-model = build_model(vocab_size=vocab_size)
+model = build_model()
 
 train_batches = training.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
 validation_batches = testing.padded_batch(BATCH_SIZE)

@@ -1,5 +1,5 @@
 import tensorflow as tf
-from .normalize import datasets
+from .prepare_datasets import get_prepared_datasets
 from .libs import params, prepare, save_metrics, load
 
 prepare(tf)
@@ -14,7 +14,7 @@ metrics_file='metrics/test.json'
 # For track results better save metrics
 
 # Load normalised datasets
-training, testing, vocab_size = datasets()
+training, testing = get_prepared_datasets()
 
 model = load()
 

@@ -35,35 +35,14 @@ init_notebook_mode(connected=True)
 cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 
-# In[3]:
-
-
-import tensorflow_datasets as tfds
-
-
 # ## Let's explore datasets
 
 # In[4]:
 
 
-from src.datasets import download
+from src.load_datasets import load_datasets
 
-train_data, test_data = download(display_train_progress=True)
-
-
-# ### Humanize labels
-# 
-# Labels can be 0, 0.5, 1. From bad to good sentimen. 
-# 
-# Will map them to correct words for easier exploring
-
-# In[5]:
-
-
-label_categories = ['bad', 'neutral', 'good']
-
-def humanize_label(x):
-    return label_categories[int(x * 2)] 
+train_data, test_data = load_datasets()
 
 
 # ### Training data distribution
@@ -119,121 +98,6 @@ test_df['type'].iplot(
 )
 
 
-# ## Normalize text
-
-# ### Preprocess text
-# 
-# - Need remove special symbols. 
-# - Replace usernames and links with readable words.
-# - Split hashtags for stay they meaning 
-
-# In[4]:
-
-
-from src.normalize.normalize_text import preprocess_text
-
-preprocess_text('Best awards øøøfor http://something.io/slpha ~and_ @futurer #thebest?')
-
-
-# ### Replace misspels
-# 
-# Need replace misspells for decrease vocabularity size 
-# and improve network results.
-
-# In[2]:
-
-
-from src.normalize.replace_misspells import replace_misspells
-
-replace_misspells('Berst awwwards for link and username the best')
-
-
-# ### Replace contractions
-# 
-# Contractions are words that we write with an apostrophe.
-# Examples of contractions are words like “ain’t” or “aren’t”.
-# 
-# For standartize text better replace them
-
-# In[1]:
-
-
-from src.normalize.replace_contractions import replace_contractions
-
-replace_contractions([
-    "I'm a text with contraction, which can't be' easilly 'parsed' by NN",
-    "This's unexpected for pycontractions, possible can be fixed by changenging word corpus"
-])
-
-
-# ### Lemmatize words
-# 
-# Will replace words with root form for decrease vocabulirity size
-
-# In[3]:
-
-
-from src.normalize.lemmatization import lematize
-
-[lematize(word) for word in ['changing', 'connected', 'us', 'back']]
-
-
-# ### Remove stopwords
-# 
-# Stopwords not give actual meaning but create noize in processing
-
-# In[9]:
-
-
-from src.normalize.remove_stopwords import is_stopword
-
-[word + ' - ' + str(is_stopword(word)) for word in ['is', 'word', 'be', 'a', 'super', 'still', 'up', 'this','too', 'much', 'nothing', 'where', 'everyone', 'very', 'down', 'last', 'ok', 'good', 'it', 'back', 'empty', 'anyone', 'so', 'why', 'my', 'already', 'us']]
-
-
-# ### Replace numbers 
-# 
-# Will replace numbers with `#`, it allow remove all possible numbers from text, but have they meaning
-
-# In[1]:
-
-
-from src.normalize.clean_text import replace_numbers
-
-replace_numbers('I have $1 billion, but they only in my imagination. 1 billiion > 500 thouthands')
-
-
-# ### Remove continiuse dublications
-# 
-# In case when author add dublicated words or punctuation for increase expression
-
-# In[2]:
-
-
-from src.normalize.clean_text import remove_continiues_dublications
-
-remove_continiues_dublications("very very cool ! ! !".split())
-
-
-# ### Result normalization
-
-# In[2]:
-
-
-from src.normalize.normalize_text import normalize_text
-
-normalize_text("Barrichello to win the #f1 today???. I really want Kubica to place, he's a fantastic driver. Damn, why can't I watch it. In the US is back")
-
-
-# ## Explore prepared dataset
-
-# In[4]:
-
-
-from src.prepare_datasets import load_preprocessed_datasets
-
-train_prep_dataset, test_prep_dataset = load_preprocessed_datasets(display_train_progress=True)
-
-
 # ### Check preprocessed training datasets distribution
 
 # In[7]:
@@ -285,35 +149,7 @@ test_prep_df['type'].iplot(
 )
 
 
-# ### Explore vocabulary
-
-# In[5]:
-
-
-from src.normalize import load_encoder
-
-encoder, vocab_size = load_encoder()
-sorted_vocab = sorted(encoder.tokens)
-
-def show_vocab_tokens(vocab):
-    for i in range(len(vocab)):
-        word = vocab[i]
-        character_numbers = ','.join([str(ord(character)) for character in word])
-        print(word, '|', character_numbers, '|', len(word), '\n')
-
-# print(' | '.join(sorted_vocab[90:100]))
-show_vocab_tokens(sorted_vocab[400:600])
-
-
 # ## Explore training metrics
-
-# In[2]:
-
-
-from validators.url import url as validate_url
-
-validate_url('glamourkills.com')
-
 
 # In[5]:
 

@@ -1,31 +1,6 @@
-# Sentiment Analyse
+# Stock price forecasting
 
-Sentiment Analyse Neural Network Model
-
-Can classificate given text as bad or good review.
-
-Target dataset is [Sentiment140 dataset with 1.6 million tweets](https://www.kaggle.com/kazanova/sentiment140)
-
-## Text preprocessing
-
-Will use multiple pre trained embeding vectors for different tasks.
-
-For tokenization and base lingustic analyse use spacy `en_core_web_lg` model.
-Large english corpus. Will be downloaded automatically by space in Docker.
-
-For misspelling and contractions replacement will use `GoogleNews-vectors-negative300.bin`
-as biggest open accessable embeding corpus.
-It must be enought for all tasks, but if for you task other corpus will be enough use it.
-
-List of most accessable embeding corpuses and tool for download them
-there: <https://github.com/RaRe-Technologies/gensim-data>
-
-### GoogleNews-vectors-negative300
-
-Pre-trained vectors trained on a part of the Google News dataset (about 100 billion words).
-The model contains 300-dimensional vectors for 3 million words and phrases.
-
-<https://code.google.com/archive/p/word2vec/>
+Research of NN model for market stock price forecasting
 
 ## Requirements
 
@@ -48,10 +23,10 @@ All other Python libraries and models described in `Dockerfile` and `requirement
 
 ## Research Results
 
-You can browse research as [notebook](https://github.com/LeoVS09/sentiment/blob/master/analyse.ipynb)
+You can browse research as [notebook](https://github.com/LeoVS09/stock-price-forecasting/blob/master/analyse.ipynb)
 
-if github not load notebook you can open [html version](https://leovs09.github.io/sentiment)
-or even [python version](https://github.com/LeoVS09/sentiment/blob/master/results/anayse.py)
+if github not load notebook you can open [html version](https://leovs09.github.io/stock-price-forecasting)
+or even [python version](https://github.com/LeoVS09/stock-price-forecasting/blob/master/results/anayse.py)
 
 ## Development
 
@@ -108,11 +83,3 @@ For run notebook
 ```bash
 make notebook
 ```
-
-## Five main steps for build Neural Network
-
-1) Load dataset - split into train and test, and validation - which need for check training progress
-2) Normalise data - need normalise text to vector with constant size, for put it into first layer of network
-3) Build network model - stack layers for build model of network
-4) Train - put train data with correct hyperparameters
-5) Test - for insure correctness

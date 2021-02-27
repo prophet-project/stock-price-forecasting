@@ -1,9 +1,10 @@
 #!/usr/bin/env make
 
-.PHONY: train docker-build docker-console spacy-load-model
+.PHONY: train docker-build docker-console notebook install save-dependencies dev
 
-DOCKER_IMAGE_VERSION=0.7.0
-DOCKER_IMAGE_TAG=leovs09/sentiment:$(DOCKER_IMAGE_VERSION)
+PROJECT_NAME=stock-price-forecasting
+DOCKER_IMAGE_VERSION=0.1.0
+DOCKER_IMAGE_TAG=leovs09/$(PROJECT_NAME):$(DOCKER_IMAGE_VERSION)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # DEVELOPMENT
@@ -24,10 +25,6 @@ train:
 test:
 	echo "-m flag will run script in module mode, which accept relative imports"
 	python -m src.test
-
-# Will load medium size model for spacy
-spacy-load-md:
-	python -m spacy download en_core_web_md
 
 # Will start notebook environment on http://0.0.0.0:8888
 notebook: 
@@ -61,13 +58,13 @@ docker-build:
 
 # Will start in docker develoment environment
 docker-console:
-	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name sentiment -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
+	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
 
 docker:
-	docker run --gpus all --rm -v ${PWD}:/work -w /work --name sentiment -p 8888:8888 $(DOCKER_IMAGE_TAG) 
+	docker run --gpus all --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
 
 docker-it:
-	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name sentiment -p 8888:8888 $(DOCKER_IMAGE_TAG) 
+	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
 
 attach-console:
-	docker exec -it sentiment bash
+	docker exec -it $(PROJECT_NAME) bash

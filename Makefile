@@ -40,6 +40,9 @@ install:
 save-dependencies:
 	pip freeze > requirements.txt
 
+notebook-to-html:
+	jupyter nbconvert ./analyse.ipynb --to html --output-dir="./results" --output="index.html"
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DOCKER
 # ---------------------------------------------------------------------------------------------------------------------

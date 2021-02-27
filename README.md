@@ -2,6 +2,10 @@
 
 Research of NN model for market stock price forecasting
 
+Target dataset [Bitcoin Historical Data](https://www.kaggle.com/mczielinski/bitcoin-historical-data)
+
+Bitcoin data at 1-min intervals from select exchanges, Jan 2012 to Dec 2020
+
 ## Requirements
 
 Can be run in docker enviroment, or if you on linux:

@@ -40,8 +40,9 @@ install:
 save-dependencies:
 	pip freeze > requirements.txt
 
+# docs folder required for github pages
 notebook-to-html:
-	jupyter nbconvert ./analyse.ipynb --to html --output-dir="./results" --output="index.html"
+	jupyter nbconvert ./analyse.ipynb --to html --output-dir="./docs" --output="index.html"
 
 notebook-to-python:
 	jupyter nbconvert ./analyse.ipynb --to python --output-dir="./results" --output="analyse.py"

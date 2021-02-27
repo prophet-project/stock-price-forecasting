@@ -4,7 +4,7 @@ Sentiment Analyse Neural Network Model
 
 Can classificate given text as bad or good review.
 
-Target dataset is ----
+Target dataset is [Sentiment140 dataset with 1.6 million tweets](https://www.kaggle.com/kazanova/sentiment140)
 
 ## Text preprocessing
 

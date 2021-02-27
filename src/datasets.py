@@ -3,7 +3,7 @@ import tensorflow as tf
 from .libs import params
 import pandas as pd
 import os
-from progressbar import ProgressBar
+from progressbar import ProgressBar, UnknownLength, progressbar
 
 # Loaded from http://help.sentiment140.com/for-students
 # kaggle copy https://www.kaggle.com/kazanova/sentiment140
@@ -13,53 +13,80 @@ datasets_folder = './data'
 train_dataset_path = os.path.join(datasets_folder, 'training.1600000.processed.noemoticon.csv')
 test_dataset_path = os.path.join(datasets_folder, 'testdata.manual.2009.06.14.csv')
 
+# TODO: split initial train dataset into smallest development dataset (with same distribution of classes)
+#  for allow train locally and build smallest vocabulary
+
 LABEL_COLUMN = 'target'
 TEXT_COLUMN = 'text'
 BATCH_SIZE = params['input']['batch_size']
 COLUMNS = ["target", "id", "date", "flag", "user", "text"]
-CHUNK_SIZE = 10 ** 3 # Read thousand records at once
 
-def get_dataset_generator(file_path, display_progress=False):
-    print('Start reading dataset from', train_dataset_path)
+# Train dataset must contain labels in format: 0 = negative, 2 = neutral, 4 = positive
+# but actually conain only "0" and "4", can be string or number
+# test dataset also contains "2"
+def normalize_label(label):
+    if label == "0" or label == 0:
+        return 0
 
-    bar = None
-    if display_progress:
-        bar = ProgressBar(max_value=1600, max_error=False).start()
-    
-    for i, chunk in enumerate(pd.read_csv(file_path, encoding = "ISO-8859-1", names=COLUMNS, chunksize=CHUNK_SIZE)):
-        if bar != None:
-            bar.update(i)
+    if label == "2" or label == 2:
+        return 0.5
 
+    return 1
+
+def read_dataset_from_csv(filename, chunk_size, columns=None):
+    print('Start reading dataset from', filename)
+    return pd.read_csv(filename, encoding = "ISO-8859-1", names=columns, chunksize=chunk_size)
+
+def get_dataset_iterator(iterator):
+    for chunk in iterator:
         for item in chunk.index:
             text = chunk[TEXT_COLUMN][item]
             label = chunk[LABEL_COLUMN][item]
-            
-            # Dataset must contain labels in format: 0 = negative, 2 = neutral, 4 = positive
-            # but actually conain only "0" and "4"
-            label = 0 if label == "0" else 1
-            
+
+            label = normalize_label(label)
+
             yield (text, label)
 
-    if bar != None:
-        bar.finish()
+TRAINING_CHUNK_SIZE = 1000 # Read thousand records at once
+TRAINING_RECORDS_COUNT = 1600000
+TRAINING_CHUNKS_COUNT = TRAINING_RECORDS_COUNT // TRAINING_CHUNK_SIZE
 
-def get_dataset(file_path, display_progress=False):
-    generator = lambda: get_dataset_generator(file_path, display_progress=display_progress)
+def get_train_dataset_iterator(display_progress=False):
+    iterator = read_dataset_from_csv(train_dataset_path, columns=COLUMNS, chunk_size=TRAINING_CHUNK_SIZE)
+    if display_progress:
+        iterator = progressbar(iterator, max_value=TRAINING_CHUNKS_COUNT, max_error=False)
+
+    return get_dataset_iterator(iterator)
+    
+TESTING_CHUNK_SIZE = 500
+TESTING_RECORDS_COUNT = 498
+TESTING_CHUNKS_COUNT = 1
+
+def get_test_dataset_iterator(display_progress=False):
+    iterator = read_dataset_from_csv(test_dataset_path, columns=COLUMNS, chunk_size=TESTING_CHUNK_SIZE)
+    if display_progress:
+        iterator = progressbar(iterator, max_value=TESTING_CHUNKS_COUNT, max_error=False)
+
+    return get_dataset_iterator(iterator)
+
+def wrap_to_tf_dataset(generator):
     return tf.data.Dataset.from_generator(
         generator, 
-        (tf.string, tf.int64), 
+        (tf.string, tf.float64), 
         ((), ())
     )
 
 def get_train_dataset(display_progress=False):
-    return get_dataset(train_dataset_path, display_progress=display_progress)
+    generator = lambda: get_train_dataset_iterator(display_progress=display_progress)
+    return wrap_to_tf_dataset(generator)
 
 def get_test_dataset(display_progress=False):
-    return get_dataset(test_dataset_path, display_progress=display_progress) 
+    generator = lambda: get_test_dataset_iterator(display_progress=display_progress)
+    return wrap_to_tf_dataset(generator) 
 
-def download():
-    train_dataset = get_train_dataset()
-    test_dataset = get_test_dataset()
+def download(display_train_progress=False, display_test_progress=False):
+    train_dataset = get_train_dataset(display_progress=display_train_progress)
+    test_dataset = get_test_dataset(display_progress=display_test_progress)
 
     return train_dataset, test_dataset
 

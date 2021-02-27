@@ -1,18 +1,29 @@
 stages:
+  prepare_datasets:
+    cmd: python -m src.prepare_datasets
+    deps:
+      - ./src/normalize
+      - ./src/prepare_datasets.py
+      - data
+    outs:
+      - preprocessed
   build_encoder:
     cmd: python -m src.build_encoder
     deps:
     - ./src/build_encoder.py
     - ./src/datasets.py
+    - ./src/normalize
     - data
     outs:
     - ./encoder/encoder.tokens
-    - ./encoder/info.json
+    metrics:
+    - ./metrics/encoder.json:
+        cache: false
   train:
     cmd: python -m src.train
     deps:
     - ./src/model.py
-    - ./src/normalize.py
+    - ./src/normalize
     - ./src/train.py
     - data
     params:
@@ -29,7 +40,7 @@ stages:
     deps:
     - data
     - saved_models/main.h5
-    - src/normalize.py
+    - src/normalize
     - src/test.py
     params:
     - input.batch_size

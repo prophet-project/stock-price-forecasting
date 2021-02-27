@@ -39,13 +39,34 @@ build_encoder:
   cmd: python -m src.build_encoder
   deps:
   - path: ./src/build_encoder.py
-    md5: ec406fee035be7966fea0bfb1a47d8c3
+    md5: 5ec30a705992ebea99f20abe4c04f6b5
   - path: ./src/datasets.py
-    md5: f8ee9779fe8a44d60bc5ca75bca0b772
+    md5: e55163eb8d4d81c658c52a0bc9773763
+  - path: ./src/normalize
+    md5: 18f16dc524dab6b244e302c79f98f3a9.dir
   - path: data
-    md5: 7dafc45044d12a46008aebfb6bf28435.dir
+    md5: 8d33a41388d7d0c3ce98e2b0f9450114.dir
   outs:
   - path: ./encoder/encoder.tokens
-    md5: d4016f638364037b684447f4ea184017
-  - path: ./encoder/info.json
-    md5: 0bcf7a6925d930966a4355b3fac6f83f
+    md5: fe2e4524091b8a6538ad0ece788c2069
+  - path: ./metrics/encoder.json
+    md5: efbcf82e15e12cb30420d671b4d8c805
+prepare_datasets:
+  cmd: python -m src.prepare_datasets
+  deps:
+  - path: ./src/normalize
+    md5: 7d895c6d0f30681a500b43ef6823af06.dir
+    size: 27456
+    nfiles: 24
+  - path: ./src/prepare_datasets.py
+    md5: e90c417b845267de90ae70bd1921871f
+    size: 4392
+  - path: data
+    md5: 8d33a41388d7d0c3ce98e2b0f9450114.dir
+    size: 3973508134
+    nfiles: 5
+  outs:
+  - path: preprocessed
+    md5: 24f034acb69f9ff332e0eee40018212e.dir
+    size: 94880616
+    nfiles: 2

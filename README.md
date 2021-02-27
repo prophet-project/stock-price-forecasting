@@ -87,3 +87,29 @@ For run notebook
 ```bash
 make notebook
 ```
+
+## DVC
+
+[DVC](https://dvc.org/) is  version control for datasets and neural networks
+
+### First Setup
+
+For start control files and setup storage
+
+```bash
+# Add `data` folder or file to version control
+dvc add data
+# Add remove storage in Google Drive
+# Folder id can be found in url of Google Drive when open folder
+dvc remote add --default myremote gdrive://{folder_id}/some_folder_inside
+# Push data to storage
+dvc push
+```
+
+### Checkout
+
+After setup you can checkout model and dataset
+
+```bash
+dvc checkout 
+```

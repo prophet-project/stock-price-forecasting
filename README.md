@@ -46,6 +46,13 @@ All other Python libraries and models described in `Dockerfile` and `requirement
     in base case tenserflow can fallback to CPU,
     so not need change anything for start development
 
+## Research Results
+
+You can browse research as [notebook](https://github.com/LeoVS09/sentiment/blob/master/analyse.ipynb)
+
+if github not load notebook you can open [html version](https://leovs09.github.io/sentiment)
+or even [python version](https://github.com/LeoVS09/sentiment/blob/master/results/anayse.py)
+
 ## Development
 
 If you on Windows, build and run in-Docker development enviroment

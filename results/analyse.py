@@ -37,12 +37,99 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 # ## Let's explore datasets
 
+# ### Explore input dataset
+# 
+# Will use target dataset [Bitcoin Historical Data](https://www.kaggle.com/mczielinski/bitcoin-historical-data)
+# 
+# Bitcoin data at 1-min intervals from select exchanges, Jan 2012 to Dec 2020
+
+# In[3]:
+
+
+from src.load_datasets import load_input_dataset
+
+input_dataset = load_input_dataset()
+
+input_dataset.head()
+
+
+# Will explore full input dataset, some values contain NaN, which not ineraptebale by sweetviz, so will use timestamp as target feature for now
+
 # In[4]:
 
 
-from src.load_datasets import load_datasets
+import sweetviz as sv
 
-train_data, test_data = load_datasets()
+analyse_report = sv.analyze([input_dataset, 'Input'], target_feat="Timestamp")
+analyse_report.show_notebook()
+
+
+# Will take one timestamp per hour for faster interpretation
+
+# In[5]:
+
+
+input_dataset = input_dataset[59::60]
+raw_timestamps = input_dataset.pop('Timestamp')
+
+
+# timestamp need interprate as date for charts processing
+
+# In[6]:
+
+
+input_datetime = pd.to_datetime(raw_timestamps, unit='s')
+
+
+# In[7]:
+
+
+input_dataset.head()
+
+
+# Feature evalution over time
+
+# In[8]:
+
+
+input_features = input_dataset[['Open', 'Close', 'Weighted_Price']]
+input_features.index = input_datetime
+
+input_features.iplot(
+    subplots=True,
+)
+
+
+# In[9]:
+
+
+input_dataset.describe().transpose()
+
+
+# Will take only last three yers, because they have data without missing values
+
+# In[21]:
+
+
+day = 24
+year = (365)*day
+
+input_dataset = input_dataset.tail(3 * year)
+input_datetime = input_datetime.tail(3 * year)
+
+input_dataset.head()
+len(input_datetime)
+
+
+# In[19]:
+
+
+input_features = input_dataset[['Open', 'Close', 'Weighted_Price']]
+input_features.index = input_datetime
+
+input_features.iplot(
+    subplots=True,
+)
 
 
 # ### Training data distribution

@@ -1,6 +1,8 @@
 
 input:
     batch_size: 128 # Allow parallel training, but bigger batch may overfit
+    train_part: 0.8 # Training dataset procent, test dataset will be 20%
+    years: 4 # count of years of dataset which take for training and testing, start from last
 
 train:
     buffer_size: 128 # Must be grater or equal to batches size

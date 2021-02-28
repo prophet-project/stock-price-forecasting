@@ -160,32 +160,120 @@ plot_log_freaquency(last_years_dataset['Close'])
 plot_log_freaquency(last_years_dataset['Volume'])
 
 
-# ### Training data distribution
+# ## Compare train and test datasets
 
-# In[ ]:
-
-
-train_df = pd.DataFrame(tfds.as_numpy(train_data), columns=['text', 'type'])
-
-train_df['type'] = train_df['type'].apply(humanize_label)
-
-train_df.head()
+# In[5]:
 
 
-# In[ ]:
+from src.load_datasets import load_datasets
+
+train_df, test_df = load_datasets()
+
+train_df
 
 
-print('Training dataset records', len(train_df.index))
-
-train_df['type'].iplot(
-    kind='hist',
-    yTitle='count',
-    xTitle='Type',
-    title='Training data distribution'
-)
+# In[6]:
 
 
-# ### Testing data distribution
+feature_list = ['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']
+
+train_features = train_df[feature_list]
+test_features = test_df[feature_list]
+
+compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Test data'], "Close")
+compare_report.show_notebook()
+
+
+# In[7]:
+
+
+train_datetime = pd.to_datetime(train_df['Date'])
+test_datetime = pd.to_datetime(test_df['Date'])
+
+train_features.index = train_datetime
+test_features.index = test_datetime
+
+
+# ### Training data exploration
+
+# In[8]:
+
+
+train_features.iplot(subplots=True)
+
+
+# ### Testing data exploration
+
+# In[9]:
+
+
+test_df
+
+
+# In[10]:
+
+
+test_features.iplot(subplots=True)
+
+
+# ## Normalise data
+# 
+# Will use only training mean and deviation for not give NN access to test dataset
+# 
+# Subtract the mean and divide by the standard deviation of each feature will give required normalisation
+
+# In[11]:
+
+
+train_mean = train_features.mean()
+train_std = train_features.std()
+
+train_features = (train_features - train_mean) / train_std
+test_features = (test_features - train_mean) / train_std
+
+
+# In[22]:
+
+
+train_features
+
+
+# In[23]:
+
+
+train_features.iplot(subplots=True)
+
+
+# In[25]:
+
+
+test_features.iplot(subplots=True)
+
+
+# In[20]:
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def show_normalised(df):
+    df_std = (df - train_mean) / train_std
+    df_std = df_std.melt(var_name='Column', value_name='Normalized')
+    # plt.figure(figsize=(12, 6))
+    ax = sns.violinplot(x='Column', y='Normalized', data=df_std)
+
+
+# In[21]:
+
+
+show_normalised(train_features)
+
+
+# In[24]:
+
+
+show_normalised(test_features)
+
 
 # In[ ]:
 

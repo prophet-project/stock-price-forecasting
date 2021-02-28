@@ -5,6 +5,9 @@ stages:
       - ./src/datasets.py
       - ./src/prepare_datasets.py
       - data
+    params:
+      - input.training_size
+      - input.years
     outs:
       - preprocessed
   train:
@@ -15,6 +18,8 @@ stages:
     - preprocessed
     params:
     - input.batch_size
+    - input.training_size
+    - input.years
     - train.buffer_size
     - train.epochs
     outs:

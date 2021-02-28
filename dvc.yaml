@@ -2,11 +2,11 @@ stages:
   prepare_datasets:
     cmd: python -m src.prepare_datasets
     deps:
-      - ./src/datasets.py
+      - ./src/load_datasets.py
       - ./src/prepare_datasets.py
       - data
     params:
-      - input.training_size
+      - input.train_part
       - input.years
     outs:
       - preprocessed
@@ -18,7 +18,7 @@ stages:
     - preprocessed
     params:
     - input.batch_size
-    - input.training_size
+    - input.train_part
     - input.years
     - train.buffer_size
     - train.epochs

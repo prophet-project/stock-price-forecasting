@@ -39,9 +39,9 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 # ### Explore input dataset
 # 
-# Will use target dataset [Bitcoin Historical Data](https://www.kaggle.com/mczielinski/bitcoin-historical-data)
+# Will use target dataset [Bitcoin in Cryptocurrency Historical Prices](https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory?select=coin_Bitcoin.csv)
 # 
-# Bitcoin data at 1-min intervals from select exchanges, Jan 2012 to Dec 2020
+# Bitcoin data at 1-day intervals from April 28, 2013
 
 # In[3]:
 
@@ -53,81 +53,65 @@ input_dataset = load_input_dataset()
 input_dataset.head()
 
 
-# Will explore full input dataset, some values contain NaN, which not ineraptebale by sweetviz, so will use timestamp as target feature for now
+# Will explore full input dataset
 
 # In[4]:
 
 
 import sweetviz as sv
 
-analyse_report = sv.analyze([input_dataset, 'Input'], target_feat="Timestamp")
+target_features = input_dataset[['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']]
+
+analyse_report = sv.analyze([target_features, 'Bitcoin'], target_feat="Close")
 analyse_report.show_notebook()
 
-
-# Will take one timestamp per hour for faster interpretation
 
 # In[5]:
 
 
-hours_dataset = input_dataset[59::60]
-
-
-# timestamp need interprate as date for charts processing
-
-# In[6]:
-
-
-raw_timestamps = hours_dataset.pop('Timestamp')
-hours_datetime = pd.to_datetime(raw_timestamps, unit='s')
-
-
-# In[7]:
-
-
-hours_dataset.head()
+target_features.head()
 
 
 # Feature evalution over time
 
-# In[8]:
+# In[6]:
 
 
-hours_features = hours_dataset[['Open', 'Close', 'Weighted_Price', 'Volume_(BTC)', 'Volume_(Currency)']]
-hours_features.index = hours_datetime
+datetime = pd.to_datetime(input_dataset['Date'])
+target_features.index = datetime
 
-hours_features.iplot(
+target_features.iplot(
     subplots=True,
 )
 
 
-# In[9]:
+# In[8]:
 
 
-hours_dataset.describe().transpose()
+target_features.describe().transpose()
 
 
-# Will take only last three yers, because they have data without missing values
+# Will take only last 4 years, because they mostly interesting
 
-# In[10]:
+# In[15]:
 
 
-day = 24
-year = (365)*day
+year = 365
 
-years_count = 3.5
+years_count = 4
 items_count = round(years_count * year)
 
-last_years_dataset = hours_dataset[-1 * items_count:]
-last_years_datetime = hours_datetime[-1 * items_count:]
+last_years_dataset = input_dataset[-1 * items_count:]
+last_years_datetime = pd.to_datetime(last_years_dataset['Date'])
 
 last_years_dataset.head()
 len(last_years_dataset)
 
 
-# In[11]:
+# In[16]:
 
 
-last_years_features = last_years_dataset[['Open', 'Close', 'Weighted_Price', 'Volume_(BTC)', 'Volume_(Currency)']]
+last_years_features = last_years_dataset[['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']]
 last_years_features.index = last_years_datetime
 
 last_years_features.iplot(
@@ -135,54 +119,11 @@ last_years_features.iplot(
 )
 
 
-# ## Remove NaN values
-
-# In[31]:
-
-
-# Is have NaN
-last_years_dataset.isnull().values.any()
-
-
-# In[32]:
-
-
-last_years_dataset.isnull().sum().sum()
-
-
-# In[50]:
-
-
-last_years_dataset_with_time = input_dataset[59::60][-1 * items_count:]
-len(last_years_dataset_with_time)
-len(last_years_dataset)
-
-nan_datafreame = last_years_dataset_with_time[last_years_dataset_with_time.isna().any(axis=1)]
-nan_datafreame
-
-
-# In[51]:
-
-
-nan_hours_datetime = pd.to_datetime(nan_datafreame.pop('Timestamp'), unit='s')
-
-
-# In[56]:
-
-
-nan_features =  nan_datafreame['Weighted_Price']
-nan_features.index = nan_hours_datetime
-nan_features.iplot(
-    kind='scatter',
-    mode='markers'
-)
-
-
 # ### Check depenence of trading and price from date in year and time of day
 
 # Firstly define function for display frequiency
 
-# In[28]:
+# In[17]:
 
 
 import tensorflow as tf
@@ -192,33 +133,31 @@ def plot_log_freaquency(series):
     fft = tf.signal.rfft(series)    
     f_per_dataset = np.arange(0, len(fft))
 
-    n_samples_h = len(series)
-    hours_per_year = 24*365.2524
-    years_per_dataset = n_samples_h/(hours_per_year)
+    n_samples_d = len(series)
+    days_per_year = 365
+    years_per_dataset = n_samples_d/(days_per_year)
 
     f_per_year = f_per_dataset/years_per_dataset
     plt.step(f_per_year, np.abs(fft))
     plt.xscale('log')
-    plt.xticks([1, 365.2524], labels=['1/Year', '1/day'])
+    plt.xticks([1, 365], labels=['1/Year', '1/day'])
     _ = plt.xlabel('Frequency (log scale)')
 
 
 # Frequency of price
 
-# In[29]:
+# In[18]:
 
 
-without_nan = last_years_dataset.dropna()
-
-plot_log_freaquency(without_nan['Weighted_Price'])
+plot_log_freaquency(last_years_dataset['Close'])
 
 
 # Frequency of transaction volume
 
-# In[30]:
+# In[19]:
 
 
-plot_log_freaquency(without_nan['Volume_(Currency)'])
+plot_log_freaquency(last_years_dataset['Volume'])
 
 
 # ### Training data distribution

@@ -3,7 +3,7 @@ import os
 from .libs import params
 
 datasets_folder = './data'
-input_dataset = os.path.join(datasets_folder, 'bitstampUSD_1-min_data_2012-01-01_to_2020-12-31.csv')
+input_dataset = os.path.join(datasets_folder, 'coin_Bitcoin.csv')
 
 BATCH_SIZE = params['input']['batch_size']
 

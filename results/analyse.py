@@ -69,8 +69,7 @@ analyse_report.show_notebook()
 # In[5]:
 
 
-input_dataset = input_dataset[59::60]
-raw_timestamps = input_dataset.pop('Timestamp')
+hours_dataset = input_dataset[59::60]
 
 
 # timestamp need interprate as date for charts processing
@@ -78,13 +77,14 @@ raw_timestamps = input_dataset.pop('Timestamp')
 # In[6]:
 
 
-input_datetime = pd.to_datetime(raw_timestamps, unit='s')
+raw_timestamps = hours_dataset.pop('Timestamp')
+hours_datetime = pd.to_datetime(raw_timestamps, unit='s')
 
 
 # In[7]:
 
 
-input_dataset.head()
+hours_dataset.head()
 
 
 # Feature evalution over time
@@ -92,10 +92,10 @@ input_dataset.head()
 # In[8]:
 
 
-input_features = input_dataset[['Open', 'Close', 'Weighted_Price']]
-input_features.index = input_datetime
+hours_features = hours_dataset[['Open', 'Close', 'Weighted_Price', 'Volume_(BTC)', 'Volume_(Currency)']]
+hours_features.index = hours_datetime
 
-input_features.iplot(
+hours_features.iplot(
     subplots=True,
 )
 
@@ -103,38 +103,127 @@ input_features.iplot(
 # In[9]:
 
 
-input_dataset.describe().transpose()
+hours_dataset.describe().transpose()
 
 
 # Will take only last three yers, because they have data without missing values
 
-# In[21]:
+# In[10]:
 
 
 day = 24
 year = (365)*day
 
-input_dataset = input_dataset.tail(3 * year)
-input_datetime = input_datetime.tail(3 * year)
+years_count = 3.5
+items_count = round(years_count * year)
 
-input_dataset.head()
-len(input_datetime)
+last_years_dataset = hours_dataset[-1 * items_count:]
+last_years_datetime = hours_datetime[-1 * items_count:]
+
+last_years_dataset.head()
+len(last_years_dataset)
 
 
-# In[19]:
+# In[11]:
 
 
-input_features = input_dataset[['Open', 'Close', 'Weighted_Price']]
-input_features.index = input_datetime
+last_years_features = last_years_dataset[['Open', 'Close', 'Weighted_Price', 'Volume_(BTC)', 'Volume_(Currency)']]
+last_years_features.index = last_years_datetime
 
-input_features.iplot(
+last_years_features.iplot(
     subplots=True,
 )
 
 
+# ## Remove NaN values
+
+# In[31]:
+
+
+# Is have NaN
+last_years_dataset.isnull().values.any()
+
+
+# In[32]:
+
+
+last_years_dataset.isnull().sum().sum()
+
+
+# In[50]:
+
+
+last_years_dataset_with_time = input_dataset[59::60][-1 * items_count:]
+len(last_years_dataset_with_time)
+len(last_years_dataset)
+
+nan_datafreame = last_years_dataset_with_time[last_years_dataset_with_time.isna().any(axis=1)]
+nan_datafreame
+
+
+# In[51]:
+
+
+nan_hours_datetime = pd.to_datetime(nan_datafreame.pop('Timestamp'), unit='s')
+
+
+# In[56]:
+
+
+nan_features =  nan_datafreame['Weighted_Price']
+nan_features.index = nan_hours_datetime
+nan_features.iplot(
+    kind='scatter',
+    mode='markers'
+)
+
+
+# ### Check depenence of trading and price from date in year and time of day
+
+# Firstly define function for display frequiency
+
+# In[28]:
+
+
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+def plot_log_freaquency(series):
+    fft = tf.signal.rfft(series)    
+    f_per_dataset = np.arange(0, len(fft))
+
+    n_samples_h = len(series)
+    hours_per_year = 24*365.2524
+    years_per_dataset = n_samples_h/(hours_per_year)
+
+    f_per_year = f_per_dataset/years_per_dataset
+    plt.step(f_per_year, np.abs(fft))
+    plt.xscale('log')
+    plt.xticks([1, 365.2524], labels=['1/Year', '1/day'])
+    _ = plt.xlabel('Frequency (log scale)')
+
+
+# Frequency of price
+
+# In[29]:
+
+
+without_nan = last_years_dataset.dropna()
+
+plot_log_freaquency(without_nan['Weighted_Price'])
+
+
+# Frequency of transaction volume
+
+# In[30]:
+
+
+plot_log_freaquency(without_nan['Volume_(Currency)'])
+
+
 # ### Training data distribution
 
-# In[6]:
+# In[ ]:
 
 
 train_df = pd.DataFrame(tfds.as_numpy(train_data), columns=['text', 'type'])
@@ -144,7 +233,7 @@ train_df['type'] = train_df['type'].apply(humanize_label)
 train_df.head()
 
 
-# In[7]:
+# In[ ]:
 
 
 print('Training dataset records', len(train_df.index))
@@ -159,7 +248,7 @@ train_df['type'].iplot(
 
 # ### Testing data distribution
 
-# In[8]:
+# In[ ]:
 
 
 test_df = pd.DataFrame(tfds.as_numpy(test_data), columns=['text', 'type'])
@@ -169,7 +258,7 @@ test_df['type'] = test_df['type'].apply(humanize_label)
 test_df[30:40]
 
 
-# In[9]:
+# In[ ]:
 
 
 print('Testing dataset records', len(test_df.index))
@@ -187,7 +276,7 @@ test_df['type'].iplot(
 
 # ### Check preprocessed training datasets distribution
 
-# In[7]:
+# In[ ]:
 
 
 train_prep_df = pd.DataFrame(tfds.as_numpy(train_prep_dataset), columns=['text', 'type'])
@@ -197,7 +286,7 @@ train_prep_df['type'] = train_prep_df['type'].apply(humanize_label)
 train_prep_df.head()
 
 
-# In[8]:
+# In[ ]:
 
 
 print('Training dataset records', len(train_prep_df.index))
@@ -213,7 +302,7 @@ train_prep_df['type'].iplot(
 # ### Check testing dataset
 # 
 
-# In[9]:
+# In[ ]:
 
 
 test_prep_df = pd.DataFrame(tfds.as_numpy(test_prep_dataset), columns=['text', 'type'])
@@ -223,7 +312,7 @@ test_prep_df['type'] = test_prep_df['type'].apply(humanize_label)
 test_prep_df.head()
 
 
-# In[10]:
+# In[ ]:
 
 
 print('Training dataset records', len(test_prep_df.index))
@@ -238,7 +327,7 @@ test_prep_df['type'].iplot(
 
 # ## Explore training metrics
 
-# In[5]:
+# In[ ]:
 
 
 df = pd.read_csv('./metrics/training.csv')
@@ -258,7 +347,7 @@ df[['epoch', 'accuracy', 'val_accuracy']].iplot(
 )
 
 
-# In[7]:
+# In[ ]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -278,7 +367,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 # 
 # 0 - bad review, 1 - good revie
 
-# In[8]:
+# In[ ]:
 
 
 from src.predict import get_probability_model
@@ -288,7 +377,7 @@ model = get_probability_model()
 
 # **Firstly will try predict on some data from training dataset**
 
-# In[9]:
+# In[ ]:
 
 
 from src.predict import get_text_and_label_from_dataset, predict
@@ -311,7 +400,7 @@ else:
 
 # **Then will try predict hadnwritten text**
 
-# In[10]:
+# In[ ]:
 
 
 # Can change text and check model

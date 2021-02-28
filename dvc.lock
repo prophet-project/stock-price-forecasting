@@ -5,8 +5,8 @@ prepare_datasets:
     md5: a996480554c18afdae3d2297ee0ddb9c
     size: 1070
   - path: ./src/prepare_datasets.py
-    md5: 084c52b3675b88c8486a8cdfee1fae44
-    size: 897
+    md5: f5bba12a78feaf30e99105a1c1583297
+    size: 1210
   - path: data
     md5: 6419867505ae2dae5f9e9440fcba55e3.dir
     size: 365784
@@ -17,6 +17,6 @@ prepare_datasets:
       input.years: 4
   outs:
   - path: preprocessed
-    md5: ed8b8c5ea58f7b3f9291439564c4ac40.dir
-    size: 192004
+    md5: 0b8a731274bf60f07861901ce1530087.dir
+    size: 113633
     nfiles: 2

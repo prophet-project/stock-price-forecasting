@@ -5,6 +5,8 @@ input:
     years: 4 # count of years of dataset which take for training and testing, start from last
 
 train:
-    epochs: 20
+    epochs: 30
     label_steps: 30 # Steps count on which in future will be generation of labels
     features: 4
+    patience: 5
+    input_width: 30

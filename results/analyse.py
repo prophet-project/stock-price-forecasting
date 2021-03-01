@@ -277,7 +277,7 @@ show_normalised(test_features)
 
 # ## Check window generator
 
-# In[22]:
+# In[6]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -362,19 +362,25 @@ print('Output shape:', baseline(wide_window.example[0]).shape)
 wide_window.plot(baseline)
 
 
-# Try plot model
-
-# In[8]:
+# In[3]:
 
 
 from src.libs import load
 
 model = load()
 
+
+# Try plot model
+
+# In[8]:
+
+
+
+
 wide_window.plot(model)
 
 
-# In[23]:
+# In[7]:
 
 
 OUT_STEPS=30
@@ -400,26 +406,29 @@ repeat_baseline.evaluate(multi_window.test, verbose=1)
 multi_window.plot(repeat_baseline)
 
 
-# In[24]:
+# In[8]:
 
 
-from src.libs import load
+from src.libs import load_custom
+from src.model import build_model
 
-model = load()
+model = build_model()
+
+load_custom(model)
 
 multi_window.plot(model)
 
 
 # ## Explore training metrics
 
-# In[25]:
+# In[3]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[26]:
+# In[4]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -432,7 +441,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[27]:
+# In[5]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(

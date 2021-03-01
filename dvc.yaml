@@ -22,8 +22,10 @@ stages:
     - train.epochs
     - train.label_steps
     - train.features
+    - train.patience
+    - train.input_width
     outs:
-    - ./saved_models/main.h5
+    - ./saved_models
     metrics:
     - ./metrics/training.csv:
         cache: false
@@ -31,10 +33,11 @@ stages:
     cmd: python -m src.test
     deps:
     - preprocessed
-    - saved_models/main.h5
+    - saved_models
     - src/test.py
     params:
-    - input.batch_size
+    - train.label_steps
+    - train.input_width
     metrics:
     - metrics/test.json:
         cache: false

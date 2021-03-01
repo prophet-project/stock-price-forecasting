@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 def split_window(self, features):
   inputs = features[:, self.input_slice, :]
   labels = features[:, self.labels_slice, :]

@@ -3,37 +3,56 @@ from .libs import params, prepare, save, checkpoints
 from .prepare_datasets import get_prepared_datasets
 from .model import build_model
 from tensorflow.keras.callbacks import CSVLogger
+from .window_generator import WindowGenerator
 
 prepare(tf)
 
 BUFFER_SIZE = params['train']['buffer_size'] 
 BATCH_SIZE = params['input']['batch_size']
-EPOCHS = params['train']['epochs']
+MAX_EPOCHS = params['train']['epochs']
 
 metrics_file='metrics/training.csv'
 
-# Load normalised datasets
-training, testing = get_prepared_datasets()
-# Dataset data is array of tensors
-# if symplify array of tuples: (text: string, label: int)
-# where 0 mean bad, and 1 mean good
+def fit(model, window, patience=2):
+    early_stopping = tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss',
+        patience=patience,
+        mode='min'
+    )
 
-# Build neural network model
-model = build_model()
+    history = model.fit(
+        window.train, 
+        epochs=MAX_EPOCHS,
+        validation_data=window.test,
+        callbacks=[
+            early_stopping,
+            checkpoints.save_weights(), 
+            CSVLogger(metrics_file)
+        ]
+    )
 
-train_batches = training.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
-validation_batches = testing.padded_batch(BATCH_SIZE)
+    model.summary()
 
-# Train network
-model.fit(
-    train_batches,
-    epochs=EPOCHS,
-    validation_data=validation_batches,
-    callbacks=[
-        checkpoints.save_weights(), 
-        CSVLogger(metrics_file)
-    ]
-)
+    return history
 
-# Save for restore in next time
-save(model)
+def train():
+    # Load normalised datasets
+    train_df, test_df = get_prepared_datasets()
+    # Build neural network model
+    model = build_model()
+
+    window = WindowGenerator(
+        input_width=30, label_width=30, shift=1,
+        train_df=train_df, test_df=test_df,
+        label_columns=['Close']
+    )
+
+    fit(model, window)
+
+    # Save for restore in next time
+    save(model)
+
+if __name__ == '__main__':
+    train()
+
+

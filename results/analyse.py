@@ -275,114 +275,136 @@ show_normalised(train_features)
 show_normalised(test_features)
 
 
-# In[ ]:
+# ## Check window generator
+
+# In[3]:
 
 
-test_df = pd.DataFrame(tfds.as_numpy(test_data), columns=['text', 'type'])
+from src.prepare_datasets import get_prepared_datasets
+from src.window_generator import WindowGenerator
 
-test_df['type'] = test_df['type'].apply(humanize_label)
+train_df, test_df = get_prepared_datasets()
+w1 = WindowGenerator(
+    input_width=24, label_width=1, shift=24, 
+    train_df=train_df, test_df=test_df, 
+    label_columns=['Close']
+)
 
-test_df[30:40]
+w1
 
 
-# In[ ]:
+# In[4]:
 
 
-print('Testing dataset records', len(test_df.index))
+w1.plot(plot_col='Close')
 
-neutralSeries = test_df.apply(lambda x: True if x['type'] == 'neutral' else False, axis=1)
-print('Count of neutral rows', len(neutralSeries[neutralSeries == True].index))
 
-test_df['type'].iplot(
-    kind='hist',
-    yTitle='count',
-    xTitle='Type',
-    title='Testing data distribution'
+# In[5]:
+
+
+w1.train.element_spec
+
+
+# ## Try baseline model
+
+# In[6]:
+
+
+single_step_window = WindowGenerator(
+    input_width=1, label_width=1, shift=1,
+    train_df=train_df, test_df=test_df, 
+    label_columns=['Close'])
+
+single_step_window
+
+
+# In[13]:
+
+
+import tensorflow as tf
+from src.BaselineModel import Baseline
+
+column_indices = {name: i for i, name in enumerate(train_df.columns)}
+
+baseline = Baseline(label_index=column_indices['Close'])
+    
+baseline.compile(
+    loss=tf.losses.MeanSquaredError(),
+    metrics=[tf.metrics.MeanAbsoluteError()]
 )
 
 
-# ### Check preprocessed training datasets distribution
-
-# In[ ]:
-
-
-train_prep_df = pd.DataFrame(tfds.as_numpy(train_prep_dataset), columns=['text', 'type'])
-
-train_prep_df['type'] = train_prep_df['type'].apply(humanize_label)
-
-train_prep_df.head()
+performance = {}
+performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[ ]:
+# In[16]:
 
 
-print('Training dataset records', len(train_prep_df.index))
+wide_window = WindowGenerator(
+    input_width=30, label_width=30, shift=1,
+    train_df=train_df, test_df=test_df,
+    label_columns=['Close'])
 
-train_prep_df['type'].iplot(
-    kind='hist',
-    yTitle='count',
-    xTitle='Type',
-    title='Preprocessed training data distribution'
-)
+wide_window
 
 
-# ### Check testing dataset
-# 
-
-# In[ ]:
+# In[17]:
 
 
-test_prep_df = pd.DataFrame(tfds.as_numpy(test_prep_dataset), columns=['text', 'type'])
-
-test_prep_df['type'] = test_prep_df['type'].apply(humanize_label)
-
-test_prep_df.head()
+print('Input shape:', wide_window.example[0].shape)
+print('Output shape:', baseline(wide_window.example[0]).shape)
 
 
-# In[ ]:
+# In[18]:
 
 
-print('Training dataset records', len(test_prep_df.index))
+wide_window.plot(baseline)
 
-test_prep_df['type'].iplot(
-    kind='hist',
-    yTitle='count',
-    xTitle='Type',
-    title='Preprocessed testing data distribution'
-)
+
+# Try plot model
+
+# In[19]:
+
+
+from src.libs import load
+
+model = load()
+
+wide_window.plot(model)
 
 
 # ## Explore training metrics
 
-# In[ ]:
+# In[20]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[ ]:
-
-
-df[['epoch', 'accuracy', 'val_accuracy']].iplot(
-    x='epoch',
-    mode='lines+markers',
-    xTitle='epoch',
-    yTitle='accuracy', 
-    title='Training accuracy',
-    linecolor='black',
-)
-
-
-# In[ ]:
+# In[21]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
     x='epoch',
     mode='lines+markers',
     xTitle='epoch',
-    yTitle='accuracy', 
-    title='Losses'
+    yTitle='loss', 
+    title='Training loss',
+    linecolor='black',
+)
+
+
+# In[22]:
+
+
+df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
+    x='epoch',
+    mode='lines+markers',
+    xTitle='epoch',
+    yTitle='mean_absolute_error', 
+    title='mean_absolute_error'
 )
 
 

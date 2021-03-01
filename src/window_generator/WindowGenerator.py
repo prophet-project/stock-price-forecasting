@@ -1,3 +1,4 @@
+import numpy as np
 from .split_window import split_window
 from .plot import plot
 from .make_dataset import make_dataset

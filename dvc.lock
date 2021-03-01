@@ -20,3 +20,50 @@ prepare_datasets:
     md5: 0b8a731274bf60f07861901ce1530087.dir
     size: 113633
     nfiles: 2
+train:
+  cmd: python -m src.train
+  deps:
+  - path: ./src/model.py
+    md5: f1694dd74c8675353a998086ac0e51a3
+    size: 329
+  - path: ./src/train.py
+    md5: 6442a1bef5881b045b32450060bdc855
+    size: 1334
+  - path: preprocessed
+    md5: 0b8a731274bf60f07861901ce1530087.dir
+    size: 113633
+    nfiles: 2
+  params:
+    params.yaml:
+      input.batch_size: 128
+      input.train_part: 0.8
+      input.years: 4
+      train.buffer_size: 128
+      train.epochs: 10
+  outs:
+  - path: ./metrics/training.csv
+    md5: 3106e6297f5d7ba1496b79404611ccba
+    size: 869
+  - path: ./saved_models/main.h5
+    md5: f2b368bfaee6cd789230227a243c6030
+    size: 18480
+test:
+  cmd: python -m src.test
+  deps:
+  - path: preprocessed
+    md5: 0b8a731274bf60f07861901ce1530087.dir
+    size: 113633
+    nfiles: 2
+  - path: saved_models/main.h5
+    md5: f2b368bfaee6cd789230227a243c6030
+    size: 18480
+  - path: src/test.py
+    md5: 8f26cb8c52cfc3b0842d2bdc97d7a315
+    size: 665
+  params:
+    params.yaml:
+      input.batch_size: 128
+  outs:
+  - path: metrics/test.json
+    md5: de0e0dde4867812f5db1b4d7e2a5fa23
+    size: 83

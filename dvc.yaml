@@ -17,11 +17,11 @@ stages:
     - ./src/train.py
     - preprocessed
     params:
-    - input.batch_size
     - input.train_part
     - input.years
-    - train.buffer_size
     - train.epochs
+    - train.label_steps
+    - train.features
     outs:
     - ./saved_models/main.h5
     metrics:

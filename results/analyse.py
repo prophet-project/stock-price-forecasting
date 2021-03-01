@@ -85,7 +85,7 @@ target_features.iplot(
 )
 
 
-# In[8]:
+# In[7]:
 
 
 target_features.describe().transpose()
@@ -93,7 +93,7 @@ target_features.describe().transpose()
 
 # Will take only last 4 years, because they mostly interesting
 
-# In[15]:
+# In[8]:
 
 
 year = 365
@@ -108,7 +108,7 @@ last_years_dataset.head()
 len(last_years_dataset)
 
 
-# In[16]:
+# In[9]:
 
 
 last_years_features = last_years_dataset[['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']]
@@ -123,7 +123,7 @@ last_years_features.iplot(
 
 # Firstly define function for display frequiency
 
-# In[17]:
+# In[10]:
 
 
 import tensorflow as tf
@@ -162,7 +162,7 @@ plot_log_freaquency(last_years_dataset['Volume'])
 
 # ## Compare train and test datasets
 
-# In[5]:
+# In[11]:
 
 
 from src.load_datasets import load_datasets
@@ -172,7 +172,7 @@ train_df, test_df = load_datasets()
 train_df
 
 
-# In[6]:
+# In[12]:
 
 
 feature_list = ['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']
@@ -184,7 +184,7 @@ compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Tes
 compare_report.show_notebook()
 
 
-# In[7]:
+# In[13]:
 
 
 train_datetime = pd.to_datetime(train_df['Date'])
@@ -196,7 +196,7 @@ test_features.index = test_datetime
 
 # ### Training data exploration
 
-# In[8]:
+# In[14]:
 
 
 train_features.iplot(subplots=True)
@@ -204,13 +204,13 @@ train_features.iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[9]:
+# In[15]:
 
 
 test_df
 
 
-# In[10]:
+# In[16]:
 
 
 test_features.iplot(subplots=True)
@@ -222,7 +222,7 @@ test_features.iplot(subplots=True)
 # 
 # Subtract the mean and divide by the standard deviation of each feature will give required normalisation
 
-# In[11]:
+# In[17]:
 
 
 train_mean = train_features.mean()
@@ -232,25 +232,25 @@ train_features = (train_features - train_mean) / train_std
 test_features = (test_features - train_mean) / train_std
 
 
-# In[22]:
+# In[18]:
 
 
 train_features
 
 
-# In[23]:
+# In[19]:
 
 
 train_features.iplot(subplots=True)
 
 
-# In[25]:
+# In[20]:
 
 
 test_features.iplot(subplots=True)
 
 
-# In[20]:
+# In[21]:
 
 
 import matplotlib.pyplot as plt
@@ -277,7 +277,7 @@ show_normalised(test_features)
 
 # ## Check window generator
 
-# In[3]:
+# In[22]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -338,7 +338,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[16]:
+# In[7]:
 
 
 wide_window = WindowGenerator(
@@ -364,7 +364,7 @@ wide_window.plot(baseline)
 
 # Try plot model
 
-# In[19]:
+# In[8]:
 
 
 from src.libs import load
@@ -374,16 +374,52 @@ model = load()
 wide_window.plot(model)
 
 
+# In[23]:
+
+
+OUT_STEPS=30
+multi_window = WindowGenerator(
+    input_width=30, label_width=OUT_STEPS, shift=OUT_STEPS,
+    train_df=train_df, test_df=test_df, 
+    label_columns=['Close'])
+
+multi_window
+
+
+# In[16]:
+
+
+import tensorflow as tf
+from src.RepeatBaselineModel import RepeatBaseline
+
+repeat_baseline = RepeatBaseline()
+repeat_baseline.compile(loss=tf.losses.MeanSquaredError(),
+                        metrics=[tf.metrics.MeanAbsoluteError()])
+
+repeat_baseline.evaluate(multi_window.test, verbose=1)
+multi_window.plot(repeat_baseline)
+
+
+# In[24]:
+
+
+from src.libs import load
+
+model = load()
+
+multi_window.plot(model)
+
+
 # ## Explore training metrics
 
-# In[20]:
+# In[25]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[21]:
+# In[26]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -396,7 +432,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[22]:
+# In[27]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(

@@ -7,8 +7,7 @@ from .window_generator import WindowGenerator
 
 prepare(tf)
 
-BUFFER_SIZE = params['train']['buffer_size'] 
-BATCH_SIZE = params['input']['batch_size']
+LABEL_STEPS = params['train']['label_steps']
 MAX_EPOCHS = params['train']['epochs']
 
 metrics_file='metrics/training.csv'
@@ -42,7 +41,7 @@ def train():
     model = build_model()
 
     window = WindowGenerator(
-        input_width=30, label_width=30, shift=1,
+        input_width=30, label_width=LABEL_STEPS, shift=LABEL_STEPS,
         train_df=train_df, test_df=test_df,
         label_columns=['Close']
     )

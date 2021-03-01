@@ -5,5 +5,6 @@ input:
     years: 4 # count of years of dataset which take for training and testing, start from last
 
 train:
-    buffer_size: 128 # Must be grater or equal to batches size
-    epochs: 10
+    epochs: 20
+    label_steps: 30 # Steps count on which in future will be generation of labels
+    features: 4

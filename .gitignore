@@ -139,3 +139,4 @@ preprocessed
 # Embeding encoder
 encoder/
 /data
+/saved_models

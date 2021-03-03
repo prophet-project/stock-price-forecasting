@@ -46,7 +46,7 @@ notebook-to-python:
 
 notebook-artifacts: notebook-to-html notebook-to-python
 
-diff-metrics:
+metrics-diff:
 	dvc metrics diff
 
 # ---------------------------------------------------------------------------------------------------------------------

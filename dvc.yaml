@@ -20,10 +20,11 @@ stages:
     - input.train_part
     - input.years
     - train.epochs
-    - train.label_steps
     - train.features
     - train.patience
     - train.input_width
+    - train.label_width
+    - train.label_shift
     outs:
     - ./saved_models
     metrics:
@@ -36,8 +37,9 @@ stages:
     - saved_models
     - src/test.py
     params:
-    - train.label_steps
     - train.input_width
+    - train.label_width
+    - train.label_shift
     metrics:
     - metrics/test.json:
         cache: false

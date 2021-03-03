@@ -1,28 +1,23 @@
 import tensorflow as tf
-from .prepare_datasets import get_prepared_datasets
-from .libs import params, prepare, save_metrics, load_custom
-from .window_generator import WindowGenerator
-from .model import build_model
+from .prepare_datasets import make_window_generator
+from .libs import params, prepare, save_metrics, load
 
 prepare(tf)
 
-BATCH_SIZE = params['input']['batch_size']
-LABEL_STEPS = params['train']['label_steps']
 INPUT_WIDTH = params['train']['input_width']
+LABEL_STEPS = params['train']['label_width']
+LABEL_SHIFT = params['train']['label_shift']
+LABEL_COLUMNS = params['train']['label_columns']
 
 metrics_file='metrics/test.json'
 
 # Load normalised datasets
-train_df, test_df = get_prepared_datasets()
-
-window = WindowGenerator(
-    input_width=INPUT_WIDTH, label_width=LABEL_STEPS, shift=LABEL_STEPS,
-    train_df=train_df, test_df=test_df,
-    label_columns=['Close']
+window = make_window_generator(
+    input_width=INPUT_WIDTH, label_width=LABEL_STEPS, shift=LABEL_STEPS, 
+    label_columns=LABEL_COLUMNS
 )
 
-model = build_model()
-load_custom(model)
+model = load()
 
 # Test
 results = model.evaluate(

@@ -2,11 +2,10 @@ from tensorflow.keras import Sequential, layers, losses, optimizers, metrics, in
 from .libs import params
 from .FeedBackModel import FeedBack
 
-LABEL_STEPS = params['train']['label_steps']
-NUM_FEATURES = params['train']['features']
-
 def build_model():
-    model = FeedBack(units=32, out_steps=LABEL_STEPS, num_features=NUM_FEATURES)
+    model = Sequential(
+        layers.Dense(units=1)
+    )
     
     model.compile(
         loss=losses.MeanSquaredError(),

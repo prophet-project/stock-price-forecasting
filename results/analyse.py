@@ -277,7 +277,7 @@ show_normalised(test_features)
 
 # ## Check window generator
 
-# In[6]:
+# In[3]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -318,7 +318,7 @@ single_step_window = WindowGenerator(
 single_step_window
 
 
-# In[13]:
+# In[7]:
 
 
 import tensorflow as tf
@@ -338,7 +338,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[7]:
+# In[8]:
 
 
 wide_window = WindowGenerator(
@@ -349,20 +349,20 @@ wide_window = WindowGenerator(
 wide_window
 
 
-# In[17]:
+# In[9]:
 
 
 print('Input shape:', wide_window.example[0].shape)
 print('Output shape:', baseline(wide_window.example[0]).shape)
 
 
-# In[18]:
+# In[10]:
 
 
 wide_window.plot(baseline)
 
 
-# In[3]:
+# In[11]:
 
 
 from src.libs import load
@@ -372,7 +372,7 @@ model = load()
 
 # Try plot model
 
-# In[8]:
+# In[12]:
 
 
 
@@ -421,14 +421,14 @@ multi_window.plot(model)
 
 # ## Explore training metrics
 
-# In[3]:
+# In[13]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[4]:
+# In[14]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -441,7 +441,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[5]:
+# In[15]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(

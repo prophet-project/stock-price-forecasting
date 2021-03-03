@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from .load_datasets import load_datasets
+from .window_generator import WindowGenerator
 
 feature_list = ['High', 'Low', 'Open', 'Close']
 
@@ -16,6 +17,23 @@ def get_prepared_datasets():
     test = pd.read_csv(processed_test_dataset_path)
 
     return train, test
+
+def make_window_generator(
+    input_width, 
+    label_width, 
+    shift,
+    label_columns=None
+):
+    # Load normalised datasets
+    train_df, test_df = get_prepared_datasets()
+
+    window = WindowGenerator(
+        input_width=input_width, label_width=label_width, shift=shift,
+        train_df=train_df, test_df=test_df,
+        label_columns=label_columns
+    )
+
+    return window
 
 """
     Will normalize datasets and prepare for processing by NN

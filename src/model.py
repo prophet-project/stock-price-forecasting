@@ -2,12 +2,16 @@ from tensorflow.keras import Sequential, layers, losses, optimizers, metrics, in
 from .libs import params
 from .FeedBackModel import FeedBack
 
+NUM_FEATURES=4 
+
 def build_model():
     model = Sequential([
         # Shape [batch, time, features] => [batch, time, lstm_units]
-        layers.LSTM(64, return_sequences=True),
+        layers.LSTM(32, return_sequences=True),
         # Shape => [batch, time, features]
-        layers.Dense(units=1)
+        layers.Dense(
+            units=1
+        )
     ])
     
     model.compile(

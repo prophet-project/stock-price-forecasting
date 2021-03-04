@@ -338,7 +338,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[8]:
+# In[13]:
 
 
 wide_window = WindowGenerator(
@@ -349,20 +349,20 @@ wide_window = WindowGenerator(
 wide_window
 
 
-# In[9]:
+# In[14]:
 
 
 print('Input shape:', wide_window.example[0].shape)
 print('Output shape:', baseline(wide_window.example[0]).shape)
 
 
-# In[10]:
+# In[15]:
 
 
 wide_window.plot(baseline)
 
 
-# In[11]:
+# In[16]:
 
 
 from src.libs import load
@@ -372,7 +372,7 @@ model = load()
 
 # Try plot model
 
-# In[12]:
+# In[17]:
 
 
 

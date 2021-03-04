@@ -5,7 +5,7 @@ from .FeedBackModel import FeedBack
 def build_model():
     model = Sequential([
         # Shape [batch, time, features] => [batch, time, lstm_units]
-        layers.LSTM(32, return_sequences=True),
+        layers.LSTM(64, return_sequences=True),
         # Shape => [batch, time, features]
         layers.Dense(units=1)
     ])

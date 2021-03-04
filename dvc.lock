@@ -24,7 +24,7 @@ train:
   cmd: python -m src.train
   deps:
   - path: ./src/model.py
-    md5: ce3480edecceb90f126b92fdd4662fbd
+    md5: 023e27e12969c83f5b464d01fa7479e0
     size: 564
   - path: ./src/train.py
     md5: 0c8d21de4bfb2c1ff6be22c6fccdeffb
@@ -39,17 +39,17 @@ train:
       input.years: 4
       train.epochs: 30
       train.features: 4
-      train.input_width: 8
+      train.input_width: 24
       train.label_shift: 1
-      train.label_width: 8
+      train.label_width: 24
       train.patience: 5
   outs:
   - path: ./metrics/training.csv
-    md5: 1c39fe825c89247b004772c85838a219
-    size: 1660
+    md5: edd6bcfb7d5f826d57192eb959056075
+    size: 1580
   - path: ./saved_models
-    md5: 04c7942f753c8434054bda4857683ed4.dir
-    size: 85992
+    md5: 2f3a26719ee35f5b7c812d2f1e5c0622.dir
+    size: 241664
     nfiles: 1
 test:
   cmd: python -m src.test
@@ -59,18 +59,18 @@ test:
     size: 113633
     nfiles: 2
   - path: saved_models
-    md5: 04c7942f753c8434054bda4857683ed4.dir
-    size: 85992
+    md5: 2f3a26719ee35f5b7c812d2f1e5c0622.dir
+    size: 241664
     nfiles: 1
   - path: src/test.py
     md5: 295bc35986f9ef346731a5e2dc610746
     size: 698
   params:
     params.yaml:
-      train.input_width: 8
+      train.input_width: 24
       train.label_shift: 1
-      train.label_width: 8
+      train.label_width: 24
   outs:
   - path: metrics/test.json
-    md5: b637afba5bb7fdb5980f59ff82a378d4
-    size: 80
+    md5: 9f13aa0ecb70d5e55b04f6676ccffd74
+    size: 79

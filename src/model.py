@@ -7,7 +7,7 @@ def build_model():
         # Shape [batch, time, features] => [batch, time, lstm_units]
         layers.LSTM(32, return_sequences=True),
         # Shape => [batch, time, features]
-        layers.Dense(units=4)
+        layers.Dense(units=1)
     ])
     
     model.compile(

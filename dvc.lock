@@ -39,16 +39,16 @@ train:
       input.years: 4
       train.epochs: 30
       train.features: 4
-      train.input_width: 24
+      train.input_width: 30
       train.label_shift: 1
-      train.label_width: 24
+      train.label_width: 30
       train.patience: 2
   outs:
   - path: ./metrics/training.csv
-    md5: 4570d8b75c3afa7a18945e1ac5297b7d
-    size: 1900
+    md5: d041fa1893e68950fbace24bb6d4ea05
+    size: 852
   - path: ./saved_models
-    md5: 220cbce4f19e886b4c1e789201934d62.dir
+    md5: 128b6b51ee93e190fc9b5274ea3a47b5.dir
     size: 87280
     nfiles: 1
 test:
@@ -59,7 +59,7 @@ test:
     size: 113633
     nfiles: 2
   - path: saved_models
-    md5: 220cbce4f19e886b4c1e789201934d62.dir
+    md5: 128b6b51ee93e190fc9b5274ea3a47b5.dir
     size: 87280
     nfiles: 1
   - path: src/test.py
@@ -67,10 +67,10 @@ test:
     size: 698
   params:
     params.yaml:
-      train.input_width: 24
+      train.input_width: 30
       train.label_shift: 1
-      train.label_width: 24
+      train.label_width: 30
   outs:
   - path: metrics/test.json
-    md5: aaa8ae25b10e8d8e06275490a5d65428
-    size: 81
+    md5: a39a47c8d3f6a55640d68475a21abdf6
+    size: 80

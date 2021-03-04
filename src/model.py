@@ -3,9 +3,12 @@ from .libs import params
 from .FeedBackModel import FeedBack
 
 def build_model():
-    model = Sequential(
-        layers.Dense(units=1)
-    )
+    model = Sequential([
+        # Shape [batch, time, features] => [batch, time, lstm_units]
+        layers.LSTM(32, return_sequences=True),
+        # Shape => [batch, time, features]
+        layers.Dense(units=4)
+    ])
     
     model.compile(
         loss=losses.MeanSquaredError(),

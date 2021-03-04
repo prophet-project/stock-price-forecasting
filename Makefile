@@ -71,3 +71,6 @@ docker-it:
 
 attach-console:
 	docker exec -it $(PROJECT_NAME) bash
+
+chmod:
+	chmod -R 777 .

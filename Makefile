@@ -63,6 +63,8 @@ docker-build:
 docker-console:
 	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
 
+console: doccker-console
+
 docker:
 	docker run --gpus all --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
 

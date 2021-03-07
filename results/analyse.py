@@ -162,7 +162,7 @@ plot_log_freaquency(last_years_dataset['Volume'])
 
 # ## Compare train and test datasets
 
-# In[3]:
+# In[13]:
 
 
 from src.load_datasets import load_datasets
@@ -172,7 +172,7 @@ train_df, test_df = load_datasets()
 train_df
 
 
-# In[5]:
+# In[14]:
 
 
 import sweetviz as sv
@@ -186,7 +186,7 @@ compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Tes
 compare_report.show_notebook()
 
 
-# In[6]:
+# In[15]:
 
 
 train_datetime = pd.to_datetime(train_df['Date'])
@@ -198,7 +198,7 @@ test_features.index = test_datetime
 
 # ### Training data exploration
 
-# In[7]:
+# In[16]:
 
 
 train_features.iplot(subplots=True)
@@ -206,13 +206,13 @@ train_features.iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[8]:
+# In[17]:
 
 
 test_df
 
 
-# In[9]:
+# In[18]:
 
 
 test_features.iplot(subplots=True)
@@ -220,27 +220,50 @@ test_features.iplot(subplots=True)
 
 # ## Normalise data
 # 
-# Will use only training mean and deviation for not give NN access to test dataset
+# dataset is not stationary.
 # 
-# Subtract the mean and divide by the standard deviation of each feature will give required normalisation
+# This means that there is a structure in the data that is dependent on the time. Specifically, there is an increasing trend in the data.
+# 
+# Stationary data is easier to model and will very likely result in more skillful forecasts.
+# 
+# A standard way to remove a trend is by differencing the data. That is the observation from the previous time step (t-1) is subtracted from the current observation (t). This removes the trend and we are left with a difference series, or the changes to the observations from one time step to the next.
+# 
+# The default activation function for LSTMs is the hyperbolic tangent (tanh), which outputs values between -1 and 1. This is the preferred range for the time series data.
+# 
+# To make the experiment fair, the scaling coefficients (min and max) values must be calculated on the training dataset and applied to scale the test dataset and any forecasts. This is to avoid contaminating the experiment with knowledge from the test dataset, which might give the model a small edge.
+# 
+# We can transform the dataset to the range [-1, 1] using the MinMaxScaler class. 
 
-# In[13]:
+# In[19]:
 
 
-train_mean = train_features.mean()
-train_std = train_features.std()
+from sklearn.preprocessing import MinMaxScaler
 
-train_normalised = (train_features - train_mean) / train_std
-test_normalised = (test_features - train_mean) / train_std
+train_normalised = train_features.diff()
+test_normalised = test_features.diff()
+
+train_normalised.fillna(0, inplace=True)
+test_normalised.fillna(0, inplace=True)
 
 train_normalised.head()
 
+scaler = MinMaxScaler(feature_range=(-1, 1))
+
+scaler.fit(train_normalised)
+
+train_normalised = pd.DataFrame(scaler.transform(train_normalised), columns=train_features.columns)
+test_normalised = pd.DataFrame(scaler.transform(test_normalised), columns=test_features.columns)
+
+train_normalised.head()
+
+train_normalised.index = train_features.index
 train_normalised.iplot(subplots=True, title="Train")
 
+test_normalised.index = test_features.index
 test_normalised.iplot(subplots=True, title="Test")
 
 
-# In[16]:
+# In[20]:
 
 
 feature2normaliesd = pd.DataFrame({ 'Real': train_features['Close'], 'Normalised': train_normalised['Close']})
@@ -249,34 +272,9 @@ feature2normaliesd.index = train_features.index
 feature2normaliesd.iplot(subplots=True)
 
 
-# In[23]:
-
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-def show_normalised(df):
-    df_std = (df - train_mean) / train_std
-    df_std = df_std.melt(var_name='Column', value_name='Normalized')
-    # plt.figure(figsize=(12, 6))
-    ax = sns.violinplot(x='Column', y='Normalized', data=df_std)
-
-
-# In[24]:
-
-
-show_normalised(train_features)
-
-
-# In[25]:
-
-
-show_normalised(test_features)
-
-
 # ## Check window generator
 
-# In[26]:
+# In[21]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -292,13 +290,13 @@ w1 = WindowGenerator(
 w1
 
 
-# In[27]:
+# In[22]:
 
 
 w1.plot(plot_col='Close')
 
 
-# In[28]:
+# In[23]:
 
 
 w1.train.element_spec
@@ -306,7 +304,7 @@ w1.train.element_spec
 
 # ## Try baseline model
 
-# In[29]:
+# In[24]:
 
 
 single_step_window = WindowGenerator(
@@ -317,7 +315,7 @@ single_step_window = WindowGenerator(
 single_step_window
 
 
-# In[30]:
+# In[25]:
 
 
 import tensorflow as tf
@@ -337,7 +335,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[31]:
+# In[26]:
 
 
 wide_window = WindowGenerator(
@@ -348,20 +346,20 @@ wide_window = WindowGenerator(
 wide_window
 
 
-# In[32]:
+# In[27]:
 
 
 print('Input shape:', wide_window.example[0].shape)
 print('Output shape:', baseline(wide_window.example[0]).shape)
 
 
-# In[33]:
+# In[28]:
 
 
 wide_window.plot(baseline)
 
 
-# In[34]:
+# In[29]:
 
 
 from src.libs import load
@@ -371,7 +369,7 @@ model = load()
 
 # Try plot model
 
-# In[35]:
+# In[30]:
 
 
 
@@ -379,7 +377,7 @@ model = load()
 wide_window.plot(model)
 
 
-# In[36]:
+# In[ ]:
 
 
 OUT_STEPS=30
@@ -391,7 +389,7 @@ multi_window = WindowGenerator(
 multi_window
 
 
-# In[37]:
+# In[ ]:
 
 
 import tensorflow as tf
@@ -407,14 +405,14 @@ multi_window.plot(repeat_baseline)
 
 # ## Explore training metrics
 
-# In[39]:
+# In[31]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[40]:
+# In[32]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -427,7 +425,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[41]:
+# In[33]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
@@ -437,4 +435,10 @@ df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
     yTitle='mean_absolute_error', 
     title='mean_absolute_error'
 )
+
+
+# In[ ]:
+
+
+
 

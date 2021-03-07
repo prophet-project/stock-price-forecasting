@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from .load_datasets import load_datasets
 from .window_generator import WindowGenerator
+from sklearn.preprocessing import MinMaxScaler
 
 feature_list = ['High', 'Low', 'Open', 'Close']
 
@@ -44,13 +45,23 @@ def build_prepared_dataset():
     train = train[feature_list]
     test = test[feature_list]
 
-    # Calc base deviation
+    # Calc difference for remove trend and normalise
 
-    train_mean = train.mean()
-    train_std = train.std()
+    train_normalised = train.diff()
+    test_normalised = test.diff()
 
-    train = (train - train_mean) / train_std
-    test = (test - train_mean) / train_std
+    train_normalised.fillna(0, inplace=True)
+    test_normalised.fillna(0, inplace=True)
+
+    scaler = MinMaxScaler(feature_range=(-1, 1))
+    # fit by only train data, for remove test bias
+    scaler.fit(train) 
+
+    train_normalised = pd.DataFrame(scaler.transform(train_normalised), columns=train.columns)
+    test_normalised = pd.DataFrame(scaler.transform(test_normalised), columns=test.columns)
+
+    train_normalised.index = train.index
+    test_normalised.index = test.index
 
     with open(processed_train_dataset_path, 'w') as f:
         train.to_csv(f, index=False)

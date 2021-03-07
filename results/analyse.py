@@ -220,39 +220,21 @@ test_features.iplot(subplots=True)
 
 # ## Normalise data
 # 
-# dataset is not stationary.
+# Will use only training mean and deviation for not give NN access to test dataset
+#  
+# Subtract the mean and divide by the standard deviation of each feature will give required normalisation
 # 
-# This means that there is a structure in the data that is dependent on the time. Specifically, there is an increasing trend in the data.
-# 
-# Stationary data is easier to model and will very likely result in more skillful forecasts.
-# 
-# A standard way to remove a trend is by differencing the data. That is the observation from the previous time step (t-1) is subtracted from the current observation (t). This removes the trend and we are left with a difference series, or the changes to the observations from one time step to the next.
-# 
-# The default activation function for LSTMs is the hyperbolic tangent (tanh), which outputs values between -1 and 1. This is the preferred range for the time series data.
-# 
-# To make the experiment fair, the scaling coefficients (min and max) values must be calculated on the training dataset and applied to scale the test dataset and any forecasts. This is to avoid contaminating the experiment with knowledge from the test dataset, which might give the model a small edge.
-# 
-# We can transform the dataset to the range [-1, 1] using the MinMaxScaler class. 
 
 # In[19]:
 
 
 from sklearn.preprocessing import MinMaxScaler
 
-train_normalised = train_features.diff()
-test_normalised = test_features.diff()
+train_mean = train_features.mean()
+train_std = train_features.std()
 
-train_normalised.fillna(0, inplace=True)
-test_normalised.fillna(0, inplace=True)
-
-train_normalised.head()
-
-scaler = MinMaxScaler(feature_range=(-1, 1))
-
-scaler.fit(train_normalised)
-
-train_normalised = pd.DataFrame(scaler.transform(train_normalised), columns=train_features.columns)
-test_normalised = pd.DataFrame(scaler.transform(test_normalised), columns=test_features.columns)
+train_normalised = (train_features - train_mean) / train_std
+test_normalised = (test_features - train_mean) / train_std
 
 train_normalised.head()
 

@@ -162,7 +162,7 @@ plot_log_freaquency(last_years_dataset['Volume'])
 
 # ## Compare train and test datasets
 
-# In[13]:
+# In[3]:
 
 
 from src.load_datasets import load_datasets
@@ -172,8 +172,10 @@ train_df, test_df = load_datasets()
 train_df
 
 
-# In[14]:
+# In[5]:
 
+
+import sweetviz as sv
 
 feature_list = ['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']
 
@@ -184,7 +186,7 @@ compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Tes
 compare_report.show_notebook()
 
 
-# In[15]:
+# In[6]:
 
 
 train_datetime = pd.to_datetime(train_df['Date'])
@@ -196,7 +198,7 @@ test_features.index = test_datetime
 
 # ### Training data exploration
 
-# In[16]:
+# In[7]:
 
 
 train_features.iplot(subplots=True)
@@ -204,13 +206,13 @@ train_features.iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[17]:
+# In[8]:
 
 
 test_df
 
 
-# In[18]:
+# In[9]:
 
 
 test_features.iplot(subplots=True)
@@ -222,32 +224,29 @@ test_features.iplot(subplots=True)
 # 
 # Subtract the mean and divide by the standard deviation of each feature will give required normalisation
 
-# In[19]:
+# In[13]:
 
 
 train_mean = train_features.mean()
 train_std = train_features.std()
 
-train_features = (train_features - train_mean) / train_std
-test_features = (test_features - train_mean) / train_std
+train_normalised = (train_features - train_mean) / train_std
+test_normalised = (test_features - train_mean) / train_std
+
+train_normalised.head()
+
+train_normalised.iplot(subplots=True, title="Train")
+
+test_normalised.iplot(subplots=True, title="Test")
 
 
-# In[20]:
+# In[16]:
 
 
-train_features
+feature2normaliesd = pd.DataFrame({ 'Real': train_features['Close'], 'Normalised': train_normalised['Close']})
+feature2normaliesd.index = train_features.index
 
-
-# In[21]:
-
-
-train_features.iplot(subplots=True)
-
-
-# In[22]:
-
-
-test_features.iplot(subplots=True)
+feature2normaliesd.iplot(subplots=True)
 
 
 # In[23]:

@@ -27,7 +27,6 @@ def fit(model, window):
         epochs=MAX_EPOCHS,
         validation_data=window.test,
         callbacks=[
-            early_stopping,
             checkpoints.save_weights(), 
             CSVLogger(metrics_file)
         ]

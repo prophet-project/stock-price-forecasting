@@ -256,7 +256,7 @@ feature2normaliesd.iplot(subplots=True)
 
 # ## Check window generator
 
-# In[21]:
+# In[3]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -317,7 +317,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[26]:
+# In[4]:
 
 
 wide_window = WindowGenerator(
@@ -341,7 +341,7 @@ print('Output shape:', baseline(wide_window.example[0]).shape)
 wide_window.plot(baseline)
 
 
-# In[29]:
+# In[5]:
 
 
 from src.libs import load
@@ -349,14 +349,43 @@ from src.libs import load
 model = load()
 
 
+# In[7]:
+
+
+model.evaluate(wide_window.test, verbose=2)
+
+
 # Try plot model
 
-# In[30]:
-
-
+# In[8]:
 
 
 wide_window.plot(model)
+
+
+# In[25]:
+
+
+import tensorflow as tf
+
+test_window, label_window = next(iter(wide_window.test))
+predictions = model(test_window)
+
+predictions = tf.reshape(predictions, [-1])
+label_window = tf.reshape(label_window, [-1])
+
+pred2labels = pd.DataFrame({ 'Predicted': predictions, 'Labels': label_window})
+
+pred2labels.iplot()
+
+
+# In[32]:
+
+
+import plotly.express as px
+
+fig = px.scatter(x=pred2labels['Predicted'], y=pred2labels['Labels'])
+fig.show()
 
 
 # In[ ]:

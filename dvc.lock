@@ -24,8 +24,8 @@ train:
   cmd: python -m src.train
   deps:
   - path: ./src/model.py
-    md5: 85291683e20158eb973bc420c20135e0
-    size: 581
+    md5: a8e8efab2c4aed5325e488f20e80bf1b
+    size: 586
   - path: ./src/train.py
     md5: 0c8d21de4bfb2c1ff6be22c6fccdeffb
     size: 1306
@@ -45,10 +45,10 @@ train:
       train.patience: 2
   outs:
   - path: ./metrics/training.csv
-    md5: 16d8a277f22cd1dfd222cfec3ff9fb1a
-    size: 1013
+    md5: 67fb465aee0e1e01a41784b5e31e4c97
+    size: 692
   - path: ./saved_models
-    md5: 08eef14aecde134f550af5863070f003.dir
+    md5: 09f5bd4228e382ec830ab500a4792f81.dir
     size: 85992
     nfiles: 1
 test:
@@ -59,7 +59,7 @@ test:
     size: 113633
     nfiles: 2
   - path: saved_models
-    md5: 08eef14aecde134f550af5863070f003.dir
+    md5: 09f5bd4228e382ec830ab500a4792f81.dir
     size: 85992
     nfiles: 1
   - path: src/test.py
@@ -72,5 +72,5 @@ test:
       train.label_width: 30
   outs:
   - path: metrics/test.json
-    md5: 337b27d57b3097ad6648d0789492d28e
+    md5: f868a66dd5fae7ef565863ce32eccad8
     size: 80

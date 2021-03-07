@@ -12,6 +12,7 @@ def build_model():
         layers.Dense(units=1)
     ])
     
+    
     model.compile(
         loss=losses.MeanSquaredError(),
         optimizer=optimizers.Adam(),

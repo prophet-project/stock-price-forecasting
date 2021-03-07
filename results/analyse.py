@@ -146,7 +146,7 @@ def plot_log_freaquency(series):
 
 # Frequency of price
 
-# In[18]:
+# In[11]:
 
 
 plot_log_freaquency(last_years_dataset['Close'])
@@ -154,7 +154,7 @@ plot_log_freaquency(last_years_dataset['Close'])
 
 # Frequency of transaction volume
 
-# In[19]:
+# In[12]:
 
 
 plot_log_freaquency(last_years_dataset['Volume'])
@@ -162,7 +162,7 @@ plot_log_freaquency(last_years_dataset['Volume'])
 
 # ## Compare train and test datasets
 
-# In[11]:
+# In[13]:
 
 
 from src.load_datasets import load_datasets
@@ -172,7 +172,7 @@ train_df, test_df = load_datasets()
 train_df
 
 
-# In[12]:
+# In[14]:
 
 
 feature_list = ['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']
@@ -184,7 +184,7 @@ compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Tes
 compare_report.show_notebook()
 
 
-# In[13]:
+# In[15]:
 
 
 train_datetime = pd.to_datetime(train_df['Date'])
@@ -196,7 +196,7 @@ test_features.index = test_datetime
 
 # ### Training data exploration
 
-# In[14]:
+# In[16]:
 
 
 train_features.iplot(subplots=True)
@@ -204,13 +204,13 @@ train_features.iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[15]:
+# In[17]:
 
 
 test_df
 
 
-# In[16]:
+# In[18]:
 
 
 test_features.iplot(subplots=True)
@@ -222,7 +222,7 @@ test_features.iplot(subplots=True)
 # 
 # Subtract the mean and divide by the standard deviation of each feature will give required normalisation
 
-# In[17]:
+# In[19]:
 
 
 train_mean = train_features.mean()
@@ -232,25 +232,25 @@ train_features = (train_features - train_mean) / train_std
 test_features = (test_features - train_mean) / train_std
 
 
-# In[18]:
+# In[20]:
 
 
 train_features
 
 
-# In[19]:
+# In[21]:
 
 
 train_features.iplot(subplots=True)
 
 
-# In[20]:
+# In[22]:
 
 
 test_features.iplot(subplots=True)
 
 
-# In[21]:
+# In[23]:
 
 
 import matplotlib.pyplot as plt
@@ -263,13 +263,13 @@ def show_normalised(df):
     ax = sns.violinplot(x='Column', y='Normalized', data=df_std)
 
 
-# In[21]:
+# In[24]:
 
 
 show_normalised(train_features)
 
 
-# In[24]:
+# In[25]:
 
 
 show_normalised(test_features)
@@ -277,7 +277,7 @@ show_normalised(test_features)
 
 # ## Check window generator
 
-# In[3]:
+# In[26]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -293,13 +293,13 @@ w1 = WindowGenerator(
 w1
 
 
-# In[4]:
+# In[27]:
 
 
 w1.plot(plot_col='Close')
 
 
-# In[5]:
+# In[28]:
 
 
 w1.train.element_spec
@@ -307,7 +307,7 @@ w1.train.element_spec
 
 # ## Try baseline model
 
-# In[6]:
+# In[29]:
 
 
 single_step_window = WindowGenerator(
@@ -318,7 +318,7 @@ single_step_window = WindowGenerator(
 single_step_window
 
 
-# In[7]:
+# In[30]:
 
 
 import tensorflow as tf
@@ -338,7 +338,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[13]:
+# In[31]:
 
 
 wide_window = WindowGenerator(
@@ -349,20 +349,20 @@ wide_window = WindowGenerator(
 wide_window
 
 
-# In[14]:
+# In[32]:
 
 
 print('Input shape:', wide_window.example[0].shape)
 print('Output shape:', baseline(wide_window.example[0]).shape)
 
 
-# In[15]:
+# In[33]:
 
 
 wide_window.plot(baseline)
 
 
-# In[16]:
+# In[34]:
 
 
 from src.libs import load
@@ -372,7 +372,7 @@ model = load()
 
 # Try plot model
 
-# In[17]:
+# In[35]:
 
 
 
@@ -380,7 +380,7 @@ model = load()
 wide_window.plot(model)
 
 
-# In[7]:
+# In[36]:
 
 
 OUT_STEPS=30
@@ -392,7 +392,7 @@ multi_window = WindowGenerator(
 multi_window
 
 
-# In[16]:
+# In[37]:
 
 
 import tensorflow as tf
@@ -406,29 +406,16 @@ repeat_baseline.evaluate(multi_window.test, verbose=1)
 multi_window.plot(repeat_baseline)
 
 
-# In[8]:
-
-
-from src.libs import load_custom
-from src.model import build_model
-
-model = build_model()
-
-load_custom(model)
-
-multi_window.plot(model)
-
-
 # ## Explore training metrics
 
-# In[13]:
+# In[39]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[14]:
+# In[40]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -441,7 +428,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[15]:
+# In[41]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
@@ -451,66 +438,4 @@ df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
     yTitle='mean_absolute_error', 
     title='mean_absolute_error'
 )
-
-
-# ## Predictions
-# 
-# ### Load probability model
-# 
-# which can give predictions on model classes
-# 
-# 0 - bad review, 1 - good revie
-
-# In[ ]:
-
-
-from src.predict import get_probability_model
-
-model = get_probability_model()
-
-
-# **Firstly will try predict on some data from training dataset**
-
-# In[ ]:
-
-
-from src.predict import get_text_and_label_from_dataset, predict
-REVIEW_INDEX = 110
-
-text, real_label = get_text_and_label_from_dataset(REVIEW_INDEX)
-
-print('text for prediction\n\n', text, '\n')
-
-predicted_label, predictions = predict(text, model)
-
-print(label_categories[predicted_label], 'review')
-
-print('\n\nPredicted label:', predicted_label, 'real label: ', real_label, 'predictions:', predictions)
-if (predicted_label == real_label):
-    print('Successfully predicted')
-else:
-    print('Failed to predict')
-
-
-# **Then will try predict hadnwritten text**
-
-# In[ ]:
-
-
-# Can change text and check model
-hadwriten = 'This is good film'
-
-print('Hendwriten text:\n', hadwriten, '\n')
-
-handwriten_label, predictions = predict(hadwriten, model)
-
-print(label_categories[predicted_label], 'review')
-
-print('Probabilities', predictions)
-
-
-# In[ ]:
-
-
-
 

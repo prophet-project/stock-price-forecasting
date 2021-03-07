@@ -35,6 +35,11 @@ init_notebook_mode(connected=True)
 cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 
+# ## Inspiration sources
+# 
+# https://github.com/BenjiKCF/Neural-Net-with-Financial-Time-Series-Data
+# https://github.com/alberduris/SirajsCodingChallenges/tree/master/Stock%20Market%20Prediction
+
 # ## Let's explore datasets
 
 # ### Explore input dataset
@@ -119,6 +124,111 @@ last_years_features.iplot(
 )
 
 
+# ## Data featuring
+# 
+# In theory we are going to use 4 features: The price itself and three extra technical indicators.
+# 
+# MACD (Trend)
+# Stochastics (Momentum)
+# Average True Range (Volume)
+# 
+# ### Functions
+# 
+# **Exponential Moving Average**: Is a type of infinite impulse response filter that applies weighting factors which decrease exponentially. The weighting for each older datum decreases exponentially, never reaching zero.
+# 
+# **MACD**: The Moving Average Convergence/Divergence oscillator (MACD) is one of the simplest and most effective momentum indicators available. The MACD turns two trend-following indicators, moving averages, into a momentum oscillator by subtracting the longer moving average from the shorter moving average.
+# 
+# **Stochastics oscillator**: The Stochastic Oscillator is a momentum indicator that shows the location of the close relative to the high-low range over a set number of periods.
+# 
+# **Average True Range**: Is an indicator to measure the volalitility (NOT price direction). The largest of:
+# 
+# - Method A: Current High less the current Low
+# - Method B: Current High less the previous Close (absolute value)
+# - Method C: Current Low less the previous Close (absolute value)
+
+# In[16]:
+
+
+
+def MACD(df,period1,period2,periodSignal):
+    EMA1 = pd.DataFrame.ewm(df,span=period1).mean()
+    EMA2 = pd.DataFrame.ewm(df,span=period2).mean()
+    MACDframe = EMA1-EMA2
+    
+    Signal = pd.DataFrame.ewm(MACDframe,periodSignal).mean()
+    
+    Histogram = MACDframe-Signal
+    
+    return Histogram
+
+def stochastics_oscillator(df,period):
+    l, h = pd.DataFrame.rolling(df, period).min(), pd.DataFrame.rolling(df, period).max()
+    k = 100 * (df - l) / (h - l)
+    return k
+
+'''
+Method A: Current High less the current Low
+'''
+def ATR(df,period):
+    df['H-L'] = abs(df['High']-df['Low'])
+    df['H-PC'] = abs(df['High']-df['Close'].shift(1))
+    df['L-PC'] = abs(df['Low']-df['Close'].shift(1))
+    
+    TR = df[['H-L','H-PC','L-PC']].max(axis=1)
+    
+    return TR.to_frame()
+
+
+# In[29]:
+
+
+days_to_show = 120
+
+
+# ## MACD
+
+# In[31]:
+
+
+macd = MACD(last_years_features['Close'][-days_to_show:], 12, 26, 9)
+
+pd.DataFrame({'MACD': macd}).iplot()
+
+
+# ## Stochastics Oscillator
+
+# In[30]:
+
+
+stochastics = stochastics_oscillator(last_years_features['Close'][-days_to_show:], 14)
+
+pd.DataFrame({'Stochastics Oscillator': stochastics}).iplot()
+
+
+# ## Average True Range
+
+# In[37]:
+
+
+atr = ATR(last_years_features.iloc[-days_to_show:], 14)
+
+atr.iplot()
+
+
+# ## Check for normal distribution
+
+# In[15]:
+
+
+import scipy.stats as stats
+import pylab
+
+close_change = last_years_features['Close'].pct_change()[1:]
+close_change.head()
+
+stats.probplot(close_change, dist='norm', plot=pylab)
+
+
 # ### Check depenence of trading and price from date in year and time of day
 
 # Firstly define function for display frequiency
@@ -162,7 +272,7 @@ plot_log_freaquency(last_years_dataset['Volume'])
 
 # ## Compare train and test datasets
 
-# In[13]:
+# In[40]:
 
 
 from src.load_datasets import load_datasets
@@ -172,7 +282,7 @@ train_df, test_df = load_datasets()
 train_df
 
 
-# In[14]:
+# In[41]:
 
 
 import sweetviz as sv
@@ -186,7 +296,7 @@ compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Tes
 compare_report.show_notebook()
 
 
-# In[15]:
+# In[42]:
 
 
 train_datetime = pd.to_datetime(train_df['Date'])
@@ -198,7 +308,7 @@ test_features.index = test_datetime
 
 # ### Training data exploration
 
-# In[16]:
+# In[43]:
 
 
 train_features.iplot(subplots=True)
@@ -206,13 +316,13 @@ train_features.iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[17]:
+# In[44]:
 
 
 test_df
 
 
-# In[18]:
+# In[45]:
 
 
 test_features.iplot(subplots=True)
@@ -225,10 +335,8 @@ test_features.iplot(subplots=True)
 # Subtract the mean and divide by the standard deviation of each feature will give required normalisation
 # 
 
-# In[19]:
+# In[46]:
 
-
-from sklearn.preprocessing import MinMaxScaler
 
 train_mean = train_features.mean()
 train_std = train_features.std()
@@ -243,6 +351,30 @@ train_normalised.iplot(subplots=True, title="Train")
 
 test_normalised.index = test_features.index
 test_normalised.iplot(subplots=True, title="Test")
+
+
+# ### Normalisation based on max-min
+
+# In[50]:
+
+
+normalised_min_max = (train_features - train_features.mean()) / (train_features.max() - train_features.min())
+
+normalised_min_max.head()
+
+normalised_min_max.iplot(subplots=True)
+
+
+# Normalisation for testing must be based on train mean
+
+# In[51]:
+
+
+normalised_min_max_test = (test_features - train_features.mean()) / (train_features.max() - train_features.min())
+
+normalised_min_max_test.head()
+
+normalised_min_max_test.iplot(subplots=True)
 
 
 # In[20]:

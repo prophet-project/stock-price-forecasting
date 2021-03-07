@@ -44,7 +44,7 @@ notebook-to-html:
 notebook-to-python:
 	jupyter nbconvert ./analyse.ipynb --to python --output-dir="./results" --output="analyse.py"
 
-notebook-artifacts: notebook-to-html notebook-to-python
+notebook-artifacts: notebook-to-html notebook-to-python chmod
 
 metrics-diff:
 	dvc metrics diff

@@ -1,4 +1,5 @@
 {
-    "loss": 15.498446464538574,
-    "mean_absolute_error": 2.681267499923706
+    "loss": 0.8929972052574158,
+    "mean_absolute_error": 2.772407293319702,
+    "mean_squared_error": 16.5683650970459
 }

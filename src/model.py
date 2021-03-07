@@ -14,9 +14,9 @@ def build_model():
     
     
     model.compile(
-        loss=losses.MeanSquaredError(),
+        loss=losses.MeanSquaredLogarithmicError(),
         optimizer=optimizers.Adam(),
-        metrics=[metrics.MeanAbsoluteError()]
+        metrics=[metrics.MeanAbsoluteError(), metrics.MeanSquaredError()]
     )
 
     return model

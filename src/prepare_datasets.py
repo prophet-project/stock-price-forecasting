@@ -1,8 +1,14 @@
 import os
 import pandas as pd
+from .libs import params
 from .load_datasets import load_datasets
 from .window_generator import WindowGenerator
 from .indicators import MACD, stochastics_oscillator, ATR
+
+LABEL_SHIFT = params['train']['label_shift']
+LABEL_COLUMNS = params['train']['label_columns']
+
+COUNT_BATCHES = 35 # divide full dataset on equal batches
 
 feature_list = ['High', 'Low', 'Open', 'Close', 'Volume']
 
@@ -19,19 +25,22 @@ def get_prepared_datasets():
 
     return train, test
 
-def make_window_generator(
-    input_width, 
-    label_width, 
-    shift,
-    label_columns=None
-):
+def make_window_generator():
     # Load normalised datasets
     train_df, test_df = get_prepared_datasets()
 
+    full_window_width = len(train_df) / COUNT_BATCHES
+    input_width = round(full_window_width - LABEL_SHIFT)
+    print('input_width =', input_width)
+
+    # make test dataset batches equal size
+    test_delimetor = round(len(test_df) / COUNT_BATCHES)
+    test_df = test_df[:test_delimetor*COUNT_BATCHES]
+
     window = WindowGenerator(
-        input_width=input_width, label_width=label_width, shift=shift,
+        input_width=input_width, label_width=input_width, shift=LABEL_SHIFT,
         train_df=train_df, test_df=test_df,
-        label_columns=label_columns
+        label_columns=LABEL_COLUMNS
     )
 
     return window

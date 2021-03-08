@@ -22,8 +22,6 @@ stages:
     - train.epochs
     - train.features
     - train.patience
-    - train.input_width
-    - train.label_width
     - train.label_shift
     outs:
     - ./saved_models
@@ -37,8 +35,6 @@ stages:
     - saved_models
     - src/test.py
     params:
-    - train.input_width
-    - train.label_width
     - train.label_shift
     metrics:
     - metrics/test.json:

@@ -3,9 +3,9 @@ from .libs import params
 from .FeedBackModel import FeedBack
 from .prepare_datasets import feature_list
 
-BATCH_SIZE=32
+BATCH_SIZE=35
 NUM_FEATURES=11
-INPUT_WIDTH = params['train']['input_width']
+INPUT_WIDTH = 32
 
 INPUT_SHAPE = (BATCH_SIZE, INPUT_WIDTH, NUM_FEATURES)
 print(INPUT_SHAPE)

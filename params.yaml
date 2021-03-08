@@ -8,8 +8,6 @@ train:
     epochs: 100
     features: 4
     patience: 5
-    input_width: 30 # Count of input time series
-    label_width: 30 # Count of output/labeled time series
     label_shift: 1  # Shift between input and labeled windows
     label_columns:
         - 'Close'

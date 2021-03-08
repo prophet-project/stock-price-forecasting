@@ -6,10 +6,7 @@ from tensorflow.keras.callbacks import CSVLogger
 
 prepare(tf)
 
-INPUT_WIDTH = params['train']['input_width']
-LABEL_STEPS = params['train']['label_width']
-LABEL_SHIFT = params['train']['label_shift']
-LABEL_COLUMNS = params['train']['label_columns']
+
 MAX_EPOCHS = params['train']['epochs']
 PATIENCE = params['train']['patience']
 
@@ -42,10 +39,7 @@ def train():
     # Build neural network model
     model = build_model()
 
-    window = make_window_generator(
-        input_width=INPUT_WIDTH, label_width=LABEL_STEPS, shift=LABEL_SHIFT, 
-        label_columns=LABEL_COLUMNS
-    )
+    window = make_window_generator()
     print(window)
 
     fit(model, window)

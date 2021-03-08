@@ -375,7 +375,29 @@ train_df.head()
 train_df.iplot(subplots=True)
 
 
-# In[4]:
+# ### Calculate batch size
+
+# In[5]:
+
+
+COUNT_BATCHES = 35 # divide full dataset on equal batches
+LABEL_SHIFT = 1
+
+len(train_df)
+
+full_window_width = len(train_df) / (COUNT_BATCHES)
+full_window_width
+
+input_width = round(full_window_width - LABEL_SHIFT)
+input_width
+
+test_delimetor = round(len(test_df) / COUNT_BATCHES)
+test_df = test_df[:test_delimetor*COUNT_BATCHES]
+
+len(test_df)
+
+
+# In[6]:
 
 
 from src.window_generator import WindowGenerator
@@ -434,7 +456,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[5]:
+# In[9]:
 
 
 wide_window = WindowGenerator(
@@ -458,7 +480,7 @@ print('Output shape:', baseline(wide_window.example[0]).shape)
 wide_window.plot(baseline)
 
 
-# In[6]:
+# In[7]:
 
 
 from src.libs import load
@@ -466,7 +488,7 @@ from src.libs import load
 model = load()
 
 
-# In[7]:
+# In[10]:
 
 
 model.evaluate(wide_window.test, verbose=2)
@@ -474,8 +496,10 @@ model.evaluate(wide_window.test, verbose=2)
 
 # Try plot model
 
-# In[8]:
+# In[11]:
 
+
+model.reset_states()
 
 wide_window.plot(model)
 
@@ -486,6 +510,7 @@ wide_window.plot(model)
 import tensorflow as tf
 
 test_window, label_window = next(iter(wide_window.test))
+model.reset_states()
 predictions = model(test_window)
 
 predictions = tf.reshape(predictions, [-1])
@@ -533,14 +558,14 @@ multi_window.plot(repeat_baseline)
 
 # ## Explore training metrics
 
-# In[9]:
+# In[13]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[10]:
+# In[14]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -553,7 +578,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[11]:
+# In[15]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(

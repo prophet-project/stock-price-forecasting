@@ -149,34 +149,7 @@ last_years_features.iplot(
 # In[16]:
 
 
-
-def MACD(df,period1,period2,periodSignal):
-    EMA1 = pd.DataFrame.ewm(df,span=period1).mean()
-    EMA2 = pd.DataFrame.ewm(df,span=period2).mean()
-    MACDframe = EMA1-EMA2
-    
-    Signal = pd.DataFrame.ewm(MACDframe,periodSignal).mean()
-    
-    Histogram = MACDframe-Signal
-    
-    return Histogram
-
-def stochastics_oscillator(df,period):
-    l, h = pd.DataFrame.rolling(df, period).min(), pd.DataFrame.rolling(df, period).max()
-    k = 100 * (df - l) / (h - l)
-    return k
-
-'''
-Method A: Current High less the current Low
-'''
-def ATR(df,period):
-    df['H-L'] = abs(df['High']-df['Low'])
-    df['H-PC'] = abs(df['High']-df['Close'].shift(1))
-    df['L-PC'] = abs(df['Low']-df['Close'].shift(1))
-    
-    TR = df[['H-L','H-PC','L-PC']].max(axis=1)
-    
-    return TR.to_frame()
+from src.indicators import MACD, stochastics_oscillator, ATR
 
 
 # In[29]:
@@ -207,10 +180,12 @@ pd.DataFrame({'Stochastics Oscillator': stochastics}).iplot()
 
 # ## Average True Range
 
-# In[37]:
+# In[56]:
 
 
 atr = ATR(last_years_features.iloc[-days_to_show:], 14)
+
+atr.head()
 
 atr.iplot()
 
@@ -388,13 +363,31 @@ feature2normaliesd.iplot(subplots=True)
 
 # ## Check window generator
 
-# In[3]:
+# In[4]:
 
 
 from src.prepare_datasets import get_prepared_datasets
-from src.window_generator import WindowGenerator
 
 train_df, test_df = get_prepared_datasets()
+
+train_df.head()
+
+train_df.iplot(subplots=True)
+
+
+# In[5]:
+
+
+train_df.dropna()
+
+train_df.head()
+
+
+# In[3]:
+
+
+from src.window_generator import WindowGenerator
+
 w1 = WindowGenerator(
     input_width=24, label_width=1, shift=24, 
     train_df=train_df, test_df=test_df, 

@@ -24,11 +24,11 @@ train:
   cmd: python -m src.train
   deps:
   - path: ./src/model.py
-    md5: 7d465c1b07f9bdb3b7c093b5f7993b29
-    size: 625
+    md5: 7244cc31ac4332874bcb56ba4b35aae6
+    size: 801
   - path: ./src/train.py
-    md5: 0c8d21de4bfb2c1ff6be22c6fccdeffb
-    size: 1306
+    md5: 15c9ac0f960c8c3dc04f8fe6505fe5ab
+    size: 1396
   - path: preprocessed
     md5: 58ca72204bd7140383a30c341f622e7a.dir
     size: 323467
@@ -45,10 +45,10 @@ train:
       train.patience: 5
   outs:
   - path: ./metrics/training.csv
-    md5: 24c1f0648b657b2f071a7acdaaa967e6
-    size: 864
+    md5: 4e2dc382cf598000653b91281e970d48
+    size: 3741
   - path: ./saved_models
-    md5: 76a1de6ad9b2f80d5cae50757de06beb.dir
+    md5: acd9ca5784f155a5f4eb9e1c26cafdd1.dir
     size: 96744
     nfiles: 1
 test:
@@ -59,11 +59,11 @@ test:
     size: 323467
     nfiles: 2
   - path: saved_models
-    md5: 76a1de6ad9b2f80d5cae50757de06beb.dir
+    md5: acd9ca5784f155a5f4eb9e1c26cafdd1.dir
     size: 96744
     nfiles: 1
   - path: src/test.py
-    md5: 295bc35986f9ef346731a5e2dc610746
+    md5: ea191301dba185163a8dc68525cdfb71
     size: 698
   params:
     params.yaml:
@@ -72,5 +72,5 @@ test:
       train.label_width: 30
   outs:
   - path: metrics/test.json
-    md5: cd42b38eb879fbfe430de8d702378a75
-    size: 139
+    md5: 30989ba1d5493ce8fe0f958127c2cca7
+    size: 141

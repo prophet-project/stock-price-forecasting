@@ -13,7 +13,7 @@ metrics_file='metrics/test.json'
 
 # Load normalised datasets
 window = make_window_generator(
-    input_width=INPUT_WIDTH, label_width=LABEL_STEPS, shift=LABEL_STEPS, 
+    input_width=INPUT_WIDTH, label_width=LABEL_STEPS, shift=LABEL_SHIFT, 
     label_columns=LABEL_COLUMNS
 )
 

@@ -30,7 +30,8 @@ def fit(model, window):
             early_stopping,
             checkpoints.save_weights(), 
             CSVLogger(metrics_file)
-        ]
+        ],
+        shuffle=False
     )
 
     model.summary()
@@ -42,11 +43,15 @@ def train():
     model = build_model()
 
     window = make_window_generator(
-        input_width=INPUT_WIDTH, label_width=LABEL_STEPS, shift=LABEL_STEPS, 
+        input_width=INPUT_WIDTH, label_width=LABEL_STEPS, shift=LABEL_SHIFT, 
         label_columns=LABEL_COLUMNS
     )
+    print(window)
 
     fit(model, window)
+
+    # clear lstm state
+    model.reset_states()
 
     # Save for restore in next time
     save(model)

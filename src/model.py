@@ -1,8 +1,14 @@
 from tensorflow.keras import Sequential, layers, losses, optimizers, metrics, initializers
 from .libs import params
 from .FeedBackModel import FeedBack
+from .prepare_datasets import feature_list
 
-NUM_FEATURES=4 
+BATCH_SIZE=32
+NUM_FEATURES=11
+INPUT_WIDTH = params['train']['input_width']
+
+INPUT_SHAPE = (BATCH_SIZE, INPUT_WIDTH, NUM_FEATURES)
+print(INPUT_SHAPE)
 
 def build_model():
     model = Sequential([

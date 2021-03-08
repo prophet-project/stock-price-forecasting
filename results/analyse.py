@@ -363,7 +363,7 @@ feature2normaliesd.iplot(subplots=True)
 
 # ## Check window generator
 
-# In[4]:
+# In[3]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -375,15 +375,7 @@ train_df.head()
 train_df.iplot(subplots=True)
 
 
-# In[5]:
-
-
-train_df.dropna()
-
-train_df.head()
-
-
-# In[3]:
+# In[4]:
 
 
 from src.window_generator import WindowGenerator
@@ -442,7 +434,7 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[4]:
+# In[5]:
 
 
 wide_window = WindowGenerator(
@@ -466,7 +458,7 @@ print('Output shape:', baseline(wide_window.example[0]).shape)
 wide_window.plot(baseline)
 
 
-# In[5]:
+# In[6]:
 
 
 from src.libs import load

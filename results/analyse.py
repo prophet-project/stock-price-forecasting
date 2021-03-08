@@ -480,7 +480,7 @@ model.evaluate(wide_window.test, verbose=2)
 wide_window.plot(model)
 
 
-# In[25]:
+# In[12]:
 
 
 import tensorflow as tf
@@ -496,7 +496,7 @@ pred2labels = pd.DataFrame({ 'Predicted': predictions, 'Labels': label_window})
 pred2labels.iplot()
 
 
-# In[32]:
+# In[10]:
 
 
 import plotly.express as px
@@ -533,14 +533,14 @@ multi_window.plot(repeat_baseline)
 
 # ## Explore training metrics
 
-# In[31]:
+# In[9]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[32]:
+# In[10]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -553,7 +553,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[33]:
+# In[11]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(

@@ -3,7 +3,7 @@ from .libs import params
 from .FeedBackModel import FeedBack
 from .prepare_datasets import feature_list
 
-BATCH_SIZE=35
+BATCH_SIZE=33
 NUM_FEATURES=11
 INPUT_WIDTH = 32
 
@@ -13,7 +13,7 @@ print(INPUT_SHAPE)
 def build_model():
     model = Sequential([
         # Shape [batch, time, features] => [batch, time, lstm_units]
-        layers.LSTM(32, return_sequences=True),
+        layers.LSTM(32, return_sequences=True, stateful=True, batch_input_shape=INPUT_SHAPE),
         # Shape => [batch, time, features]
         layers.Dense(units=1)
     ])

@@ -8,7 +8,7 @@ from .indicators import MACD, stochastics_oscillator, ATR
 LABEL_SHIFT = params['train']['label_shift']
 LABEL_COLUMNS = params['train']['label_columns']
 
-COUNT_BATCHES = 35 # divide full dataset on equal batches
+BATCH_SIZE = 33 # divide full dataset on equal batches
 
 feature_list = ['High', 'Low', 'Open', 'Close', 'Volume']
 
@@ -29,19 +29,26 @@ def make_window_generator():
     # Load normalised datasets
     train_df, test_df = get_prepared_datasets()
 
-    full_window_width = len(train_df) / COUNT_BATCHES
-    input_width = round(full_window_width - LABEL_SHIFT)
+    print('full window width =', BATCH_SIZE)
+    input_width = round(BATCH_SIZE - LABEL_SHIFT)
     print('input_width =', input_width)
 
     # make test dataset batches equal size
-    test_delimetor = round(len(test_df) / COUNT_BATCHES)
-    test_df = test_df[:test_delimetor*COUNT_BATCHES]
+    test_delimetor = round(len(test_df) / BATCH_SIZE)
+    test_df = test_df[:test_delimetor*BATCH_SIZE]
+    print('len(test_df)', len(test_df))
+
+    # by some reason last batch len is 1
+    train_df = train_df[:-1]
+    test_df = test_df[:-1]
 
     window = WindowGenerator(
         input_width=input_width, label_width=input_width, shift=LABEL_SHIFT,
         train_df=train_df, test_df=test_df,
         label_columns=LABEL_COLUMNS
     )
+
+    print('train shape =', window.example[0].shape)
 
     return window
 

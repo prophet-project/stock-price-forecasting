@@ -397,7 +397,7 @@ test_df = test_df[:test_delimetor*COUNT_BATCHES]
 len(test_df)
 
 
-# In[6]:
+# In[4]:
 
 
 from src.window_generator import WindowGenerator
@@ -456,11 +456,11 @@ performance = {}
 performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[9]:
+# In[5]:
 
 
 wide_window = WindowGenerator(
-    input_width=30, label_width=30, shift=1,
+    input_width=32, label_width=32, shift=1,
     train_df=train_df, test_df=test_df,
     label_columns=['Close'])
 
@@ -480,7 +480,7 @@ print('Output shape:', baseline(wide_window.example[0]).shape)
 wide_window.plot(baseline)
 
 
-# In[7]:
+# In[3]:
 
 
 from src.libs import load
@@ -488,20 +488,24 @@ from src.libs import load
 model = load()
 
 
-# In[10]:
+# In[4]:
 
 
-model.evaluate(wide_window.test, verbose=2)
+from src.prepare_datasets import make_window_generator
+
+base_window = make_window_generator()
+
+model.evaluate(base_window.test, verbose=2)
 
 
 # Try plot model
 
-# In[11]:
+# In[ ]:
 
 
 model.reset_states()
 
-wide_window.plot(model)
+base_window.plot(model)
 
 
 # In[12]:
@@ -558,14 +562,14 @@ multi_window.plot(repeat_baseline)
 
 # ## Explore training metrics
 
-# In[13]:
+# In[3]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[14]:
+# In[4]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -578,7 +582,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[15]:
+# In[5]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(

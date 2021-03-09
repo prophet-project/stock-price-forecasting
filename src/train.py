@@ -2,7 +2,7 @@ import tensorflow as tf
 from .libs import params, prepare, save, checkpoints
 from .prepare_datasets import make_window_generator
 from .model import build_model
-from tensorflow.keras.callbacks import CSVLogger
+from tensorflow.keras.callbacks import CSVLogger, Callback
 
 prepare(tf)
 
@@ -18,22 +18,28 @@ early_stopping = tf.keras.callbacks.EarlyStopping(
     mode='min'
 )
 
+class ResetStateAfterEpochEnd(Callback):
+
+    def on_epoch_end(self, epoch, logs=None):
+        # clear lstm state
+        self.model.reset_states()
+
 def fit(model, window):
-    history = model.fit(
+
+    model.fit(
         window.train, 
         epochs=MAX_EPOCHS,
         validation_data=window.test,
         callbacks=[
-            early_stopping,
             checkpoints.save_weights(), 
-            CSVLogger(metrics_file)
+            CSVLogger(metrics_file),
+            ResetStateAfterEpochEnd()
         ],
         shuffle=False
     )
 
     model.summary()
 
-    return history
 
 def train():
     # Build neural network model
@@ -44,8 +50,6 @@ def train():
 
     fit(model, window)
 
-    # clear lstm state
-    model.reset_states()
 
     # Save for restore in next time
     save(model)

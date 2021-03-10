@@ -6,6 +6,7 @@ def plot(self, model=None, plot_col='Close', max_subplots=3):
   plot_col_index = self.column_indices[plot_col]
   max_n = min(max_subplots, len(inputs))
   for n in range(max_n):
+    print('n', n, 'from', max_n)
     plt.subplot(3, 1, n+1)
     plt.ylabel(f'{plot_col} [normed]')
     plt.plot(self.input_indices, inputs[n, :, plot_col_index],
@@ -22,6 +23,7 @@ def plot(self, model=None, plot_col='Close', max_subplots=3):
     plt.scatter(self.label_indices, labels[n, :, label_col_index],
                 edgecolors='k', label='Labels', c='#2ca02c', s=64)
     if model is not None:
+      print('len(inputs)', len(inputs))
       predictions = model(inputs)
       plt.scatter(self.label_indices, predictions[n, :, label_col_index],
                   marker='X', edgecolors='k', label='Predictions',

@@ -12,7 +12,8 @@ class WindowGenerator():
         shift,
         train_df, 
         test_df,
-        label_columns=None
+        label_columns=None,
+        batch_size=None
     ):
     # Store the raw data.
     self.train_df = train_df
@@ -33,6 +34,10 @@ class WindowGenerator():
     self.shift = shift
 
     self.total_window_size = input_width + shift
+    if batch_size is not None:
+      self.batch_size = batch_size
+    else:
+      self.batch_size = self.total_window_size
 
     self.input_slice = slice(0, input_width)
     self.input_indices = np.arange(self.total_window_size)[self.input_slice]

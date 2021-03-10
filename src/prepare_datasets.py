@@ -8,7 +8,8 @@ from .indicators import MACD, stochastics_oscillator, ATR
 LABEL_SHIFT = params['train']['label_shift']
 LABEL_COLUMNS = params['train']['label_columns']
 
-BATCH_SIZE = 33 # divide full dataset on equal batches
+BATCH_SIZE = 8 # divide test dataset on equal batches
+FULL_WINDOW_WITH = 33
 
 feature_list = ['High', 'Low', 'Open', 'Close', 'Volume']
 
@@ -29,26 +30,22 @@ def make_window_generator():
     # Load normalised datasets
     train_df, test_df = get_prepared_datasets()
 
-    print('full window width =', BATCH_SIZE)
-    input_width = round(BATCH_SIZE - LABEL_SHIFT)
+    print('len(train_df)', len(train_df))
+
+    print('full window width =', FULL_WINDOW_WITH)
+    input_width = round(FULL_WINDOW_WITH - LABEL_SHIFT)
     print('input_width =', input_width)
 
-    # make test dataset batches equal size
-    test_delimetor = round(len(test_df) / BATCH_SIZE)
-    test_df = test_df[:test_delimetor*BATCH_SIZE]
-    print('len(test_df)', len(test_df))
-
-    # by some reason last batch len is 1
-    train_df = train_df[:-1]
-    test_df = test_df[:-1]
+    # make train dataset batches equal size
+    train_delimetor = round(len(train_df) / (FULL_WINDOW_WITH * BATCH_SIZE))
+    train_df = train_df[:train_delimetor*(FULL_WINDOW_WITH * BATCH_SIZE)]
 
     window = WindowGenerator(
         input_width=input_width, label_width=input_width, shift=LABEL_SHIFT,
         train_df=train_df, test_df=test_df,
-        label_columns=LABEL_COLUMNS
+        label_columns=LABEL_COLUMNS,
+        batch_size=BATCH_SIZE
     )
-
-    print('train shape =', window.example[0].shape)
 
     return window
 

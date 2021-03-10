@@ -380,26 +380,6 @@ train_df.iplot(subplots=True)
 # In[5]:
 
 
-COUNT_BATCHES = 35 # divide full dataset on equal batches
-LABEL_SHIFT = 1
-
-len(train_df)
-
-full_window_width = len(train_df) / (COUNT_BATCHES)
-full_window_width
-
-input_width = round(full_window_width - LABEL_SHIFT)
-input_width
-
-test_delimetor = round(len(test_df) / COUNT_BATCHES)
-test_df = test_df[:test_delimetor*COUNT_BATCHES]
-
-len(test_df)
-
-
-# In[4]:
-
-
 from src.window_generator import WindowGenerator
 
 w1 = WindowGenerator(
@@ -411,13 +391,13 @@ w1 = WindowGenerator(
 w1
 
 
-# In[22]:
+# In[6]:
 
 
 w1.plot(plot_col='Close')
 
 
-# In[23]:
+# In[7]:
 
 
 w1.train.element_spec
@@ -425,7 +405,7 @@ w1.train.element_spec
 
 # ## Try baseline model
 
-# In[24]:
+# In[8]:
 
 
 single_step_window = WindowGenerator(
@@ -436,7 +416,7 @@ single_step_window = WindowGenerator(
 single_step_window
 
 
-# In[25]:
+# In[7]:
 
 
 import tensorflow as tf
@@ -448,15 +428,17 @@ baseline = Baseline(label_index=column_indices['Close'])
     
 baseline.compile(
     loss=tf.losses.MeanSquaredError(),
-    metrics=[tf.metrics.MeanAbsoluteError()]
+    metrics=[tf.metrics.MeanAbsoluteError(), tf.metrics.MeanSquaredLogarithmicError()]
 )
 
 
-performance = {}
-performance['Baseline'] = baseline.evaluate(single_step_window.test, verbose=1)
+# In[ ]:
 
 
-# In[5]:
+baseline.evaluate(single_step_window.test, verbose=1)
+
+
+# In[10]:
 
 
 wide_window = WindowGenerator(
@@ -467,14 +449,14 @@ wide_window = WindowGenerator(
 wide_window
 
 
-# In[27]:
+# In[11]:
 
 
 print('Input shape:', wide_window.example[0].shape)
 print('Output shape:', baseline(wide_window.example[0]).shape)
 
 
-# In[28]:
+# In[12]:
 
 
 wide_window.plot(baseline)
@@ -488,19 +470,30 @@ from src.libs import load
 model = load()
 
 
-# In[4]:
+# In[5]:
 
 
 from src.prepare_datasets import make_window_generator
 
 base_window = make_window_generator()
 
+
+# In[8]:
+
+
+baseline.evaluate(base_window.test, verbose=1)
+
+
+# In[5]:
+
+
 model.evaluate(base_window.test, verbose=2)
+model.reset_states()
 
 
 # Try plot model
 
-# In[ ]:
+# In[5]:
 
 
 model.reset_states()

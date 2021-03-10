@@ -1,9 +1,8 @@
 from tensorflow.keras import Sequential, layers, losses, optimizers, metrics, initializers
 from .libs import params
 from .FeedBackModel import FeedBack
-from .prepare_datasets import feature_list
+from .prepare_datasets import feature_list, BATCH_SIZE
 
-BATCH_SIZE=33
 NUM_FEATURES=11
 INPUT_WIDTH = 32
 

@@ -470,7 +470,7 @@ from src.libs import load
 model = load()
 
 
-# In[5]:
+# In[4]:
 
 
 from src.prepare_datasets import make_window_generator
@@ -493,7 +493,7 @@ model.reset_states()
 
 # Try plot model
 
-# In[5]:
+# In[6]:
 
 
 model.reset_states()
@@ -501,7 +501,7 @@ model.reset_states()
 base_window.plot(model)
 
 
-# In[12]:
+# In[7]:
 
 
 import tensorflow as tf
@@ -518,7 +518,7 @@ pred2labels = pd.DataFrame({ 'Predicted': predictions, 'Labels': label_window})
 pred2labels.iplot()
 
 
-# In[10]:
+# In[ ]:
 
 
 import plotly.express as px
@@ -555,14 +555,14 @@ multi_window.plot(repeat_baseline)
 
 # ## Explore training metrics
 
-# In[3]:
+# In[8]:
 
 
 df = pd.read_csv('./metrics/training.csv')
 df.head()
 
 
-# In[4]:
+# In[9]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -575,7 +575,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[5]:
+# In[10]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(

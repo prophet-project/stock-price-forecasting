@@ -44,7 +44,7 @@ notebook-to-html:
 notebook-to-python:
 	jupyter nbconvert ./analyse.ipynb --to python --output-dir="./results" --output="analyse.py"
 
-notebook-artifacts: notebook-to-html notebook-to-python
+notebook-artifacts: notebook-to-html notebook-to-python chmod
 
 metrics-diff:
 	dvc metrics diff
@@ -64,18 +64,18 @@ docker-build:
 
 # Will start in docker develoment environment
 docker-console:
-	docker run --gpus all -it --rm -v ${PWD}:/work -w /work -u ${CURRENT_UID}:${CURRENT_GID} --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
+	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
 
 console: docker-console
 
 docker:
-	docker run --gpus all --rm -v ${PWD}:/work -w /work -u ${CURRENT_UID}:${CURRENT_GID} --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
+	docker run --gpus all --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
 
 docker-it:
-	docker run --gpus all -it --rm -v ${PWD}:/work -w /work -u ${CURRENT_UID}:${CURRENT_GID} --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
+	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
 
 attach-console:
-	docker exec -u ${CURRENT_UID}:${CURRENT_GID} -it $(PROJECT_NAME) bash
+	docker exec -it $(PROJECT_NAME) bash
 
 chmod:
 	chmod -R 777 .

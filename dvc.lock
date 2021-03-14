@@ -2,23 +2,23 @@ prepare_datasets:
   cmd: python -m src.prepare_datasets
   deps:
   - path: ./src/load_datasets.py
-    md5: a996480554c18afdae3d2297ee0ddb9c
-    size: 1070
+    md5: e1b281161b40d33c40975a519343f9d8
+    size: 851
   - path: ./src/prepare_datasets.py
-    md5: df604a2301e68d2920cf695be0368f5a
-    size: 2674
+    md5: d54f0ffb8663a8876248e4ddf8824940
+    size: 2838
   - path: data
-    md5: 6419867505ae2dae5f9e9440fcba55e3.dir
-    size: 365784
-    nfiles: 1
+    md5: 4bbf22c31e077a3b26bdbfb914bb9e6f.dir
+    size: 126167081
+    nfiles: 3
   params:
     params.yaml:
       input.train_part: 0.8
       input.years: 4
   outs:
   - path: preprocessed
-    md5: 58ca72204bd7140383a30c341f622e7a.dir
-    size: 323467
+    md5: dea8d1f6db22a00c66f63d1f89dc608d.dir
+    size: 493567835
     nfiles: 2
 train:
   cmd: python -m src.train

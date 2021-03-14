@@ -20,9 +20,9 @@ def stochastics_oscillator(df,period):
 Method A: Current High less the current Low
 '''
 def ATR(df,period):
-    df['H-L'] = abs(df['High']-df['Low'])
-    df['H-PC'] = abs(df['High']-df['Close'].shift(1))
-    df['L-PC'] = abs(df['Low']-df['Close'].shift(1))
+    df['H-L'] = abs(df['high']-df['low'])
+    df['H-PC'] = abs(df['high']-df['close'].shift(1))
+    df['L-PC'] = abs(df['low']-df['close'].shift(1))
     
     TR = df[['H-L','H-PC','L-PC']].max(axis=1)
     

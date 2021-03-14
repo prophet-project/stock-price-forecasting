@@ -10,8 +10,9 @@ LABEL_COLUMNS = params['train']['label_columns']
 
 BATCH_SIZE = 8 # divide test dataset on equal batches
 FULL_WINDOW_WITH = 33
+MAX_TARGET = 100000 # maximum expected price
 
-feature_list = ['High', 'Low', 'Open', 'Close', 'Volume']
+feature_list = ['high', 'low', 'open', 'close', 'volume']
 
 result_datasets_folder = './preprocessed'
 if not os.path.exists(result_datasets_folder):
@@ -50,8 +51,8 @@ def make_window_generator():
     return window
 
 def add_indicators(df):
-    macd = MACD(df['Close'], 12, 26, 9)
-    stochastics = stochastics_oscillator(df['Close'], 14)
+    macd = MACD(df['close'], 12, 26, 9)
+    stochastics = stochastics_oscillator(df['close'], 14)
     atr = ATR(df, 14)
 
     df['MACD'] = macd
@@ -64,6 +65,7 @@ def add_indicators(df):
     Will normalize datasets and prepare for processing by NN
 """
 def build_prepared_dataset():
+    print('Start processing dataset...')
     train, test = load_datasets()
 
     train = train[feature_list]
@@ -72,13 +74,17 @@ def build_prepared_dataset():
     train = add_indicators(train)
     test = add_indicators(test)
 
-    # Normalise data to -1...1
-    # for LSTM output range
-    train_mean = train.mean()
-    train_d = train.max() - train.min()
+    # Normalise data to 0...1
+    train_max = train.max()
+    train_max['high'] = MAX_TARGET
+    train_max['low'] = MAX_TARGET
+    train_max['open'] = MAX_TARGET
+    train_max['close'] = MAX_TARGET
 
-    train = (train - train_mean) / train_d
-    test = (test - train_mean) / train_d
+    train_d = train_max - train.min()
+
+    train = train / train_d
+    test = test / train_d
 
     train = train.dropna()
     test = test.dropna()

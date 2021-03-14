@@ -33,7 +33,7 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 # # Load dataset
 # And get interesting features
 
-# In[16]:
+# In[2]:
 
 
 from src.load_datasets import load_datasets
@@ -44,8 +44,8 @@ train, test = load_datasets()
 train_features = train[feature_list]
 test_features = test[feature_list]
 
-train_features.index = train['Date']
-test_features.index = test['Date']
+train_features.index = pd.to_datetime(train.pop('timestamp'), unit='ms')
+test_features.index = pd.to_datetime(test.pop('timestamp'), unit='ms')
 
 train_features
 
@@ -78,38 +78,39 @@ train_features
 from src.indicators import MACD, stochastics_oscillator, ATR
 
 
-# In[4]:
+# In[6]:
 
 
-days_to_show = 120
+days_to_show = 60
+items_to_show = days_to_show * 24 * 60
 
 
 # ## MACD
 
-# In[6]:
+# In[7]:
 
 
-macd = MACD(train_features['Close'][-days_to_show:], 12, 26, 9)
+macd = MACD(train_features['close'][-items_to_show:], 12, 26, 9)
 
 pd.DataFrame({'MACD': macd}).iplot()
 
 
 # ## Stochastics Oscillator
 
-# In[7]:
+# In[8]:
 
 
-stochastics = stochastics_oscillator(train_features['Close'][-days_to_show:], 14)
+stochastics = stochastics_oscillator(train_features['close'][-items_to_show:], 14)
 
 pd.DataFrame({'Stochastics Oscillator': stochastics}).iplot()
 
 
 # ## Average True Range
 
-# In[8]:
+# In[9]:
 
 
-atr = ATR(train_features.iloc[-days_to_show:], 14)
+atr = ATR(train_features.iloc[-items_to_show:], 14)
 
 atr.head()
 
@@ -124,7 +125,7 @@ atr.iplot()
 import scipy.stats as stats
 import pylab
 
-close_change = train_features['Close'].pct_change()[1:]
+close_change = train_features['close'].pct_change()[1:]
 close_change.head()
 
 stats.probplot(close_change, dist='norm', plot=pylab)
@@ -157,109 +158,141 @@ def plot_log_freaquency(series):
     _ = plt.xlabel('Frequency (log scale)')
 
 
-# #### Frequency of price
+# ### Frequency of price
+
+# In[12]:
+
+
+plot_log_freaquency(train_features['close'])
+
+
+# ### Frequence of price change
+
+# In[14]:
+
+
+plot_log_freaquency(train_features['close'].diff().dropna())
+
+
+# ### Frequency of transaction volume
 
 # In[13]:
 
 
-plot_log_freaquency(train_features['Close'])
+plot_log_freaquency(train_features['volume'])
 
 
-# #### Frequency of transaction volume
+# ### Frequence of transaction volume change 
 
 # In[15]:
 
 
-plot_log_freaquency(train_features['Volume'])
+plot_log_freaquency(train_features['volume'].diff().dropna())
 
 
 # ## Compare train and test datasets
 
-# In[17]:
+# In[16]:
 
 
 import sweetviz as sv
 
-compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Test data'], "Close")
+compare_report = sv.compare([train_features, 'Train data'], [test_features, 'Test data'], "close")
 compare_report.show_notebook()
 
 
 # ### Training data exploration
 
-# In[18]:
+# In[17]:
 
 
-train_features.iplot(subplots=True)
+train_features[59::60].iplot(subplots=True)
 
 
 # ### Testing data exploration
 
-# In[20]:
+# In[18]:
 
 
-test_features
-
-
-# In[21]:
-
-
-test_features.iplot(subplots=True)
+test_features[59::60].iplot(subplots=True)
 
 
 # ## Normalise data
 # 
 # Will use only training mean and deviation for not give NN access to test dataset
 #  
-# Subtract the mean and divide by the standard deviation of each feature will give required normalisation
+# Divide by the max-min deviation
 # 
 
-# In[22]:
+# In[26]:
+
+
+pd.set_option('float_format', '{:.2f}'.format)
+
+train_features.describe()
+
+
+# In[28]:
+
+
+test_features.describe()
+
+
+# In[27]:
 
 
 train_mean = train_features.mean()
+train_max = train_features.max()
+train_min = train_features.min()
 train_std = train_features.std()
 
-train_normalised = (train_features - train_mean) / train_std
-test_normalised = (test_features - train_mean) / train_std
+
+# maximum for training to litle, and not will allow correctly predict values in testing dataset,
+# will use manually choosed value for maximum
+# 100 thouthands dollars
+# except of volume
+
+# In[29]:
+
+
+MAX_TARGET = 100000
+train_max['high'] = MAX_TARGET
+train_max['low'] = MAX_TARGET
+train_max['open'] = MAX_TARGET
+train_max['close'] = MAX_TARGET
+
+
+# In[37]:
+
+
+train_d = train_max - train_min
+
+train_normalised = train_features / train_d
+test_normalised = test_features / train_d
 
 train_normalised.head()
 
+
+# In[38]:
+
+
 train_normalised.index = train_features.index
-train_normalised.iplot(subplots=True, title="Train")
+train_normalised[59::60].iplot(subplots=True, title="Train")
 
 test_normalised.index = test_features.index
-test_normalised.iplot(subplots=True, title="Test")
+test_normalised[59::60].iplot(subplots=True, title="Test")
 
 
-# ### Normalisation based on max-min
-
-# In[23]:
+# In[39]:
 
 
-normalised_min_max = (train_features - train_features.mean()) / (train_features.max() - train_features.min())
+train_in_hours = train_features[59::60]
 
-normalised_min_max.head()
-
-normalised_min_max.iplot(subplots=True)
-
-
-# Normalisation for testing must be based on train mean
-
-# In[24]:
-
-
-normalised_min_max_test = (test_features - train_features.mean()) / (train_features.max() - train_features.min())
-
-normalised_min_max_test.head()
-
-normalised_min_max_test.iplot(subplots=True)
-
-
-# In[25]:
-
-
-feature2normaliesd = pd.DataFrame({ 'Real': train_features['Close'], 'Normalised': train_normalised['Close']})
-feature2normaliesd.index = train_features.index
+feature2normaliesd = pd.DataFrame({ 
+    'Real': train_in_hours['close'], 
+    'Normalised': train_normalised['close'][59::60]
+})
+feature2normaliesd.index = train_in_hours.index
 
 feature2normaliesd.iplot(subplots=True)
 

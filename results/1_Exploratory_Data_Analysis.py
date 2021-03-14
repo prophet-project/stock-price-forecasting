@@ -34,140 +34,93 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 # 
 # ## input dataset
 # 
-# Will use target dataset [Bitcoin in Cryptocurrency Historical Prices](https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory?select=coin_Bitcoin.csv)
+# Will use target dataset Bitcoin cryptocurrency historical prices data from Binance
 # 
-# Bitcoin data at 1-day intervals from April 28, 2013
+# Bitcoin data at 1-minute intervals from April 10, 2016
 
 # In[2]:
 
 
 from src.load_datasets import load_input_dataset
 
-input_dataset = load_input_dataset()
+df = load_input_dataset()
 
-input_dataset.head()
+df.head()
 
+
+# ## Convert timestamp to date index
 
 # In[3]:
 
 
-input_dataset.shape
+df.index = pd.to_datetime(df.pop('timestamp'), unit='ms')
 
-
-# In[4]:
-
-
-input_dataset.info()
+df.head()
 
 
 # In[5]:
 
 
-input_dataset.describe()
+df.shape
 
-
-# ### Explore correlations between diffenrences of values
 
 # In[6]:
 
 
-import seaborn as sns
-
-corr = input_dataset[['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']].diff().dropna().corr()
-
-sns.heatmap(corr,cmap='Blues',annot=False) 
+df.info()
 
 
 # In[7]:
 
 
-sns.heatmap(corr, annot=True, cmap = 'viridis')
+df.describe()
 
 
-# ### Target Features
-# 
-# Will analyze only interesting features
+# ### Explore correlations between diffenrences of values
 
 # In[8]:
 
 
-feature_columns = ['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']
-target_features = input_dataset[feature_columns]
+import seaborn as sns
 
-target_features.head()
+corr = df[['high', 'low', 'open', 'close', 'volume']].diff().dropna().corr()
+
+sns.heatmap(corr,cmap='Blues',annot=False) 
 
 
 # In[9]:
 
 
-import sweetviz as sv
-
-analyse_report = sv.analyze([target_features, 'Bitcoin'], target_feat="Close")
-analyse_report.show_notebook()
-
-
-# ### Feature evalution over time
-
-# In[10]:
-
-
-datetime = pd.to_datetime(input_dataset['Date'])
-target_features.index = datetime
-
-target_features.iplot(
-    subplots=True,
-)
-
-
-# In[11]:
-
-
-target_features.describe().transpose()
-
-
-# ### Slice dataset
-# 
-# Only last 4 years have active trading, will use them for explaration and training
-
-# In[12]:
-
-
-year = 365
-
-years_count = 4
-items_count = round(years_count * year)
-
-last_years_dataset = input_dataset[-1 * items_count:]
-last_years_datetime = pd.to_datetime(last_years_dataset['Date'])
-
-last_years_dataset.head()
-len(last_years_dataset)
+sns.heatmap(corr, annot=True, cmap = 'viridis')
 
 
 # In[13]:
 
 
-last_years_features = last_years_dataset[feature_columns]
-last_years_features.index = last_years_datetime
+import sweetviz as sv
 
-last_years_features.iplot(
+analyse_report = sv.analyze([df, 'Bitcoin'], target_feat="close")
+analyse_report.show_notebook()
+
+
+# ### Feature evalution over time
+
+# In[14]:
+
+
+# traget dataset too big for plot
+
+hour_df = df[59:: 60]
+
+hour_df.iplot(
     subplots=True,
 )
 
 
-# ### Explore last years corelation
-
 # In[15]:
 
 
-corr = last_years_features.diff().dropna().corr()
-sns.heatmap(corr,cmap='Blues',annot=False) 
-
-
-# In[16]:
-
-
-sns.heatmap(corr, annot=True, cmap = 'viridis')
+df.describe().transpose()
 
 
 # In[ ]:

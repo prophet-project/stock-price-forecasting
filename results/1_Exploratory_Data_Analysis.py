@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 # plotly standard imports
@@ -38,7 +38,7 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 # 
 # Bitcoin data at 1-day intervals from April 28, 2013
 
-# In[2]:
+# In[3]:
 
 
 from src.load_datasets import load_input_dataset
@@ -46,6 +46,42 @@ from src.load_datasets import load_input_dataset
 input_dataset = load_input_dataset()
 
 input_dataset.head()
+
+
+# In[4]:
+
+
+input_dataset.shape
+
+
+# In[5]:
+
+
+input_dataset.info()
+
+
+# In[6]:
+
+
+input_dataset.describe()
+
+
+# ### Explore correlations between diffenrences of values
+
+# In[9]:
+
+
+import seaborn as sns
+
+corr = input_dataset[['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']].diff().dropna().corr()
+
+sns.heatmap(corr,cmap='Blues',annot=False) 
+
+
+# In[10]:
+
+
+sns.heatmap(corr, annot=True, cmap = 'viridis')
 
 
 # ### Target Features

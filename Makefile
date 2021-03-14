@@ -39,10 +39,10 @@ save-dependencies:
 
 # docs folder required for github pages
 notebook-to-html:
-	jupyter nbconvert ./analyse.ipynb --to html --output-dir="./docs" --output="index.html"
+	jupyter nbconvert ./*.ipynb --to html --output-dir="./docs"
 
 notebook-to-python:
-	jupyter nbconvert ./analyse.ipynb --to python --output-dir="./results" --output="analyse.py"
+	jupyter nbconvert ./*.ipynb --to python --output-dir="./results"
 
 notebook-artifacts: notebook-to-html notebook-to-python chmod
 

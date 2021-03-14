@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 
 # plotly standard imports
@@ -38,7 +38,7 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 # 
 # Bitcoin data at 1-day intervals from April 28, 2013
 
-# In[3]:
+# In[2]:
 
 
 from src.load_datasets import load_input_dataset
@@ -48,19 +48,19 @@ input_dataset = load_input_dataset()
 input_dataset.head()
 
 
-# In[4]:
+# In[3]:
 
 
 input_dataset.shape
 
 
-# In[5]:
+# In[4]:
 
 
 input_dataset.info()
 
 
-# In[6]:
+# In[5]:
 
 
 input_dataset.describe()
@@ -68,7 +68,7 @@ input_dataset.describe()
 
 # ### Explore correlations between diffenrences of values
 
-# In[9]:
+# In[6]:
 
 
 import seaborn as sns
@@ -78,7 +78,7 @@ corr = input_dataset[['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']].di
 sns.heatmap(corr,cmap='Blues',annot=False) 
 
 
-# In[10]:
+# In[7]:
 
 
 sns.heatmap(corr, annot=True, cmap = 'viridis')
@@ -88,7 +88,7 @@ sns.heatmap(corr, annot=True, cmap = 'viridis')
 # 
 # Will analyze only interesting features
 
-# In[3]:
+# In[8]:
 
 
 feature_columns = ['High', 'Low', 'Open', 'Close', 'Volume', 'Marketcap']
@@ -97,7 +97,7 @@ target_features = input_dataset[feature_columns]
 target_features.head()
 
 
-# In[4]:
+# In[9]:
 
 
 import sweetviz as sv
@@ -108,7 +108,7 @@ analyse_report.show_notebook()
 
 # ### Feature evalution over time
 
-# In[5]:
+# In[10]:
 
 
 datetime = pd.to_datetime(input_dataset['Date'])
@@ -119,7 +119,7 @@ target_features.iplot(
 )
 
 
-# In[6]:
+# In[11]:
 
 
 target_features.describe().transpose()
@@ -129,7 +129,7 @@ target_features.describe().transpose()
 # 
 # Only last 4 years have active trading, will use them for explaration and training
 
-# In[7]:
+# In[12]:
 
 
 year = 365
@@ -144,7 +144,7 @@ last_years_dataset.head()
 len(last_years_dataset)
 
 
-# In[8]:
+# In[13]:
 
 
 last_years_features = last_years_dataset[feature_columns]
@@ -153,6 +153,21 @@ last_years_features.index = last_years_datetime
 last_years_features.iplot(
     subplots=True,
 )
+
+
+# ### Explore last years corelation
+
+# In[15]:
+
+
+corr = last_years_features.diff().dropna().corr()
+sns.heatmap(corr,cmap='Blues',annot=False) 
+
+
+# In[16]:
+
+
+sns.heatmap(corr, annot=True, cmap = 'viridis')
 
 
 # In[ ]:

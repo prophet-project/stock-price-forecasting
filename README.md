@@ -27,10 +27,10 @@ All other Python libraries and models described in `Dockerfile` and `requirement
 
 ## Research Results
 
-You can browse research as [notebook](https://github.com/LeoVS09/stock-price-forecasting/blob/master/analyse.ipynb)
+You can browse research as [notebook](https://github.com/prophet-project/stock-price-forecasting/blob/master/analyse.ipynb)
 
-if github not load notebook you can open [html version](https://leovs09.github.io/stock-price-forecasting)
-or even [python version](https://github.com/LeoVS09/stock-price-forecasting/blob/master/results/anayse.py)
+if github not load notebook you can open [html version](https://prophet-project.github.io/stock-price-forecasting/)
+or even [python version](https://github.com/prophet-project/stock-price-forecasting/blob/master/results/anayse.py)
 
 ## Development
 

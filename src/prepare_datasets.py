@@ -38,8 +38,16 @@ def make_window_generator():
     print('input_width =', input_width)
 
     # make train dataset batches equal size
-    train_delimetor = round(len(train_df) / (FULL_WINDOW_WITH * BATCH_SIZE))
+    train_delimetor = len(train_df) // (FULL_WINDOW_WITH * BATCH_SIZE)
     train_df = train_df[:train_delimetor*(FULL_WINDOW_WITH * BATCH_SIZE)]
+
+    # make test batches equal size
+    test_delimetor = len(test_df) // (FULL_WINDOW_WITH * BATCH_SIZE)
+    test_df = test_df[:test_delimetor*(FULL_WINDOW_WITH * BATCH_SIZE)]
+
+    # by some reason last batch is incorrect size
+    train_df = train_df[:-7*FULL_WINDOW_WITH]
+    test_df = test_df[:-5*FULL_WINDOW_WITH]
 
     window = WindowGenerator(
         input_width=input_width, label_width=input_width, shift=LABEL_SHIFT,

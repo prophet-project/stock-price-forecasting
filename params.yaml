@@ -10,4 +10,4 @@ train:
     patience: 5
     label_shift: 1  # Shift between input and labeled windows
     label_columns:
-        - 'Close'
+        - 'close'

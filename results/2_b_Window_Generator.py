@@ -46,12 +46,28 @@ train_df, test_df = get_prepared_datasets()
 
 train_df.head()
 
-train_df.iplot(subplots=True)
+
+# In[3]:
+
+
+train_df[59::60].iplot(subplots=True)
+
+
+# In[4]:
+
+
+train_df.info()
+
+
+# In[5]:
+
+
+target_column = 'close'
 
 
 # ## Calculate batch size
 
-# In[3]:
+# In[6]:
 
 
 from src.window_generator import WindowGenerator
@@ -59,19 +75,19 @@ from src.window_generator import WindowGenerator
 w1 = WindowGenerator(
     input_width=24, label_width=1, shift=24, 
     train_df=train_df, test_df=test_df, 
-    label_columns=['Close']
+    label_columns=[target_column]
 )
 
 w1
 
 
-# In[4]:
+# In[7]:
 
 
-w1.plot(plot_col='Close')
+w1.plot(plot_col=target_column)
 
 
-# In[5]:
+# In[8]:
 
 
 w1.train.element_spec
@@ -79,18 +95,18 @@ w1.train.element_spec
 
 # ## Try baseline model
 
-# In[6]:
+# In[9]:
 
 
 single_step_window = WindowGenerator(
     input_width=1, label_width=1, shift=1,
     train_df=train_df, test_df=test_df, 
-    label_columns=['Close'])
+    label_columns=[target_column])
 
 single_step_window
 
 
-# In[7]:
+# In[10]:
 
 
 import tensorflow as tf
@@ -98,7 +114,7 @@ from src.BaselineModel import Baseline
 
 column_indices = {name: i for i, name in enumerate(train_df.columns)}
 
-baseline = Baseline(label_index=column_indices['Close'])
+baseline = Baseline(label_index=column_indices[target_column])
     
 baseline.compile(
     loss=tf.losses.MeanSquaredError(),
@@ -106,34 +122,56 @@ baseline.compile(
 )
 
 
-# In[8]:
+# In[11]:
 
 
 baseline.evaluate(single_step_window.test, verbose=1)
 
 
-# In[9]:
+# In[12]:
 
 
 wide_window = WindowGenerator(
     input_width=32, label_width=32, shift=1,
     train_df=train_df, test_df=test_df,
-    label_columns=['Close'])
+    label_columns=[target_column])
 
 wide_window
 
 
-# In[10]:
+# In[13]:
 
 
 print('Input shape:', wide_window.example[0].shape)
 print('Output shape:', baseline(wide_window.example[0]).shape)
 
 
-# In[11]:
+# In[14]:
 
 
 wide_window.plot(baseline)
+
+
+# ## Calculate train/test window size
+
+# In[31]:
+
+
+len(train_df)
+
+batch_size = 8
+full_window_width = 33
+train_delimetor = len(train_df) // (full_window_width * batch_size)
+train_delimetor
+
+
+# In[35]:
+
+
+len(test_df)
+
+test_delimetor = len(test_df) // (full_window_width * batch_size)
+test_delimetor
 
 
 # In[ ]:

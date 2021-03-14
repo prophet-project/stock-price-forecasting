@@ -30,9 +30,7 @@ init_notebook_mode(connected=True)
 cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 
-# # Check baseline metrics
-
-# In[4]:
+# In[2]:
 
 
 from src.prepare_datasets import make_window_generator, get_prepared_datasets
@@ -42,31 +40,9 @@ train_df, test_df = get_prepared_datasets()
 window = make_window_generator()
 
 
-# In[5]:
-
-
-import tensorflow as tf
-from src.BaselineModel import Baseline
-
-column_indices = {name: i for i, name in enumerate(train_df.columns)}
-
-baseline = Baseline(label_index=column_indices['Close'])
-    
-baseline.compile(
-    loss=tf.losses.MeanSquaredError(),
-    metrics=[tf.metrics.MeanAbsoluteError(), tf.metrics.MeanSquaredLogarithmicError()]
-)
-
-
-# In[7]:
-
-
-baseline.evaluate(window.test, verbose=1)
-
-
 # # Test model predictions
 
-# In[8]:
+# In[3]:
 
 
 from src.libs import load
@@ -74,7 +50,7 @@ from src.libs import load
 model = load()
 
 
-# In[10]:
+# In[4]:
 
 
 model.evaluate(window.test, verbose=2)
@@ -83,7 +59,7 @@ model.reset_states()
 
 # Plot model
 
-# In[11]:
+# In[5]:
 
 
 model.reset_states()
@@ -93,7 +69,7 @@ window.plot(model)
 
 # # Compare predictions and labels
 
-# In[12]:
+# In[6]:
 
 
 import tensorflow as tf
@@ -110,7 +86,7 @@ pred2labels = pd.DataFrame({ 'Predicted': predictions, 'Labels': label_window})
 pred2labels.iplot()
 
 
-# In[13]:
+# In[7]:
 
 
 import plotly.express as px

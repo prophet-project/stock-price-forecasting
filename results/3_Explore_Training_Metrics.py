@@ -34,7 +34,7 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 # 
 # ## Get baseline metrics
 
-# In[7]:
+# In[2]:
 
 
 import tensorflow as tf
@@ -53,13 +53,13 @@ baseline.compile(
 )
 
 
-# In[8]:
+# In[3]:
 
 
 window = make_window_generator()
 
 
-# In[23]:
+# In[4]:
 
 
 baseline_test_metrics = baseline.evaluate(window.test, verbose=1)
@@ -68,7 +68,7 @@ baseline_test_metrics = pd.DataFrame(data=[baseline_test_metrics], columns=basel
 baseline_test_metrics
 
 
-# In[24]:
+# In[5]:
 
 
 baseline_train_metrics = baseline.evaluate(window.train, verbose=1)
@@ -77,7 +77,7 @@ baseline_train_metrics = pd.DataFrame(data=[baseline_train_metrics], columns=bas
 baseline_train_metrics
 
 
-# In[25]:
+# In[6]:
 
 
 df = pd.read_csv('./metrics/training.csv')
@@ -93,7 +93,7 @@ df['baseline_train_mean_squared_logarithmic_error'] = baseline_train_metrics['me
 df.head()
 
 
-# In[26]:
+# In[7]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -106,7 +106,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[28]:
+# In[8]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
@@ -118,7 +118,7 @@ df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
 )
 
 
-# In[29]:
+# In[9]:
 
 
 df[['epoch', 'mean_squared_logarithmic_error', 'val_mean_squared_logarithmic_error']].iplot(
@@ -130,7 +130,7 @@ df[['epoch', 'mean_squared_logarithmic_error', 'val_mean_squared_logarithmic_err
 )
 
 
-# In[30]:
+# In[10]:
 
 
 df[['epoch', 'loss', 'baseline_train_loss']].iplot(
@@ -143,7 +143,7 @@ df[['epoch', 'loss', 'baseline_train_loss']].iplot(
 )
 
 
-# In[31]:
+# In[11]:
 
 
 df[['epoch', 'val_loss', 'baseline_test_loss']].iplot(

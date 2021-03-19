@@ -91,22 +91,24 @@ potential_profit = round((initial_cash / open_price) * close_price) - initial_ca
 print('Potential profit after holding value:', potential_profit)
 
 
-# In[8]:
+# In[20]:
 
 
 import backtrader as bt
 import backtrader.feeds as btfeeds
 
 # Pass it to the backtrader datafeed and add it to the cerebro
-data = bt.feeds.PandasData(dataname=test_hours)
+data = bt.feeds.PandasData(dataname=test)
 
 data
 
 
 # ## Setup strategy
 
-# In[9]:
+# In[21]:
 
+
+pbar = None # will be defined later
 
 class TestStrategy(bt.Strategy):
     
@@ -164,6 +166,7 @@ class TestStrategy(bt.Strategy):
     def next(self):
         # Simply log the closing price of the series from the reference
         self.log('Close, %.2f' % self.dataclose[0])
+        pbar.update()
 
         # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:
@@ -198,7 +201,7 @@ class TestStrategy(bt.Strategy):
 
 # ## Setup testing enviroment
 
-# In[10]:
+# In[22]:
 
 
 # Create a cerebro entity
@@ -214,7 +217,7 @@ cerebro.broker.setcash(initial_cash)
 
 # ### Set commission
 
-# In[11]:
+# In[23]:
 
 
 # 0.1% ... divide by 100 to remove the %
@@ -223,15 +226,20 @@ cerebro.broker.setcommission(commission=0.001)
 
 # ## Run backtesting
 
-# In[12]:
+# In[24]:
 
+
+from tqdm.auto import tqdm
+
+pbar = tqdm(total=len(test))
 
 initial_value = cerebro.broker.getvalue()
 
+cerebro.optcallback(cb=bt_opt_callback)
 cerebro.run()
 
 
-# In[13]:
+# In[25]:
 
 
 print('Starting Portfolio Value: %.2f' % initial_value)
@@ -246,7 +254,7 @@ print('Result profit %.2f from potential profit %.2f' % (result_profit, potentia
 print('Realised of', percent_of_potential, '% of profit')
 
 
-# In[14]:
+# In[ ]:
 
 
 

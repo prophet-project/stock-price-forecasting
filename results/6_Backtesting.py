@@ -33,6 +33,9 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 # # Backtesting
 # 
 # For understand quality of predictions need make backtesting of bot on testing dataset
+# 
+# **TODO: Create strategy which can trade best way based on real future data.
+#     Then add model which can predict more accurate future values**
 
 # In[2]:
 

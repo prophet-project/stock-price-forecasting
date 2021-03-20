@@ -105,10 +105,19 @@ data
 
 # ## Setup strategy
 
-# In[50]:
+# In[9]:
 
 
 class TestStrategy(bt.Strategy):
+    
+    params = (
+        ('period_me1', 12),
+        ('period_me2', 26),
+        ('period_signal', 9),
+        ('stohastic_period', 14),
+        ('atr_period', 14)
+    )
+
     
     def log(self, txt, dt=None):
         ''' Logging function for this strategy'''
@@ -125,6 +134,27 @@ class TestStrategy(bt.Strategy):
         self.buycomm = None
         
         self.pbar = tqdm(total=len(test))
+        
+        # indicators
+        self.macdHisto = bt.indicators.MACDHistogram(
+            self.datas[0], 
+            period_me1=self.params.period_me1,
+            period_me2=self.params.period_me2,
+            period_signal=self.params.period_signal
+        )
+        # get macd histogram and pass to model as MACD
+        
+        self.stohastic = bt.indicators.StochasticFast(
+            self.datas[0], 
+            period=self.params.stohastic_period
+        )
+        # get stohastic percK and pass as Stochastics Oscillator
+        
+        self.atr = bt.indicators.AverageTrueRange(
+            self.datas[0],
+            period=self.params.atr_period
+        )
+        # get atr and pass as ATR
     
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -175,7 +205,9 @@ class TestStrategy(bt.Strategy):
     
     def next(self):
         # Simply log the closing price of the series from the reference
-        self.log('Close, %.2f' % self.dataclose[0])
+        self.log('Close %.2f, MACD %.2f, SO %.2f, ATR %.2f'  % (
+            self.dataclose[0], self.macdHisto[0], self.stohastic[0], self.atr[0]
+        ))
         self.pbar.update()
 
         # Check if an order is pending ... if yes, we cannot send a 2nd one
@@ -217,7 +249,7 @@ class TestStrategy(bt.Strategy):
 
 # ## Setup testing enviroment
 
-# In[61]:
+# In[10]:
 
 
 # Create a cerebro entity
@@ -237,7 +269,7 @@ cerebro.broker.setcash(initial_cash)
 # in case if price will increase before order executed need use part of available cache
 # and also take in mind possible commission
 
-# In[ ]:
+# In[11]:
 
 
 
@@ -246,7 +278,7 @@ cerebro.addsizer(bt.sizers.PercentSizer, percents=20)
 
 # ### Set commission
 
-# In[62]:
+# In[12]:
 
 
 # 0.1% ... divide by 100 to remove the %
@@ -255,7 +287,7 @@ cerebro.broker.setcommission(commission=0.001)
 
 # ## Run backtesting
 
-# In[63]:
+# In[13]:
 
 
 from tqdm.auto import tqdm
@@ -266,7 +298,7 @@ print('Starting strategy initiation...')
 cerebro_results = cerebro.run()
 
 
-# In[64]:
+# In[14]:
 
 
 print('Starting Portfolio Value: %.2f' % initial_value)
@@ -281,8 +313,8 @@ print('Result profit %.2f from potential profit %.2f' % (result_profit, potentia
 print('Realised of', percent_of_potential, '% of profit')
 
 
-# In[ ]:
+# In[15]:
 
 
-
+cerebro.plot()
 

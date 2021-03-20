@@ -69,6 +69,8 @@ def add_indicators(df):
 
     return df
 
+# TODO: add normalisation function by line, use df.apply
+
 """
     Will normalize datasets and prepare for processing by NN
 """

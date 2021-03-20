@@ -1,5 +1,11 @@
 import pandas as pd
 
+"""
+    Actually MACD Histogram indicator
+    allow identify trend.
+    Bace MACD produce two series: MACD itself and signal
+    MACD histogram producediffernece between them
+"""
 def MACD(df,period1,period2,periodSignal):
     EMA1 = pd.DataFrame.ewm(df,span=period1).mean()
     EMA2 = pd.DataFrame.ewm(df,span=period2).mean()
@@ -11,10 +17,13 @@ def MACD(df,period1,period2,periodSignal):
     
     return Histogram
 
+"""
+Actually it is percent of k in StochasticFast formula
+"""
 def stochastics_oscillator(df,period):
     l, h = pd.DataFrame.rolling(df, period).min(), pd.DataFrame.rolling(df, period).max()
     k = 100 * (df - l) / (h - l)
-    return k
+    return k # TODO: train of full StochasticFast formula
 
 '''
 Method A: Current High less the current Low

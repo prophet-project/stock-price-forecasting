@@ -143,6 +143,7 @@ six==1.15.0
 sklearn==0.0
 smmap==3.0.5
 sweetviz==2.0.9
+TA-Lib==0.4.19
 tabulate==0.8.9
 tensorboard==2.4.0
 tensorboard-plugin-wit==1.7.0

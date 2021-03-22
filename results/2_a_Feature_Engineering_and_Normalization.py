@@ -72,45 +72,50 @@ train_features
 # - Method B: Current High less the previous Close (absolute value)
 # - Method C: Current Low less the previous Close (absolute value)
 
-# In[3]:
-
-
-from src.indicators import MACD, stochastics_oscillator, ATR
-
-
 # In[4]:
 
+
+import talib
 
 days_to_show = 60
 items_to_show = days_to_show * 24 * 60
 
+df_show = train_features[-items_to_show:]
+
 
 # ## MACD
-
-# In[5]:
-
-
-macd = MACD(train_features['close'][-items_to_show:], 12, 26, 9)
-
-pd.DataFrame({'MACD': macd}).iplot()
-
-
-# ## Stochastics Oscillator
 
 # In[6]:
 
 
-stochastics = stochastics_oscillator(train_features['close'][-items_to_show:], 14)
 
-pd.DataFrame({'Stochastics Oscillator': stochastics}).iplot()
+macd, macdsignal, macdhist = talib.MACD(
+    df_show['close'].values, 
+    fastperiod=12, 
+    slowperiod=26, 
+    signalperiod=9
+   )
+
+pd.DataFrame({'MACD': macd, 'Signal': macdsignal, 'Hist': macdhist}).iplot(subplots=True)
 
 
-# ## Average True Range
+# ## Stochastics Oscillator
 
 # In[7]:
 
 
-atr = ATR(train_features.iloc[-items_to_show:], 14)
+
+fastk, fastd = talib.STOCHF(df_show['high'], df_show['low'], df_show['close'], fastk_period=14, fastd_period=3)
+
+pd.DataFrame({'Stochastics K': fastk, 'Stochastics D': fastk}).iplot(subplots=True)
+
+
+# ## Average True Range
+
+# In[8]:
+
+
+atr = talib.ATR(df_show['high'], df_show['low'], df_show['close'], timeperiod=14)
 
 atr.head()
 
@@ -160,7 +165,7 @@ def plot_log_freaquency(series):
 
 # ### Frequency of price
 
-# In[10]:
+# In[ ]:
 
 
 plot_log_freaquency(train_features['close'])
@@ -203,7 +208,7 @@ compare_report.show_notebook()
 
 # ### Training data exploration
 
-# In[ ]:
+# In[5]:
 
 
 train_features[59::60].iplot(subplots=True)
@@ -211,7 +216,7 @@ train_features[59::60].iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[ ]:
+# In[6]:
 
 
 test_features[59::60].iplot(subplots=True)
@@ -224,7 +229,7 @@ test_features[59::60].iplot(subplots=True)
 # Divide by the max-min deviation
 # 
 
-# In[ ]:
+# In[7]:
 
 
 pd.set_option('float_format', '{:.2f}'.format)
@@ -232,13 +237,13 @@ pd.set_option('float_format', '{:.2f}'.format)
 train_features.describe()
 
 
-# In[ ]:
+# In[8]:
 
 
 test_features.describe()
 
 
-# In[ ]:
+# In[9]:
 
 
 train_mean = train_features.mean()
@@ -252,7 +257,7 @@ train_std = train_features.std()
 # 100 thouthands dollars
 # except of volume
 
-# In[ ]:
+# In[10]:
 
 
 MAX_TARGET = 100000
@@ -262,18 +267,26 @@ train_max['open'] = MAX_TARGET
 train_max['close'] = MAX_TARGET
 
 
-# In[ ]:
+# In[11]:
 
+
+from tqdm import tqdm
 
 train_d = train_max - train_min
 
-train_normalised = train_features / train_d
-test_normalised = test_features / train_d
+def normalise(row):
+    return row / train_d
+
+tqdm.pandas(desc="train dataset")
+train_normalised = train_features.progress_apply(normalise, axis=1)
+
+tqdm.pandas(desc="test dataset")
+test_normalised = test_features.progress_apply(normalise, axis=1)
 
 train_normalised.head()
 
 
-# In[ ]:
+# In[12]:
 
 
 train_normalised.index = train_features.index
@@ -283,7 +296,7 @@ test_normalised.index = test_features.index
 test_normalised[59::60].iplot(subplots=True, title="Test")
 
 
-# In[ ]:
+# In[13]:
 
 
 train_in_hours = train_features[59::60]
@@ -295,6 +308,12 @@ feature2normaliesd = pd.DataFrame({
 feature2normaliesd.index = train_in_hours.index
 
 feature2normaliesd.iplot(subplots=True)
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

@@ -1,9 +1,11 @@
 import os
 import pandas as pd
-from .libs import params
+import json
+from tqdm import tqdm
+import talib
+from .libs import params, get_from_file, save_to_file
 from .load_datasets import load_datasets
 from .window_generator import WindowGenerator
-from .indicators import MACD, stochastics_oscillator, ATR
 
 LABEL_SHIFT = params['train']['label_shift']
 LABEL_COLUMNS = params['train']['label_columns']
@@ -20,6 +22,7 @@ if not os.path.exists(result_datasets_folder):
 
 processed_train_dataset_path = os.path.join(result_datasets_folder, 'training.bitcoin.csv')
 processed_test_dataset_path = os.path.join(result_datasets_folder, 'test.bitcoin.csv')
+normazation_file = os.path.join(result_datasets_folder, 'normalization_params.json')
 
 def get_prepared_datasets():
     train = pd.read_csv(processed_train_dataset_path)
@@ -59,22 +62,55 @@ def make_window_generator():
     return window
 
 def add_indicators(df):
-    macd = MACD(df['close'], 12, 26, 9)
-    stochastics = stochastics_oscillator(df['close'], 14)
-    atr = ATR(df, 14)
+    macd, macdsignal, macdhist = talib.MACD(
+        df['close'].values, 
+        fastperiod=12, slowperiod=26, signalperiod=9
+    )
+    fastk, fastd = talib.STOCHF(
+        df['high'], df['low'], df['close'], 
+        fastk_period=14, fastd_period=3
+    )
+    atr = talib.ATR(
+        df['high'], df['low'], df['close'], 
+        timeperiod=14
+    )
 
-    df['MACD'] = macd
-    df['Stochastics Oscillator'] = stochastics
-    df['ATR'] = atr[0]
+    df['MACD'] = pd.Series(macdhist, index=df.index)
+    df['Stochastics Oscillator'] = pd.Series(fastd, index=df.index)
+    df['ATR'] = pd.Series(atr, index=df.index)
 
     return df
 
-# TODO: add normalisation function by line, use df.apply
+# Will be created and saved on building prepared dataset
+norm_params = None
+norm_d = None
+
+def calc_norm_d():
+    global norm_params, norm_d
+    dt_max = norm_params['max']
+    dt_min = norm_params['min']
+
+    norm_d = dt_max - dt_min
+
+serialisable_params = get_from_file(normazation_file)
+if serialisable_params:
+    norm_params = {
+        'max': pd.Series(serialisable_params['max'], index=serialisable_params['index']),
+        'min': pd.Series(serialisable_params['min'], index=serialisable_params['index'])
+    }
+    calc_norm_d()
+
+def normalize_row(row):
+    return row / norm_d
+
+def denormalise_row(row):
+    return row * norm_d
 
 """
     Will normalize datasets and prepare for processing by NN
 """
 def build_prepared_dataset():
+    global norm_params
     print('Start processing dataset...')
     train, test = load_datasets()
 
@@ -91,10 +127,26 @@ def build_prepared_dataset():
     train_max['open'] = MAX_TARGET
     train_max['close'] = MAX_TARGET
 
-    train_d = train_max - train.min()
+    norm_params = {
+        'max': train_max,
+        'min': train.min(),
+    }
+    calc_norm_d()
+    print('max:\n', norm_params['max'], '\nmin:\n', norm_params['min'], '\nnorm d:\n', norm_d)
+    serialisable_params = {
+        'max': norm_params['max'].to_numpy().tolist(),
+        'min': norm_params['min'].to_numpy().tolist(),
+        'index': norm_params['max'].index.to_numpy().tolist()
+    }
+    save_to_file(serialisable_params, normazation_file)
 
-    train = train / train_d
-    test = test / train_d
+    tqdm.pandas(desc="train dataset")
+    train = train.progress_apply(normalize_row, axis=1)
+    train.info()
+    
+    tqdm.pandas(desc="test dataset")
+    test = test.progress_apply(normalize_row, axis=1)
+    test.info()
 
     train = train.dropna()
     test = test.dropna()

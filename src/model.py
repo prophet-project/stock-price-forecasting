@@ -3,7 +3,7 @@ from .libs import params
 from .FeedBackModel import FeedBack
 from .prepare_datasets import feature_list, BATCH_SIZE
 
-NUM_FEATURES=11
+NUM_FEATURES=8
 INPUT_WIDTH = 32
 
 INPUT_SHAPE = (BATCH_SIZE, INPUT_WIDTH, NUM_FEATURES)

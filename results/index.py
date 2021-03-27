@@ -17,6 +17,7 @@
 # 3. [Window Generator](./2_b_Window_Generator.html) | [notebook version](./2_b_Window_Generator.ipynb)
 # 4. [Explore Training Metrics](./3_Explore_Training_Metrics.html) | [notebook version](./3_Explore_Training_Metrics.ipynb)
 # 5. [Test Model](./4_Test_model.html) | [notebook version](./4_Test_model.ipynb)
+# 6. [Backtesting](./6_Backtesting.html) | [notebook version](./6_Backtesting.ipynb)
 # 
 
 # In[ ]:

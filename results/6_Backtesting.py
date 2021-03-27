@@ -101,7 +101,7 @@ import backtrader as bt
 import backtrader.feeds as btfeeds
 
 # Pass it to the backtrader datafeed and add it to the cerebro
-data = bt.feeds.PandasData(dataname=test)
+data = bt.feeds.PandasData(dataname=test[:500])
 
 data
 
@@ -111,14 +111,20 @@ data
 # In[9]:
 
 
+import tensorflow as tf
+from src.prepare_datasets import normalize_row
+from src.libs import load
+from src.prepare_datasets import norm_d
+
+model = load()
+
 class TestStrategy(bt.Strategy):
     
     params = (
         ('period_me1', 12),
         ('period_me2', 26),
         ('period_signal', 9),
-        ('stohastic_period', 14),
-        ('atr_period', 14)
+        ('period', 14)
     )
 
     
@@ -128,7 +134,7 @@ class TestStrategy(bt.Strategy):
         print('%s, %s' % (dt.isoformat(), txt))
         
     def __init__(self):
-        # Keep a reference to the "close" line in the data[0] dataseries
+        # Keep a reference to the lines in the data[0] dataseries
         self.dataclose = self.datas[0].close
 
         # To keep track of pending orders and buy price/commission
@@ -149,13 +155,13 @@ class TestStrategy(bt.Strategy):
         
         self.stohastic = bt.indicators.StochasticFast(
             self.datas[0], 
-            period=self.params.stohastic_period
+            period=self.params.period
         )
         # get stohastic percK and pass as Stochastics Oscillator
         
         self.atr = bt.indicators.AverageTrueRange(
             self.datas[0],
-            period=self.params.atr_period
+            period=self.params.period
         )
         # get atr and pass as ATR
     
@@ -212,35 +218,92 @@ class TestStrategy(bt.Strategy):
             self.dataclose[0], self.macdHisto[0], self.stohastic[0], self.atr[0]
         ))
         self.pbar.update()
+        
+        lines_warmap = 33
+        
+        # Are enough time for clalculations
+        if len(self) < lines_warmap:
+            return
 
         # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:
             return
+        
+        
+        df = pd.DataFrame({
+            'close': self.data.close.get(size=lines_warmap),
+            'low': self.data.low.get(size=lines_warmap),
+            'high': self.data.high.get(size=lines_warmap),
+            'open': self.data.open.get(size=lines_warmap),
+            'volume': self.data.volume.get(size=lines_warmap),
+            'MACD': self.macdHisto.get(size=lines_warmap),
+            'Stochastics Oscillator': self.stohastic.get(size=lines_warmap),
+            'ATR': self.atr.get(size=lines_warmap),
+        })
+        df = df.dropna()
+        # Wait indicators warmup
+        if len(df) < 33:
+            return
+        print(df['MACD'])
+        df = df[test.columns.tolist()]
+        
+        print(df.head())
+        df = df.apply(normalize_row, axis=1)
+        print(df.head())
+        df = df.dropna()
+        
+        df = pd.concat([
+            df.copy(), df.copy(), df.copy(), df.copy(), 
+            df.copy(), df.copy(), df.copy(), df.copy()
+        ], 
+            ignore_index=True
+        )
+        
+        
+        
+        ds = tf.keras.preprocessing.timeseries_dataset_from_array(
+            df, 
+            targets=None, 
+            sequence_length=32,
+            sequence_stride=32,
+            shuffle=False,
+            batch_size=8
+        )
+        input = next(iter(ds))
+        
+        predictions = model.predict(input)
+        print(predictions)
+        predictions = pd.Series(tf.reshape(predictions, [-1]).numpy())
+        
+        
+        
+        # Denormalise predictions
+        predictions = predictions.apply(lambda x: x * norm_d['close'])
+        
+        next_predicted = predictions.iloc[-1]
+        self.log('Predicted price: %.2f' % next_predicted)
 
         # Check if we are in the market
         if not self.position:
 
-            # Not yet ... we MIGHT BUY if ...
-            if self.dataclose[0] < self.dataclose[-1]:
-                    # current close less than previous close
+            if next_predicted > self.dataclose[0]:
+                # previous close less than the previous close
 
-                    if self.dataclose[-1] < self.dataclose[-2]:
-                        # previous close less than the previous close
+                # BUY, BUY, BUY!!! (with default parameters)
+                self.log('BUY CREATE, %.2f' % self.dataclose[0])
 
-                        # BUY, BUY, BUY!!! (with default parameters)
-                        self.log('BUY CREATE, %.2f' % self.dataclose[0])
-
-                        # Keep track of the created order to avoid a 2nd order
-                        self.order = self.buy()
-                        self.log('Created order %.2f size, and expected value %.2f' % (
-                            self.order.created.size, self.order.created.size * self.dataclose[0]
-                        ))
+                # Keep track of the created order to avoid a 2nd order
+                self.order = self.buy()
+                self.log('Created order %.2f size, and expected value %.2f' % (
+                    self.order.created.size, self.order.created.size * self.dataclose[0]
+                ))
+                    
 
         else:
 
             # Already in the market ... we might sell
-            if len(self) >= (self.bar_executed + 5):
-                # SELL, SELL, SELL!!! (with all possible default parameters)
+            if next_predicted < self.dataclose[0]:
+                # next predicted less then current closed
                 self.log('SELL CREATE, %.2f' % self.dataclose[0])
 
                 # Keep track of the created order to avoid a 2nd order
@@ -301,7 +364,7 @@ print('Starting strategy initiation...')
 cerebro_results = cerebro.run()
 
 
-# In[14]:
+# In[ ]:
 
 
 print('Starting Portfolio Value: %.2f' % initial_value)
@@ -316,7 +379,7 @@ print('Result profit %.2f from potential profit %.2f' % (result_profit, potentia
 print('Realised of', percent_of_potential, '% of profit')
 
 
-# In[15]:
+# In[ ]:
 
 
 cerebro.plot()

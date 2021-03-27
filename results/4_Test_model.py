@@ -59,7 +59,7 @@ model.reset_states()
 
 # Plot model
 
-# In[5]:
+# In[ ]:
 
 
 model.reset_states()
@@ -69,7 +69,7 @@ window.plot(model)
 
 # # Compare predictions and labels
 
-# In[6]:
+# In[ ]:
 
 
 import tensorflow as tf
@@ -86,7 +86,7 @@ pred2labels = pd.DataFrame({ 'Predicted': predictions, 'Labels': label_window})
 pred2labels.iplot()
 
 
-# In[7]:
+# In[ ]:
 
 
 import plotly.express as px

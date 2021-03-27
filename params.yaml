@@ -5,7 +5,7 @@ input:
     years: 4 # count of years of dataset which take for training and testing, start from last
 
 train:
-    epochs: 100
+    epochs: 20
     features: 4
     patience: 5
     label_shift: 1  # Shift between input and labeled windows

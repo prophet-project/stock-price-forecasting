@@ -7,8 +7,8 @@ PATH_TO_SAVED_CUSTOM_MODEL='saved_models/main'
 def save(model):
     model.save(PATH_TO_SAVED_MODEL)
 
-def load():
-    new_model = tf.keras.models.load_model(PATH_TO_SAVED_MODEL)
+def load(custom_objects=None):
+    new_model = tf.keras.models.load_model(PATH_TO_SAVED_MODEL, custom_objects=custom_objects)
 
     # Check its architecture
     new_model.summary()

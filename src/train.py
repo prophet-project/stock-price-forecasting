@@ -18,12 +18,6 @@ early_stopping = tf.keras.callbacks.EarlyStopping(
     mode='min'
 )
 
-class ResetStateAfterEpochEnd(Callback):
-
-    def on_epoch_end(self, epoch, logs=None):
-        # clear lstm state
-        self.model.reset_states()
-
 def fit(model, window):
 
     model.fit(
@@ -33,9 +27,7 @@ def fit(model, window):
         callbacks=[
             checkpoints.save_weights(), 
             CSVLogger(metrics_file),
-            ResetStateAfterEpochEnd()
         ],
-        shuffle=False
     )
 
     model.summary()

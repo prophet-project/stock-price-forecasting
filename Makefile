@@ -10,6 +10,8 @@ DOCKER_IMAGE_TAG=leovs09/$(PROJECT_NAME):$(DOCKER_IMAGE_VERSION)
 # DEVELOPMENT
 # ---------------------------------------------------------------------------------------------------------------------
 
+MODIN_ENGINE=dask
+
 # Will reproduce all stages to generate model based on changes
 default:
 	dvc repro

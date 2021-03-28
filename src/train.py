@@ -18,12 +18,12 @@ early_stopping = tf.keras.callbacks.EarlyStopping(
     mode='min'
 )
 
-def fit(model, window):
+def fit(model, train, test):
 
     model.fit(
-        window.train, 
+        train, 
         epochs=MAX_EPOCHS,
-        validation_data=window.test,
+        validation_data=test,
         callbacks=[
             checkpoints.save_weights(), 
             CSVLogger(metrics_file),
@@ -37,10 +37,8 @@ def train():
     # Build neural network model
     model = build_model()
 
-    window = make_window_generator()
-    print(window)
-
-    fit(model, window)
+    train, test = make_window_generator()
+    fit(model, train, test)
 
 
     # Save for restore in next time

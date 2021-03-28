@@ -1,11 +1,11 @@
 import os
 import pandas as pd
+import modin.pandas as md
 import json
-from tqdm import tqdm
 import talib
+import tensorflow as tf
 from .libs import params, get_from_file, save_to_file
 from .load_datasets import load_datasets
-from .window_generator import WindowGenerator
 
 LABEL_SHIFT = params['train']['label_shift']
 LABEL_COLUMNS = params['train']['label_columns']
@@ -30,36 +30,25 @@ def get_prepared_datasets():
 
     return train, test
 
+def make_generator(data, targets, shuffle, batch_size=BATCH_SIZE, sequence_length=FULL_WINDOW_WITH, sequence_stride=1):
+    return tf.keras.preprocessing.timeseries_dataset_from_array(
+      data=data[:-sequence_length],
+      targets=targets[sequence_length:],
+      sequence_length=sequence_length,
+      sequence_stride=sequence_stride,
+      shuffle=shuffle,
+      batch_size=batch_size,
+  )
+
+
 def make_window_generator():
     # Load normalised datasets
     train_df, test_df = get_prepared_datasets()
 
-    print('len(train_df)', len(train_df))
+    train_iterator = make_generator(train_df, train_df[['close']], shuffle=True)
+    test_iterator = make_generator(test_df, test_df[['close']], shuffle=False)
 
-    print('full window width =', FULL_WINDOW_WITH)
-    input_width = round(FULL_WINDOW_WITH - LABEL_SHIFT)
-    print('input_width =', input_width)
-
-    # make train dataset batches equal size
-    train_delimetor = len(train_df) // (FULL_WINDOW_WITH * BATCH_SIZE)
-    train_df = train_df[:train_delimetor*(FULL_WINDOW_WITH * BATCH_SIZE)]
-
-    # make test batches equal size
-    test_delimetor = len(test_df) // (FULL_WINDOW_WITH * BATCH_SIZE)
-    test_df = test_df[:test_delimetor*(FULL_WINDOW_WITH * BATCH_SIZE)]
-
-    # by some reason last batch is incorrect size
-    train_df = train_df[:-7*FULL_WINDOW_WITH]
-    test_df = test_df[:-5*FULL_WINDOW_WITH]
-
-    window = WindowGenerator(
-        input_width=input_width, label_width=input_width, shift=LABEL_SHIFT,
-        train_df=train_df, test_df=test_df,
-        label_columns=LABEL_COLUMNS,
-        batch_size=BATCH_SIZE
-    )
-
-    return window
+    return train_iterator, test_iterator
 
 def add_indicators(df):
     macd, macdsignal, macdhist = talib.MACD(
@@ -140,12 +129,14 @@ def build_prepared_dataset():
     }
     save_to_file(serialisable_params, normazation_file)
 
-    tqdm.pandas(desc="train dataset")
-    train = train.progress_apply(normalize_row, axis=1)
+    print('processing train dataset...')
+    train = md.DataFrame(train)
+    train = train.apply(normalize_row, axis=1)
     train.info()
     
-    tqdm.pandas(desc="test dataset")
-    test = test.progress_apply(normalize_row, axis=1)
+    print('processing test dataset...')
+    test = md.DataFrame(test)
+    test = test.apply(normalize_row, axis=1)
     test.info()
 
     train = train.dropna()

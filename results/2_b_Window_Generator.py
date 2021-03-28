@@ -70,41 +70,88 @@ target_column = 'close'
 # In[6]:
 
 
-from src.window_generator import WindowGenerator
+import tensorflow as tf
 
-w1 = WindowGenerator(
-    input_width=24, label_width=1, shift=24, 
-    train_df=train_df, test_df=test_df, 
-    label_columns=[target_column]
-)
+def make_generator(data, targets, shuffle, batch_size=8, sequence_length=33, sequence_stride=1):
+    return tf.keras.preprocessing.timeseries_dataset_from_array(
+      data=data[:-sequence_length],
+      targets=targets[sequence_length:],
+      sequence_length=sequence_length,
+      sequence_stride=sequence_stride,
+      shuffle=shuffle,
+      batch_size=batch_size,
+  )
 
-w1
+example_dataset = list(range(100))
+print('dataset', example_dataset, '\n')
 
+example_iterator = make_generator(example_dataset, example_dataset, shuffle=False)
+
+input, target = next(iter(example_iterator))
+
+print('Input', input, '\n')
+print('Target', target, '\n')
+
+
+# ## How baseline work
 
 # In[7]:
 
 
-w1.plot(plot_col=target_column)
+result = input[:,:]
+result
 
+result[:,-1,tf.newaxis]
+
+
+# ## Prepare real datasets
 
 # In[8]:
 
 
-w1.train.element_spec
+train_iterator = make_generator(train_df, train_df[[target_column]], shuffle=True)
+test_iterator = make_generator(test_df, test_df[[target_column]], shuffle=False)
+
+input, target = next(iter(test_iterator))
+
+
+# In[19]:
+
+
+import matplotlib.pyplot as plt
+
+def plot_window(batches, target, predictions=None):
+    plt.figure(figsize=(15,len(batches) * 10))
+    
+    batches = batches.numpy()
+    target = target.numpy()
+    
+    for i in range(0, len(batches)):
+        
+        batch = batches[i]
+        feature = [x[train_df.columns.get_loc(target_column)] for x in batch]
+        plt.subplot(len(feature), 1, i+1)
+        plt.plot(feature, 
+                 label='Inputs', marker='.', zorder=-10
+                )
+        
+        label = target[i][0]
+        plt.scatter(len(feature), label,
+                 label='Labels', edgecolors='k', c='#2ca02c', s=64
+                )
+        
+        if predictions is not None:
+            prediction = predictions[i][0]
+            plt.scatter(len(feature), prediction,
+                  marker='X', edgecolors='k', label='Predictions',
+                  c='#ff7f0e', s=64)
+        
+        plt.legend()
+        
+plot_window(input, target)
 
 
 # ## Try baseline model
-
-# In[9]:
-
-
-single_step_window = WindowGenerator(
-    input_width=1, label_width=1, shift=1,
-    train_df=train_df, test_df=test_df, 
-    label_columns=[target_column])
-
-single_step_window
-
 
 # In[10]:
 
@@ -122,56 +169,22 @@ baseline.compile(
 )
 
 
-# In[11]:
-
-
-baseline.evaluate(single_step_window.test, verbose=1)
-
-
 # In[12]:
 
 
-wide_window = WindowGenerator(
-    input_width=32, label_width=32, shift=1,
-    train_df=train_df, test_df=test_df,
-    label_columns=[target_column])
-
-wide_window
+predictions = baseline.predict(test_iterator, verbose=1, use_multiprocessing=True)
 
 
 # In[13]:
 
 
-print('Input shape:', wide_window.example[0].shape)
-print('Output shape:', baseline(wide_window.example[0]).shape)
+predictions.shape
 
 
-# In[14]:
+# In[20]:
 
 
-wide_window.plot(baseline)
-
-
-# ## Calculate train/test window size
-
-# In[31]:
-
-
-len(train_df)
-
-batch_size = 8
-full_window_width = 33
-train_delimetor = len(train_df) // (full_window_width * batch_size)
-train_delimetor
-
-
-# In[35]:
-
-
-len(test_df)
-
-test_delimetor = len(test_df) // (full_window_width * batch_size)
-test_delimetor
+plot_window(input, target, predictions)
 
 
 # In[ ]:

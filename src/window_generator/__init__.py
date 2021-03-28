@@ -1,1 +1,0 @@
-from .WindowGenerator import WindowGenerator

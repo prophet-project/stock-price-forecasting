@@ -14,4 +14,4 @@ class Baseline(tf.keras.Model):
     if self.label_index is None:
       return inputs
     result = inputs[:, :, self.label_index]
-    return result[:, :, tf.newaxis]
+    return result[:, -1, tf.newaxis]

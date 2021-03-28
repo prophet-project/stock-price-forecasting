@@ -8,14 +8,14 @@ prepare(tf)
 metrics_file='metrics/test.json'
 
 # Load normalised datasets
-window = make_window_generator()
+train, test = make_window_generator()
 
 model = load({"percentage_difference": percentage_difference})
 compile(model)
 
 # Test
 results = model.evaluate(
-    window.test, 
+    test, 
     verbose=1,
 )
 

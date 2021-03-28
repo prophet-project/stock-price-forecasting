@@ -53,31 +53,31 @@ baseline.compile(
 )
 
 
-# In[3]:
-
-
-window = make_window_generator()
-
-
 # In[4]:
 
 
-baseline_test_metrics = baseline.evaluate(window.test, verbose=1)
-
-baseline_test_metrics = pd.DataFrame(data=[baseline_test_metrics], columns=baseline.metrics_names)
-baseline_test_metrics
+train, test = make_window_generator()
 
 
 # In[5]:
 
 
-baseline_train_metrics = baseline.evaluate(window.train, verbose=1)
+baseline_test_metrics = baseline.evaluate(test, verbose=1)
 
-baseline_train_metrics = pd.DataFrame(data=[baseline_train_metrics], columns=baseline.metrics_names)
-baseline_train_metrics
+baseline_test_metrics = pd.DataFrame(data=[baseline_test_metrics], columns=baseline.metrics_names)
+baseline_test_metrics
 
 
 # In[6]:
+
+
+#baseline_train_metrics = baseline.evaluate(window.train, verbose=1)
+
+#baseline_train_metrics = pd.DataFrame(data=[baseline_train_metrics], columns=baseline.metrics_names)
+#baseline_train_metrics
+
+
+# In[9]:
 
 
 df = pd.read_csv('./metrics/training.csv')
@@ -86,17 +86,30 @@ df['baseline_test_loss'] = baseline_test_metrics['loss'][0]
 df['baseline_test_mean_absolute_error'] = baseline_test_metrics['mean_absolute_error'][0]
 df['baseline_test_mean_squared_logarithmic_error'] = baseline_test_metrics['mean_squared_logarithmic_error'][0]
 
-df['baseline_train_loss'] = baseline_train_metrics['loss'][0]
-df['baseline_train_mean_absolute_error'] = baseline_train_metrics['mean_absolute_error'][0]
-df['baseline_train_mean_squared_logarithmic_error'] = baseline_train_metrics['mean_squared_logarithmic_error'][0]
+#df['baseline_train_loss'] = baseline_train_metrics['loss'][0]
+#df['baseline_train_mean_absolute_error'] = baseline_train_metrics['mean_absolute_error'][0]
+#df['baseline_train_mean_squared_logarithmic_error'] = baseline_train_metrics['mean_squared_logarithmic_error'][0]
 
-df.head()
+df
 
 
-# In[7]:
+# In[8]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
+    x='epoch',
+    mode='lines+markers',
+    xTitle='epoch',
+    yTitle='loss', 
+    title='Training vs Validation loss',
+    linecolor='black',
+)
+
+
+# In[10]:
+
+
+df[['epoch', 'loss']].iplot(
     x='epoch',
     mode='lines+markers',
     xTitle='epoch',
@@ -106,7 +119,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[8]:
+# In[11]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
@@ -118,7 +131,7 @@ df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
 )
 
 
-# In[9]:
+# In[12]:
 
 
 df[['epoch', 'mean_squared_logarithmic_error', 'val_mean_squared_logarithmic_error']].iplot(
@@ -133,17 +146,17 @@ df[['epoch', 'mean_squared_logarithmic_error', 'val_mean_squared_logarithmic_err
 # In[10]:
 
 
-df[['epoch', 'loss', 'baseline_train_loss']].iplot(
-    x='epoch',
-    mode='lines+markers',
-    xTitle='epoch',
-    yTitle='loss', 
-    title='Training loss with baseline',
-    linecolor='black',
-)
+# df[['epoch', 'loss', 'baseline_train_loss']].iplot(
+#     x='epoch',
+#     mode='lines+markers',
+#     xTitle='epoch',
+#     yTitle='loss', 
+#     title='Training loss with baseline',
+#     linecolor='black',
+# )
 
 
-# In[11]:
+# In[13]:
 
 
 df[['epoch', 'val_loss', 'baseline_test_loss']].iplot(

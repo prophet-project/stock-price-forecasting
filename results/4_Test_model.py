@@ -64,7 +64,27 @@ input_window, label_window = next(iter(test))
 predictions = model.predict(test, verbose=1, use_multiprocessing=True)
 
 
-# In[21]:
+# In[6]:
+
+
+
+input_window.shape
+predictions.shape
+
+
+# In[12]:
+
+
+one_window = input_window[:1]
+one_window.shape
+
+one_window
+
+predictions = model.predict_on_batch(one_window)
+predictions.shape
+
+
+# In[ ]:
 
 
 test2predictions = pd.DataFrame({ 
@@ -76,7 +96,7 @@ test2predictions.index = test_df[:len(predictions)].index
 test2predictions.iplot()
 
 
-# In[15]:
+# In[ ]:
 
 
 import matplotlib.pyplot as plt
@@ -115,7 +135,7 @@ def plot_window(batches, target, predictions=None):
 plot_window(input_window[:8], label_window[:8], predictions[:8])
 
 
-# In[23]:
+# In[ ]:
 
 
 import plotly.express as px

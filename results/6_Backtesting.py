@@ -108,25 +108,20 @@ data
 
 # ## Setup strategy
 
-# In[9]:
+# In[24]:
 
 
 import tensorflow as tf
-from src.prepare_datasets import normalize_row
-from src.libs import load
-from src.prepare_datasets import norm_d
+from src.libs import checkpoints
+from src.model import build_model
+from src.prepare_datasets import get_scaler, add_indicators
 
-model = load()
+model = build_model()
+model = checkpoints.load_weights(model)
+
+scaler = get_scaler()
 
 class TestStrategy(bt.Strategy):
-    
-    params = (
-        ('period_me1', 12),
-        ('period_me2', 26),
-        ('period_signal', 9),
-        ('period', 14)
-    )
-
     
     def log(self, txt, dt=None):
         ''' Logging function for this strategy'''
@@ -143,26 +138,6 @@ class TestStrategy(bt.Strategy):
         self.buycomm = None
         
         self.pbar = tqdm(total=len(test))
-        
-        # indicators
-        self.macdHisto = bt.indicators.MACDHistogram(
-            self.datas[0], 
-            period_me1=self.params.period_me1,
-            period_me2=self.params.period_me2,
-            period_signal=self.params.period_signal
-        )
-        # get macd histogram and pass to model as MACD
-        
-        self.stohastic = bt.indicators.StochasticFast(
-            self.datas[0], 
-            period=self.params.period
-        )
-        # get stohastic percK and pass as Stochastics Oscillator
-        
-        self.atr = bt.indicators.AverageTrueRange(
-            self.datas[0],
-            period=self.params.period
-        )
         # get atr and pass as ATR
     
     def notify_order(self, order):
@@ -214,12 +189,10 @@ class TestStrategy(bt.Strategy):
     
     def next(self):
         # Simply log the closing price of the series from the reference
-        self.log('Close %.2f, MACD %.2f, SO %.2f, ATR %.2f'  % (
-            self.dataclose[0], self.macdHisto[0], self.stohastic[0], self.atr[0]
-        ))
+        self.log('Close %.2f' % self.dataclose[0])
         self.pbar.update()
         
-        lines_warmap = 33
+        lines_warmap = 150
         
         # Are enough time for clalculations
         if len(self) < lines_warmap:
@@ -236,51 +209,39 @@ class TestStrategy(bt.Strategy):
             'high': self.data.high.get(size=lines_warmap),
             'open': self.data.open.get(size=lines_warmap),
             'volume': self.data.volume.get(size=lines_warmap),
-            'MACD': self.macdHisto.get(size=lines_warmap),
-            'Stochastics Oscillator': self.stohastic.get(size=lines_warmap),
-            'ATR': self.atr.get(size=lines_warmap),
         })
+        df = add_indicators(df)
         df = df.dropna()
+        print(df)
+        
         # Wait indicators warmup
-        if len(df) < 33:
+        if len(df) < lines_warmap:
             return
-        print(df['MACD'])
-        df = df[test.columns.tolist()]
         
-        print(df.head())
-        df = df.apply(normalize_row, axis=1)
-        print(df.head())
-        df = df.dropna()
+        normalised = pd.DataFrame(scaler.transform(df))
+        normalised.columns = df.columns
+        normalised.index = df.index
+        normalised.info()
+        normalised.head()
         
-        df = pd.concat([
-            df.copy(), df.copy(), df.copy(), df.copy(), 
-            df.copy(), df.copy(), df.copy(), df.copy()
-        ], 
-            ignore_index=True
-        )
+        data=tf.convert_to_tensor(normalised)
+        print(data)
+        print(data.shape)
+        data = tf.expand_dims(data,0)
+        print(data.shape)
         
+        predictions = model.predict_on_batch(data)
+        print(predictions) # have one value [[0.1]]
         
-        
-        ds = tf.keras.preprocessing.timeseries_dataset_from_array(
-            df, 
-            targets=None, 
-            sequence_length=32,
-            sequence_stride=32,
-            shuffle=False,
-            batch_size=8
-        )
-        input = next(iter(ds))
-        
-        predictions = model.predict(input)
-        print(predictions)
-        predictions = pd.Series(tf.reshape(predictions, [-1]).numpy())
-        
-        
+        # Need same features number fore denormalise
+        for_denorm = normalised.iloc[[0]]
+        for_denorm['close'] = predictions[0][0]
         
         # Denormalise predictions
-        predictions = predictions.apply(lambda x: x * norm_d['close'])
+        denorm = pd.DataFrame(scaler.inverse_transform(for_denorm))
+        denorm.columns = for_denorm.columns
         
-        next_predicted = predictions.iloc[-1]
+        next_predicted = denorm['close'][0]
         self.log('Predicted price: %.2f' % next_predicted)
 
         # Check if we are in the market
@@ -315,7 +276,7 @@ class TestStrategy(bt.Strategy):
 
 # ## Setup testing enviroment
 
-# In[10]:
+# In[25]:
 
 
 # Create a cerebro entity
@@ -335,7 +296,7 @@ cerebro.broker.setcash(initial_cash)
 # in case if price will increase before order executed need use part of available cache
 # and also take in mind possible commission
 
-# In[11]:
+# In[26]:
 
 
 
@@ -344,7 +305,7 @@ cerebro.addsizer(bt.sizers.PercentSizer, percents=20)
 
 # ### Set commission
 
-# In[12]:
+# In[27]:
 
 
 # 0.1% ... divide by 100 to remove the %
@@ -353,7 +314,7 @@ cerebro.broker.setcommission(commission=0.001)
 
 # ## Run backtesting
 
-# In[13]:
+# In[28]:
 
 
 from tqdm.auto import tqdm
@@ -364,7 +325,7 @@ print('Starting strategy initiation...')
 cerebro_results = cerebro.run()
 
 
-# In[ ]:
+# In[29]:
 
 
 print('Starting Portfolio Value: %.2f' % initial_value)
@@ -379,8 +340,14 @@ print('Result profit %.2f from potential profit %.2f' % (result_profit, potentia
 print('Realised of', percent_of_potential, '% of profit')
 
 
-# In[ ]:
+# In[30]:
 
 
 cerebro.plot()
+
+
+# In[ ]:
+
+
+
 

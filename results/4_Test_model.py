@@ -37,7 +37,7 @@ from src.prepare_datasets import make_window_generator, get_prepared_datasets
 
 train_df, test_df = get_prepared_datasets()
 
-window = make_window_generator()
+train, test = make_window_generator()
 
 
 # # Test model predictions
@@ -45,53 +45,82 @@ window = make_window_generator()
 # In[3]:
 
 
-from src.libs import load
+from src.libs import checkpoints
+from src.model import build_model
 
-model = load()
-
-
-# In[4]:
-
-
-model.evaluate(window.test, verbose=2)
-model.reset_states()
-
-
-# Plot model
-
-# In[ ]:
-
-
-model.reset_states()
-
-window.plot(model)
+model = build_model()
+model = checkpoints.load_weights(model)
 
 
 # # Compare predictions and labels
 
-# In[ ]:
+# In[4]:
 
 
 import tensorflow as tf
 
-test_window, label_window = next(iter(window.test))
-model.reset_states()
-predictions = model(test_window)
+input_window, label_window = next(iter(test))
 
-predictions = tf.reshape(predictions, [-1])
-label_window = tf.reshape(label_window, [-1])
-
-pred2labels = pd.DataFrame({ 'Predicted': predictions, 'Labels': label_window})
-
-pred2labels.iplot()
+predictions = model.predict(test, verbose=1, use_multiprocessing=True)
 
 
-# In[ ]:
+# In[21]:
+
+
+test2predictions = pd.DataFrame({ 
+    'Test': test_df['close'][:len(predictions)], 
+    'Predicted': [ x[0] for x in predictions]
+})
+test2predictions.index = test_df[:len(predictions)].index
+
+test2predictions.iplot()
+
+
+# In[15]:
+
+
+import matplotlib.pyplot as plt
+
+target_column='close'
+
+def plot_window(batches, target, predictions=None):
+    plt.figure(figsize=(15,len(batches) * 40))
+    
+    batches = batches.numpy()
+    target = target.numpy()
+    
+    for i in range(0, len(batches)):
+        
+        batch = batches[i]
+        feature = [x[train_df.columns.get_loc(target_column)] for x in batch]
+        plt.subplot(len(feature), 1, i+1)
+        plt.plot(feature, 
+                 label='Inputs', marker='.', zorder=-10
+                )
+        
+        label = target[i][0]
+        plt.scatter(len(feature), label,
+                 label='Labels', edgecolors='k', c='#2ca02c', s=64
+                )
+        
+        if predictions is not None:
+            prediction = predictions[i][0]
+            plt.scatter(len(feature), prediction,
+                  marker='X', edgecolors='k', label='Predictions',
+                  c='#ff7f0e', s=64)
+        
+        plt.legend()
+
+
+plot_window(input_window[:8], label_window[:8], predictions[:8])
+
+
+# In[23]:
 
 
 import plotly.express as px
 
-fig = px.scatter(x=pred2labels['Predicted'], y=pred2labels['Labels'])
+fig = px.scatter(x=test2predictions['Predicted'], y=test2predictions['Test'])
 fig.show()
 
 

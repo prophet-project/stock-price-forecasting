@@ -135,6 +135,7 @@ saved_models/
 # Input data
 data/
 preprocessed
+predictions.csv
 
 # Embeding encoder
 encoder/

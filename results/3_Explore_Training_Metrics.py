@@ -53,13 +53,13 @@ baseline.compile(
 )
 
 
-# In[4]:
+# In[3]:
 
 
 train, test = make_window_generator()
 
 
-# In[5]:
+# In[4]:
 
 
 baseline_test_metrics = baseline.evaluate(test, verbose=1)
@@ -68,7 +68,7 @@ baseline_test_metrics = pd.DataFrame(data=[baseline_test_metrics], columns=basel
 baseline_test_metrics
 
 
-# In[6]:
+# In[5]:
 
 
 #baseline_train_metrics = baseline.evaluate(window.train, verbose=1)
@@ -77,7 +77,7 @@ baseline_test_metrics
 #baseline_train_metrics
 
 
-# In[9]:
+# In[6]:
 
 
 df = pd.read_csv('./metrics/training.csv')
@@ -93,7 +93,7 @@ df['baseline_test_mean_squared_logarithmic_error'] = baseline_test_metrics['mean
 df
 
 
-# In[8]:
+# In[7]:
 
 
 df[['epoch', 'loss', 'val_loss']].iplot(
@@ -106,7 +106,7 @@ df[['epoch', 'loss', 'val_loss']].iplot(
 )
 
 
-# In[10]:
+# In[8]:
 
 
 df[['epoch', 'loss']].iplot(
@@ -119,7 +119,7 @@ df[['epoch', 'loss']].iplot(
 )
 
 
-# In[11]:
+# In[9]:
 
 
 df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
@@ -131,7 +131,7 @@ df[['epoch', 'mean_absolute_error', 'val_mean_absolute_error']].iplot(
 )
 
 
-# In[12]:
+# In[10]:
 
 
 df[['epoch', 'mean_squared_logarithmic_error', 'val_mean_squared_logarithmic_error']].iplot(
@@ -143,7 +143,7 @@ df[['epoch', 'mean_squared_logarithmic_error', 'val_mean_squared_logarithmic_err
 )
 
 
-# In[10]:
+# In[11]:
 
 
 # df[['epoch', 'loss', 'baseline_train_loss']].iplot(
@@ -156,7 +156,7 @@ df[['epoch', 'mean_squared_logarithmic_error', 'val_mean_squared_logarithmic_err
 # )
 
 
-# In[13]:
+# In[12]:
 
 
 df[['epoch', 'val_loss', 'baseline_test_loss']].iplot(

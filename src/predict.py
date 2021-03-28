@@ -1,24 +1,24 @@
 import tensorflow as tf
-from .libs import load
-import numpy as np
+import pandas as pd
+from .prepare_datasets import make_window_generator
+from .libs import params, prepare, save_metrics, load, checkpoints
+from .model import build_model
 
-def get_probability_model():
-    # Add probablity layer for easier understand class
-    model = load()
-    probability_model = tf.keras.Sequential([
-        model, 
-        # Convert logits to predictions
-        tf.keras.layers.Softmax()
-    ])
-    return probability_model
+prepare(tf)
 
-def predict(text, model):
-    vector = normalize.text_to_vector(text)
-    tensor = tf.constant(vector)
-    tensor.set_shape([None, normalize.VECTOR_SIZE])
-    input_data = tf.data.Dataset.from_tensors([tensor])
+predictions_file = './predictions.csv'
 
-    predictions = model.predict(input_data)[0]
-    predicted_label = np.argmax(predictions)
-    return predicted_label, predictions
+# Load normalised datasets
+train, test = make_window_generator()
 
+model = build_model()
+model = checkpoints.load_weights(model)
+
+predictions = model.predict(
+    test, 
+    verbose=1,
+)
+
+with open(predictions_file, 'w') as outfile:
+    df = pd.DataFrame(predictions)
+    df.to_csv(outfile)

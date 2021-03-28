@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[21]:
+# In[1]:
 
 
 # plotly standard imports
@@ -34,7 +34,7 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 # 
 # Will try predict and denormalise model prediction
 
-# In[22]:
+# In[2]:
 
 
 from src.load_datasets import load_datasets
@@ -44,26 +44,32 @@ train, test = load_datasets()
 
 test.index = pd.to_datetime(test.pop('timestamp'), unit='ms')
 
-test = add_indicators(test)
-test = test.dropna()
-
 test
 test[::60].iplot(subplots=True)
 
 
-# In[23]:
+# In[5]:
+
+
+test = add_indicators(test)
+test = test.dropna()
+
+test.head()
+test.iplot(subplots=True)
+
+
+# In[3]:
 
 
 from tqdm import tqdm
-from src.prepare_datasets import normalize_row
+from src.prepare_datasets import get_prepared_datasets
 
-tqdm.pandas(desc="test dataset")
-test_norm = test.progress_apply(normalize_row, axis=1)
+train_norm, test_norm = get_prepared_datasets()
 
-test_norm[::60].iplot(subplots=True)
+train_norm[::60].iplot(subplots=True)
 
 
-# In[46]:
+# In[4]:
 
 
 test_norm = test_norm[test.columns.tolist()]
@@ -73,18 +79,25 @@ test_norm[::60].iplot(subplots=True)
 
 # Check denormalisation working correctly
 
-# In[10]:
+# In[4]:
 
 
-from src.prepare_datasets import denormalise_row
+from src.prepare_datasets import get_scaler
 
-tqdm.pandas(desc="test norm")
-test_denorm = test_norm.progress_apply(denormalise_row, axis=1)
+scaler = get_scaler()
+
+
+# In[ ]:
+
+
+test_denorm = pd.DataFrame(scaler.inverse_transform(test_norm))
+test_denorm.columns = test_norm.columns
+test_denorm.index = test.index
 
 test_denorm[::60].iplot(subplots=True)
 
 
-# In[47]:
+# In[6]:
 
 
 test.head()
@@ -92,77 +105,106 @@ test_norm.head()
 test_denorm.head()
 
 
-# In[54]:
+# In[5]:
 
 
-from src.libs import load
-import tensorflow as tf
+from src.libs import params, prepare, save_metrics, load, checkpoints
+from src.model import build_model
+from src.prepare_datasets import make_generator
 
-model = load()
+model = build_model()
+model = checkpoints.load_weights(model)
 
-ds = tf.keras.preprocessing.timeseries_dataset_from_array(
-    test_norm, 
-    targets=None, 
-    sequence_length=32,
-    sequence_stride=32,
-    shuffle=False,
-    batch_size=8
-)
-input = next(iter(ds))
+len(test_norm)
 
-len(input)
+for_pred = test_norm[:5000]
 
-predictions = model.predict(input)
+ds = make_generator(test_norm, test_norm[['close']], shuffle=False)
+
+predictions = model.predict(ds)
+
+len(predictions)
+predictions.shape
+
+
+# In[ ]:
+
+
+input_w, label_w = next(iter(ds))
+
+len(input_w)
+input_w.shape
+
+
+# In[11]:
+
+
+# load if memory not enough
+predictions = pd.read_csv('./predictions.csv')
+predictions.index = test[-len(predictions):].index
+
+predictions = predictions[['0']]
+predictions
+
+
+# In[13]:
+
+
+predictions[::60].iplot()
+
+
+# In[26]:
+
 
 len(predictions)
 
-
-# In[49]:
-
-
-predictions.shape
-output = pd.Series(tf.reshape(predictions, [-1]).numpy())
-output.index = test_norm[:256].index
-
-output.iplot(subplots=True)
+predictions.head()
 
 
-# In[50]:
+# In[28]:
+
+
+predictions['0']
+
+
+# In[29]:
+
+
+for_inversion = test_norm[-len(predictions):]
+for_inversion.index = predictions.index
+for_inversion['close'] = predictions['0']
+
+for_inversion.head()
+
+for_inversion[::60].iplot(subplots=True)
+
+
+# In[32]:
+
+
+denorm_pred = pd.DataFrame(scaler.inverse_transform(for_inversion))
+
+denorm_pred.columns = for_inversion.columns
+denorm_pred.index = for_inversion.index
+
+len(denorm_pred)
+
+denorm_pred.head()
+
+
+# In[35]:
 
 
 predicted2norm = pd.DataFrame({
-    'predicted': output,
-    'real': test_norm[:256]['close']
+    'predicted': denorm_pred['close'],
+    'real': test['close'][-len(denorm_pred):]
 })
 
-predicted2norm.index = test_norm[:256].index
+predicted2norm.head()
 
-predicted2norm.iplot(subplots=True)
+predicted2norm.index = test[-len(denorm_pred):].index
 
-
-# In[51]:
-
-
-from src.prepare_datasets import norm_d
-
-norm_d
-
-predicted_denorm = output.apply(lambda x: x * norm_d['close'] )
-
-predicted_denorm.iplot()
-
-
-# In[52]:
-
-
-predicted2real = pd.DataFrame({
-    'predicted': predicted_denorm,
-    'real': test[:256]['close']
-})
-
-predicted2real.index = test[:256].index
-
-predicted2real.iplot(subplots=True)
+predicted2norm[::60].iplot()
 
 
 # In[ ]:

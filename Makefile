@@ -3,7 +3,7 @@
 .PHONY: train docker-build docker-console notebook install save-dependencies dev
 
 PROJECT_NAME=stock-price-forecasting
-DOCKER_IMAGE_VERSION=0.2.0
+DOCKER_IMAGE_VERSION=0.3.0
 DOCKER_IMAGE_TAG=leovs09/$(PROJECT_NAME):$(DOCKER_IMAGE_VERSION)
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ MODIN_ENGINE=dask
 
 # Will reproduce all stages to generate model based on changes
 default:
-	dvc repro
+	dvc repro && dvc push
 
 # Will load data and models which specifaed by dvc files
 checkout:

@@ -1,7 +1,6 @@
 from tensorflow.keras import Sequential, layers, losses, optimizers, metrics, initializers, backend
+from attention import Attention
 from .libs import params
-from .FeedBackModel import FeedBack
-from .prepare_datasets import feature_list
 
 def percentage_difference(y_true, y_pred):
     return backend.mean(abs(y_pred/y_true - 1) * 100)
@@ -9,7 +8,9 @@ def percentage_difference(y_true, y_pred):
 def build_model():
     model = Sequential([
         # Shape [batch, time, features] => [batch, time, lstm_units]
-        layers.LSTM(32, return_sequences=True),
+        layers.LSTM(128, return_sequences=True),
+        Attention(64),
+        layers.Dropout(0.2),
         # Shape => [batch, time, features]
         layers.Dense(units=1)
     ])

@@ -72,59 +72,64 @@ train_features
 # - Method B: Current High less the previous Close (absolute value)
 # - Method C: Current Low less the previous Close (absolute value)
 
-# In[4]:
+# In[3]:
 
 
-import talib
+from ta import add_all_ta_features
+from ta.utils import dropna 
 
 days_to_show = 60
 items_to_show = days_to_show * 24 * 60
 
-df_show = train_features[-items_to_show:]
+# Dropna from ta also remove zeros and max double value
+df_show = dropna(train_features[-items_to_show:])
+
+df_show = add_all_ta_features(
+    df_show, 
+    open="open", 
+    high="high", 
+    low="low", 
+    close="close", 
+    volume="volume", 
+    fillna=True
+)
+df_show = df_show[[
+         'open', 'high', 'low', 'close', 'volume',
+         'volatility_bbm', 'volatility_bbh', 'volatility_bbl',
+         'trend_macd', 'momentum_rsi', 'volatility_kchi',
+         'trend_ichimoku_conv', 'trend_ichimoku_a', 'trend_ichimoku_b',
+         'momentum_stoch', 'momentum_stoch_signal', 'volatility_atr'
+]]
 
 
 # ## MACD
 
-# In[6]:
+# In[4]:
 
 
 
-macd, macdsignal, macdhist = talib.MACD(
-    df_show['close'].values, 
-    fastperiod=12, 
-    slowperiod=26, 
-    signalperiod=9
-   )
-
-pd.DataFrame({'MACD': macd, 'Signal': macdsignal, 'Hist': macdhist}).iplot(subplots=True)
+df_show[['trend_macd', 'close']].iplot(subplots=True)
 
 
 # ## Stochastics Oscillator
 
-# In[7]:
+# In[5]:
 
 
-
-fastk, fastd = talib.STOCHF(df_show['high'], df_show['low'], df_show['close'], fastk_period=14, fastd_period=3)
-
-pd.DataFrame({'Stochastics K': fastk, 'Stochastics D': fastk}).iplot(subplots=True)
+df_show[['momentum_stoch','momentum_stoch_signal', 'close']].iplot(subplots=True)
 
 
 # ## Average True Range
 
-# In[8]:
+# In[6]:
 
 
-atr = talib.ATR(df_show['high'], df_show['low'], df_show['close'], timeperiod=14)
-
-atr.head()
-
-atr.iplot()
+df_show[['volatility_atr', 'close']].iplot(subplots=True)
 
 
 # ## Check for normal distribution
 
-# In[8]:
+# In[7]:
 
 
 import scipy.stats as stats
@@ -142,7 +147,7 @@ stats.probplot(close_change, dist='norm', plot=pylab)
 # 
 # #### Firstly define function for display frequiency
 
-# In[9]:
+# In[4]:
 
 
 import tensorflow as tf
@@ -165,7 +170,7 @@ def plot_log_freaquency(series):
 
 # ### Frequency of price
 
-# In[ ]:
+# In[9]:
 
 
 plot_log_freaquency(train_features['close'])
@@ -189,7 +194,7 @@ plot_log_freaquency(train_features['volume'])
 
 # ### Frequence of transaction volume change 
 
-# In[ ]:
+# In[1]:
 
 
 plot_log_freaquency(train_features['volume'].diff().dropna())
@@ -208,7 +213,7 @@ compare_report.show_notebook()
 
 # ### Training data exploration
 
-# In[5]:
+# In[3]:
 
 
 train_features[59::60].iplot(subplots=True)
@@ -216,7 +221,7 @@ train_features[59::60].iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[6]:
+# In[4]:
 
 
 test_features[59::60].iplot(subplots=True)
@@ -229,7 +234,7 @@ test_features[59::60].iplot(subplots=True)
 # Divide by the max-min deviation
 # 
 
-# In[7]:
+# In[5]:
 
 
 pd.set_option('float_format', '{:.2f}'.format)
@@ -237,19 +242,10 @@ pd.set_option('float_format', '{:.2f}'.format)
 train_features.describe()
 
 
-# In[8]:
+# In[6]:
 
 
 test_features.describe()
-
-
-# In[9]:
-
-
-train_mean = train_features.mean()
-train_max = train_features.max()
-train_min = train_features.min()
-train_std = train_features.std()
 
 
 # maximum for training to litle, and not will allow correctly predict values in testing dataset,
@@ -257,46 +253,53 @@ train_std = train_features.std()
 # 100 thouthands dollars
 # except of volume
 
-# In[10]:
+# In[13]:
 
+
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+
+train_min = np.min(train_features)
+train_max = np.max(train_features)
 
 MAX_TARGET = 100000
+
 train_max['high'] = MAX_TARGET
 train_max['low'] = MAX_TARGET
 train_max['open'] = MAX_TARGET
 train_max['close'] = MAX_TARGET
 
+train_fit = pd.DataFrame([train_min, train_max])
 
-# In[11]:
+scaler = MinMaxScaler()
+scaler = scaler.fit(train_fit)
 
 
-from tqdm import tqdm
+# In[18]:
 
-train_d = train_max - train_min
 
-def normalise(row):
-    return row / train_d
+print("normalise train dataset...")
+train_normalised = pd.DataFrame(scaler.transform(train_features))
+train_normalised.columns = train_features.columns
+train_normalised.index = train_features.index
 
-tqdm.pandas(desc="train dataset")
-train_normalised = train_features.progress_apply(normalise, axis=1)
-
-tqdm.pandas(desc="test dataset")
-test_normalised = test_features.progress_apply(normalise, axis=1)
+print("normalise test dataset...")
+test_normalised = pd.DataFrame(scaler.transform(test_features))
+test_normalised.columns = test_features.columns
+test_normalised.index = test_features.index
 
 train_normalised.head()
 
 
-# In[12]:
+# In[19]:
 
 
-train_normalised.index = train_features.index
 train_normalised[59::60].iplot(subplots=True, title="Train")
 
-test_normalised.index = test_features.index
 test_normalised[59::60].iplot(subplots=True, title="Test")
 
 
-# In[13]:
+# In[20]:
 
 
 train_in_hours = train_features[59::60]

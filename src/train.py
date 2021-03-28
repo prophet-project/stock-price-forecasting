@@ -15,7 +15,8 @@ metrics_file='metrics/training.csv'
 early_stopping = tf.keras.callbacks.EarlyStopping(
     monitor='val_loss',
     patience=PATIENCE,
-    mode='min'
+    mode='min',
+    verbose=1
 )
 
 def fit(model, train, test):
@@ -25,8 +26,9 @@ def fit(model, train, test):
         epochs=MAX_EPOCHS,
         validation_data=test,
         callbacks=[
-            checkpoints.save_weights(), 
+            checkpoints.save_best_weights(), 
             CSVLogger(metrics_file),
+            early_stopping
         ],
     )
 

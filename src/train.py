@@ -41,9 +41,10 @@ def train():
 
     train, test = make_window_generator()
     fit(model, train, test)
-
-
-    # Save for restore in next time
+  
+    # allow restore model if know structure
+    save_weights(model)
+    # Save self containing mode, could fail
     save(model)
 
 if __name__ == '__main__':

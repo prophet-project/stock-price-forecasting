@@ -17,11 +17,11 @@ def load(custom_objects=None):
 # If model is custom class default save methods will be not enough
 # use this methods
 
-def save_custom(model):
+def save_weights(model):
     model.save_weights(PATH_TO_SAVED_CUSTOM_MODEL)
 
 # Require model class for restore
-def load_custom(model):
+def load_weights(model):
     loaded = model.load_weights(PATH_TO_SAVED_CUSTOM_MODEL)
 
     # loaded.assert_consumed()

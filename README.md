@@ -27,10 +27,10 @@ All other Python libraries and models described in `Dockerfile` and `requirement
 
 ## Research Results
 
-You can browse research as [notebook](https://github.com/prophet-project/stock-price-forecasting/blob/master/analyse.ipynb)
+You can browse research as [notebook](https://github.com/prophet-project/stock-price-forecasting/blob/master/index.ipynb)
 
 if github not load notebook you can open [html version](https://prophet-project.github.io/stock-price-forecasting/)
-or even [python version](https://github.com/prophet-project/stock-price-forecasting/blob/master/results/anayse.py)
+or even [python version](https://github.com/prophet-project/stock-price-forecasting/blob/master/results/index.py)
 
 ## Development
 
@@ -41,13 +41,6 @@ If you on Windows, build and run in-Docker development enviroment
 make docker-build
 # Start docker container, map volume on current folder and attach current console
 make docker-console
-```
-
-If you not in docker you need load Spacy model
-
-```bash
-# Will load meduim size model, good for developement, but for production better load lardger
-make spacy-load-md
 ```
 
 For rebuild model or test it after data or code changes, just run

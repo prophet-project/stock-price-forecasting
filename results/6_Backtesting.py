@@ -212,7 +212,6 @@ class TestStrategy(bt.Strategy):
         })
         df = add_indicators(df)
         df = df.dropna()
-        print(df)
         
         # Wait indicators warmup
         if len(df) < lines_warmap:
@@ -221,17 +220,11 @@ class TestStrategy(bt.Strategy):
         normalised = pd.DataFrame(scaler.transform(df))
         normalised.columns = df.columns
         normalised.index = df.index
-        normalised.info()
-        normalised.head()
         
         data=tf.convert_to_tensor(normalised)
-        print(data)
-        print(data.shape)
         data = tf.expand_dims(data,0)
-        print(data.shape)
         
-        predictions = model.predict_on_batch(data)
-        print(predictions) # have one value [[0.1]]
+        predictions = model.predict_on_batch(data) # have one value in arrays [[float]]
         
         # Need same features number fore denormalise
         for_denorm = normalised.iloc[[0]]

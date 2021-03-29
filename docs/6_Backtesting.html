@@ -15141,7 +15141,6 @@ Potential profit after holding value: 67578
         <span class="p">})</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">add_indicators</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         
         <span class="c1"># Wait indicators warmup</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">lines_warmap</span><span class="p">:</span>
@@ -15150,17 +15149,11 @@ Potential profit after holding value: 67578
         <span class="n">normalised</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
         <span class="n">normalised</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
         <span class="n">normalised</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
-        <span class="n">normalised</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
-        <span class="n">normalised</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
         
         <span class="n">data</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">normalised</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         
-        <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_on_batch</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="c1"># have one value [[0.1]]</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_on_batch</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1"># have one value in arrays [[float]]</span>
         
         <span class="c1"># Need same features number fore denormalise</span>
         <span class="n">for_denorm</span> <span class="o">=</span> <span class="n">normalised</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">0</span><span class="p">]]</span>
@@ -15366,9 +15359,9 @@ and also take in mind possible commission</p>
 
 
 
-<div id="87960449-79b5-41a3-8f9e-c94176afb5fc" class="jupyter-widgets jp-OutputArea-output ">
+<div id="b45df17a-4221-49d2-b584-cddc6ba1e85b" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('87960449-79b5-41a3-8f9e-c94176afb5fc');
+var element = document.getElementById('b45df17a-4221-49d2-b584-cddc6ba1e85b');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
 {"model_id": "dc8b17cafb994e9b8878d87170bab072", "version_major": 2, "version_minor": 0}
@@ -53903,9 +53896,9 @@ Realised of 0.0 % of profit
 
 
 
-<div id="2d04f94f-5124-4977-a2ab-b026de834a3f" class="jp-RenderedJavaScript jp-OutputArea-output " data-mime-type="application/javascript">
+<div id="0211de1b-71d7-4989-93df-4a244a743b22" class="jp-RenderedJavaScript jp-OutputArea-output " data-mime-type="application/javascript">
 <script type="text/javascript">
-var element = document.getElementById('2d04f94f-5124-4977-a2ab-b026de834a3f');
+var element = document.getElementById('0211de1b-71d7-4989-93df-4a244a743b22');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 

@@ -143,3 +143,6 @@ encoder/
 /saved_models
 
 ta-lib-0.4.0-src.tar.gz
+
+mlruns
+catboost_info

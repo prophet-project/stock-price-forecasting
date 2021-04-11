@@ -1,0 +1,5 @@
+outs:
+- md5: aa2fb5cb1e46a48aecadeb4f2adfccb1.dir
+  size: 174930
+  nfiles: 4
+  path: catboost_info

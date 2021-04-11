@@ -24,8 +24,6 @@ stages:
     - train.features
     - train.patience
     - train.label_shift
-    outs:
-    - ./saved_models
     metrics:
     - ./metrics/training.csv:
         cache: false

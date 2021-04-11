@@ -30,9 +30,20 @@ init_notebook_mode(connected=True)
 cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 
+# In[2]:
+
+
+import os
+import mlflow
+
+trackng_url = os.getenv('MLFLOW_TRACKING_URI')
+print(trackng_url)
+mlflow.set_tracking_uri(trackng_url)
+
+
 # # Prepare dataset
 
-# In[2]:
+# In[3]:
 
 
 from src.prepare_datasets import get_prepared_datasets
@@ -43,7 +54,7 @@ train, test = get_prepared_datasets()
 train
 
 
-# In[3]:
+# In[4]:
 
 
 train.index = pd.to_datetime(train.pop('timestamp'))
@@ -52,7 +63,7 @@ test.index = pd.to_datetime(test.pop('timestamp'))
 train[::15].iplot(subplots=True)
 
 
-# In[4]:
+# In[5]:
 
 
 test[::15].iplot(subplots=True)
@@ -75,7 +86,7 @@ unseen_data
 
 # # Start training
 
-# In[8]:
+# In[7]:
 
 
 from pycaret.regression import *
@@ -97,105 +108,105 @@ exp_reg_btc = setup(
 # * try extract features by tsfreash
 # * try remove trend by sktime
 
-# In[9]:
+# In[8]:
 
 
 best = compare_models(n_select=3)
 
 
-# In[28]:
+# In[9]:
+
+
+best
+
+
+# In[10]:
 
 
 models()
 
 
-# In[18]:
-
-
-plot_model(best[0])
-
-
-# In[19]:
-
-
-plot_model(best[1])
-
-
-# In[21]:
-
-
-plot_model(best[2])
-
-
-# In[22]:
-
-
-plot_model(best[0], plot = 'error')
-
-
-# In[23]:
+# In[11]:
 
 
 plot_model(best[0], plot = 'learning')
 
 
-# In[24]:
+# In[12]:
+
+
+plot_model(best[1], plot = 'learning')
+
+
+# In[14]:
+
+
+plot_model(best[0], plot = 'error')
+
+
+# In[15]:
+
+
+plot_model(best[0])
+
+
+# In[16]:
 
 
 lgbmr = tune_model(best[0], choose_better = True)
 
 
-# In[25]:
+# In[17]:
 
 
 lgbmr
 
 
-# In[26]:
+# In[18]:
 
 
 plot_model(lgbmr, plot='feature')
 
 
-# In[27]:
+# In[19]:
 
 
 evaluate_model(lgbmr)
 
 
-# In[29]:
+# In[20]:
 
 
 predict_model(lgbmr)
 
 
-# In[30]:
+# In[21]:
 
 
 final_lgbmr = finalize_model(lgbmr)
 
 
-# In[31]:
+# In[22]:
 
 
 save_model(final_lgbmr, './saved_models/Final_LGBMR_5m_bitcoin_norm')
 
 
-# In[32]:
+# In[23]:
 
 
 unseen_predictions = predict_model(final_lgbmr, data=unseen_data)
 unseen_predictions.head()
 
 
-# In[34]:
+# In[24]:
 
 
 from pycaret.utils import check_metric
 check_metric(unseen_predictions['close'], unseen_predictions['Label'], 'R2')
 
 
-# In[35]:
+# In[25]:
 
 
 unseen_predictions[['close', 'Label']].iplot()

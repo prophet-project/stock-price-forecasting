@@ -64,6 +64,9 @@ dev: docker-build docker attach-console
 docker-build:
 	docker build --tag $(DOCKER_IMAGE_TAG) .
 
+start:
+	docker-compose up
+
 # Will start in docker develoment environment
 docker-console:
 	docker-compose run --service-ports notebook bash

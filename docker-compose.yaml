@@ -1,14 +1,6 @@
 version: '3.1'
 
 services:
-
-    mlflow-ui:
-        image: leovs09/mlflow:0.1.0
-        container_name: mlflow-ui
-        ports:
-            - 5000:5000
-        volumes:
-            - ./mlruns:/mlruns
     
     notebook:
         image: leovs09/stock-price-forecasting:0.4.0
@@ -16,5 +8,33 @@ services:
         ports: 
             - 8888:8888
         runtime: nvidia
+        environment:
+            MLFLOW_TRACKING_URI: http://mlflow:5000
         volumes:
             - .:/work
+        depends_on:
+            - mlflow
+    
+    mlflow:
+        image: leovs09/mlflow:1.14.1
+        container_name: mlflow
+        ports:
+            - 5000:5000
+        volumes:
+            - ./mlruns:/work/mlruns
+        environment:
+            BACKEND_STORE_URL: postgresql://postgres:12345@db:5432/mlflow
+        depends_on:
+            - db
+    
+    db:
+        image: postgres:13.2-alpine
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: 12345
+            POSTGRES_DB: mlflow
+        ports:
+            - 5432:5432
+        volumes:
+            - ./pgdata:/var/lib/postgresql/data

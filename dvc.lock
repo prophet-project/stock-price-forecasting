@@ -2,11 +2,11 @@ prepare_datasets:
   cmd: python -m src.prepare_datasets
   deps:
   - path: ./src/load_datasets.py
-    md5: e1b281161b40d33c40975a519343f9d8
-    size: 851
+    md5: 5a5e9421026e1413747b5863ee04274f
+    size: 944
   - path: ./src/prepare_datasets.py
-    md5: 3f013c9236161fe5f2188202b561bb6f
-    size: 4326
+    md5: a886f9d64b4b6a7c00701bccb76d32f0
+    size: 4960
   - path: data
     md5: 4bbf22c31e077a3b26bdbfb914bb9e6f.dir
     size: 126167081
@@ -17,9 +17,9 @@ prepare_datasets:
       input.years: 4
   outs:
   - path: preprocessed
-    md5: cc83f734a59a9fa29a85b95fd8667ce4.dir
-    size: 725984011
-    nfiles: 3
+    md5: 80f6703743a50fd5828894fa6c387037.dir
+    size: 794346571
+    nfiles: 4
 train:
   cmd: python -m src.train
   deps:

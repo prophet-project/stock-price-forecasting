@@ -9,7 +9,8 @@ stages:
       - input.train_part
       - input.years
     outs:
-      - preprocessed
+      - preprocessed:
+          persist: true # not remmove outputs for start from last step
   train:
     cmd: python -m src.train
     deps:

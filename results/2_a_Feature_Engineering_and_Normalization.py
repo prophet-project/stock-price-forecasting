@@ -30,104 +30,70 @@ init_notebook_mode(connected=True)
 cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 
-# # Load dataset
-# And get interesting features
+# # Load dataset with all ta features
 
-# In[2]:
-
-
-from src.load_datasets import load_datasets
-from src.prepare_datasets import feature_list
-
-train, test = load_datasets()
-
-train_features = train[feature_list]
-test_features = test[feature_list]
-
-train_features.index = pd.to_datetime(train.pop('timestamp'), unit='ms')
-test_features.index = pd.to_datetime(test.pop('timestamp'), unit='ms')
-
-train_features
+# In[14]:
 
 
-# # Data featuring
+from src.load_datasets import split_train_test
+from src.prepare_datasets import get_full_features_dataset, get_scaler, normalize_dataset
+
+df = get_full_features_dataset()
+
+df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+df
+
+
+# In[15]:
+
+
+df[['open', 'close', 'high', 'low', 'volume']][::15].iplot(subplots=True)
+
+
+# # Timeseries feature extraction and selection
 # 
-# In theory we are going to use 4 features: The price itself and three extra technical indicators.
-# 
-# MACD (Trend)
-# Stochastics (Momentum)
-# Average True Range (Volume)
-# 
-# ## Functions
-# 
-# **Exponential Moving Average**: Is a type of infinite impulse response filter that applies weighting factors which decrease exponentially. The weighting for each older datum decreases exponentially, never reaching zero.
-# 
-# **MACD**: The Moving Average Convergence/Divergence oscillator (MACD) is one of the simplest and most effective momentum indicators available. The MACD turns two trend-following indicators, moving averages, into a momentum oscillator by subtracting the longer moving average from the shorter moving average.
-# 
-# **Stochastics oscillator**: The Stochastic Oscillator is a momentum indicator that shows the location of the close relative to the high-low range over a set number of periods.
-# 
-# **Average True Range**: Is an indicator to measure the volalitility (NOT price direction). The largest of:
-# 
-# - Method A: Current High less the current Low
-# - Method B: Current High less the previous Close (absolute value)
-# - Method C: Current Low less the previous Close (absolute value)
+# Will add time related features and select only important
 
-# In[3]:
+# In[16]:
 
 
-from ta import add_all_ta_features
-from ta.utils import dropna 
-
-days_to_show = 60
-items_to_show = days_to_show * 24 * 60
-
-# Dropna from ta also remove zeros and max double value
-df_show = dropna(train_features[-items_to_show:])
-
-df_show = add_all_ta_features(
-    df_show, 
-    open="open", 
-    high="high", 
-    low="low", 
-    close="close", 
-    volume="volume", 
-    fillna=True
-)
-df_show = df_show[[
-         'open', 'high', 'low', 'close', 'volume',
-         'volatility_bbm', 'volatility_bbh', 'volatility_bbl',
-         'trend_macd', 'momentum_rsi', 'volatility_kchi',
-         'trend_ichimoku_conv', 'trend_ichimoku_a', 'trend_ichimoku_b',
-         'momentum_stoch', 'momentum_stoch_signal', 'volatility_atr'
-]]
+labels = df.pop('close')
 
 
-# ## MACD
-
-# In[4]:
+# In[17]:
 
 
-
-df_show[['trend_macd', 'close']].iplot(subplots=True)
-
-
-# ## Stochastics Oscillator
-
-# In[5]:
+labels[::15].iplot()
 
 
-df_show[['momentum_stoch','momentum_stoch_signal', 'close']].iplot(subplots=True)
+# In[18]:
 
 
-# ## Average True Range
-
-# In[6]:
+df
 
 
-df_show[['volatility_atr', 'close']].iplot(subplots=True)
+# ## tsfresh require id column
+
+# In[20]:
 
 
-# ## Check for normal distribution
+df['id'] = 1
+
+df
+
+
+# In[21]:
+
+
+from tsfresh import extract_relevant_features
+
+direct_features = extract_relevant_features(df, labels, column_id='id', column_sort='timestamp')
+
+direct_features
+
 
 # In[7]:
 

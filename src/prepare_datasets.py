@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import tensorflow as tf
 from .libs import params, get_from_file, save_to_file
-from .load_datasets import load_datasets
+from .load_datasets import load_input_dataset, split_train_test
 
 LABEL_SHIFT = params['train']['label_shift']
 LABEL_COLUMNS = params['train']['label_columns']
@@ -23,8 +23,9 @@ result_datasets_folder = './preprocessed'
 if not os.path.exists(result_datasets_folder):
     os.makedirs(result_datasets_folder)
 
-processed_train_dataset_path = os.path.join(result_datasets_folder, 'training.bitcoin.csv')
-processed_test_dataset_path = os.path.join(result_datasets_folder, 'test.bitcoin.csv')
+full_features_dataset = os.path.join(result_datasets_folder, 'full_featutes.5m.bitcoin.csv')
+processed_train_dataset_path = os.path.join(result_datasets_folder, 'training.5m.bitcoin.csv')
+processed_test_dataset_path = os.path.join(result_datasets_folder, 'test.5m.bitcoin.csv')
 scaller_file = os.path.join(result_datasets_folder, 'scaler.pkl')
 
 def get_prepared_datasets():
@@ -53,7 +54,7 @@ def make_window_generator():
 
     return train_iterator, test_iterator
 
-def add_indicators(df):
+def add_all_indicators(df):
     # Dropna from ta also remove zeros and max double value
     df = dropna(df)
 
@@ -67,13 +68,23 @@ def add_indicators(df):
         fillna=True
     )
 
+    return df
+
+def get_important_fetures(df):
     df = df[[
-         'open', 'high', 'low', 'close', 'volume',
-         'volatility_bbm', 'volatility_bbh', 'volatility_bbl',
-         'trend_macd', 'momentum_rsi', 'volatility_kchi',
-         'trend_ichimoku_conv', 'trend_ichimoku_a', 'trend_ichimoku_b',
-         'momentum_stoch', 'momentum_stoch_signal', 'volatility_atr'
+        'open', 'high', 'low', 'close', 'volume',
+        'volatility_bbm', 'volatility_bbh', 'volatility_bbl',
+        'trend_macd', 'momentum_rsi', 'volatility_kchi',
+        'trend_ichimoku_conv', 'trend_ichimoku_a', 'trend_ichimoku_b',
+        'momentum_stoch', 'momentum_stoch_signal', 'volatility_atr'
     ]]
+
+    return df
+
+def add_indicators(df):
+
+    df = add_all_indicators(df)
+    df = get_important_fetures(df)
 
     return df
 
@@ -81,22 +92,24 @@ def get_scaler():
     with open(scaller_file, 'rb') as f:
         return load(f)
 
-"""
-    Will normalize datasets and prepare for processing by NN
-"""
-def build_prepared_dataset():
-    global norm_params
+def get_full_features_dataset():
+    if os.path.exists(full_features_dataset):
+        print('full features dataset already exists, will read from:', full_features_dataset)
+        return pd.read_csv(full_features_dataset)
+
     print('Start processing dataset...')
-    train, test = load_datasets()
+    df = load_input_dataset()
 
-    train = train[feature_list]
-    test = test[feature_list]
+    print('Add all indicators...')
+    df = add_all_indicators(df)
 
-    print('Add training indicators...')
-    train = add_indicators(train)
-    print('Add testing indicators...')
-    test = add_indicators(test)
+    print('Save full feature dataset to:', full_features_dataset)
+    with open(full_features_dataset, 'w') as f:
+        df.to_csv(f)
+    
+    return df
 
+def fit_scaler(train):
     # Normalise data to 0...1
     train_min = np.min(train)
     train_max = np.max(train)
@@ -113,28 +126,46 @@ def build_prepared_dataset():
     with open(scaller_file, 'wb') as f:
         dump(scaler, f)
 
-    print('processing train dataset...')
-    normalised_train = pd.DataFrame(scaler.transform(train))
-    normalised_train.columns = train.columns
-    normalised_train.index = train.index
-    normalised_train.info()
-    
-    print('processing test dataset...')
-    normalised_test = pd.DataFrame(scaler.transform(test))
-    normalised_test.columns = test.columns
-    normalised_test.index = test.index
-    normalised_test.info()
+    return scaler
 
-    normalised_train = normalised_train.dropna()
-    normalised_test = normalised_test.dropna()
+def normalize_dataset(df, scaler):
+    normalised = pd.DataFrame(scaler.transform(df))
+    normalised.columns = df.columns
+    normalised.index = df.index
+    
+    return normalised
+
+"""
+    Will normalize datasets and prepare for processing by NN
+"""
+def build_prepared_dataset():
+    df = get_full_features_dataset()
+
+    df.index = pd.to_datetime(df.pop('timestamp'), unit='ms')
+    df = get_important_fetures(df)
+
+    train, test = split_train_test(df)
+
+    print('fit scaller...')
+    scaler = fit_scaler(train)
+
+    print('normalizing train dataset...')
+    train = normalize_dataset(train, scaler)
+    train = train.dropna()
+    train.info()
 
     print('Save processed train dataset', processed_train_dataset_path)
     with open(processed_train_dataset_path, 'w') as f:
-        normalised_train.to_csv(f, index=False)
+        train.to_csv(f)
+    
+    print('normalizing test dataset...')
+    test = normalize_dataset(test, scaler)
+    test = test.dropna()
+    test.info()
 
     print('Save processed test dataset', processed_test_dataset_path)
     with open(processed_test_dataset_path, 'w') as f:
-        normalised_test.to_csv(f, index=False)    
+        test.to_csv(f)    
 
 
 if __name__ == '__main__':

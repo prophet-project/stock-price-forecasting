@@ -66,18 +66,21 @@ docker-build:
 
 # Will start in docker develoment environment
 docker-console:
-	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) bash
+	docker-compose run --service-ports notebook bash
 
 console: docker-console
 
 docker:
-	docker run --gpus all --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
+	docker-compose run -d --service-ports notebook
 
 docker-it:
-	docker run --gpus all -it --rm -v ${PWD}:/work -w /work --name $(PROJECT_NAME) -p 8888:8888 $(DOCKER_IMAGE_TAG) 
+	docker-compose run --service-ports notebook 
 
 attach-console:
-	docker exec -it $(PROJECT_NAME) bash
+	docker exec -it notebook bash
 
 chmod:
 	chmod -R 777 .
+
+mlflow-ui:
+	docker-compose run --service-ports mlflow-ui

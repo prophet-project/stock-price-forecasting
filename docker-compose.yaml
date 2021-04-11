@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+
+    mlflow-ui:
+        image: leovs09/mlflow:0.1.0
+        container_name: mlflow-ui
+        ports:
+            - 5000:5000
+        volumes:
+            - ./mlruns:/mlruns
+    
+    notebook:
+        image: leovs09/stock-price-forecasting:0.4.0
+        container_name: notebook
+        ports: 
+            - 8888:8888
+        runtime: nvidia
+        volumes:
+            - .:/work

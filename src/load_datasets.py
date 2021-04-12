@@ -3,7 +3,7 @@ import os
 from .libs import params
 
 datasets_folder = './data'
-input_dataset = os.path.join(datasets_folder, '1m_ohlcv.csv')
+input_dataset = os.path.join(datasets_folder, '1h_ohlcv.csv')
 
 BATCH_SIZE = params['input']['batch_size']
 TRAINING_DATSET_SIZE = params['input']['train_part'] # procent in float
@@ -11,7 +11,7 @@ TRAINING_DATSET_SIZE = params['input']['train_part'] # procent in float
 
 """will return 5m dataset"""
 def load_input_dataset():
-    return pd.read_csv(input_dataset)[::5]
+    return pd.read_csv(input_dataset)
 
 def split_train_test(df):
     size = len(df)

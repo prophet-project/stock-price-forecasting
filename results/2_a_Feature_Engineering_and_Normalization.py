@@ -30,6 +30,139 @@ init_notebook_mode(connected=True)
 cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 
+# # Analyze initial dataset
+
+# In[2]:
+
+
+from src.load_datasets import load_datasets
+
+train, test = load_datasets()
+
+train
+
+
+# In[3]:
+
+
+train.iplot(subplots=True)
+
+
+# In[4]:
+
+
+test.iplot(subplots=True)
+
+
+# In[23]:
+
+
+from sktime.utils.plotting import plot_series
+
+train_label = train['close']
+test_label = test['close']
+plot_series(train_label)
+
+
+# In[24]:
+
+
+from sktime.forecasting.trend import PolynomialTrendForecaster
+from sktime.transformations.series.detrend import Deseasonalizer, Detrender
+
+# liner detrending
+forecaster = PolynomialTrendForecaster(degree=10)
+transformer = Detrender(forecaster=forecaster)
+transformer = transformer.fit(train_label)
+yt = transformer.transform(train_label)
+yt_test = transformer.transform(test_label)
+
+yt
+
+
+# In[29]:
+
+
+# internally, the Detrender uses the in-sample predictions
+# of the PolynomialTrendForecaster
+forecaster = PolynomialTrendForecaster(degree=10)
+forecaster = forecaster.fit(train_label)
+
+fh_ins = -np.arange(len(train_label))  # in-sample forecasting horizon
+y_pred = forecaster.predict(fh=fh_ins)
+
+fh_ins = -np.arange(len(train_label)+len(test_label))
+y_pred_test = forecaster.predict(fh=fh_ins)[len(train_label):]
+
+y_pred
+
+
+# In[30]:
+
+
+comparision = pd.DataFrame({
+    'label': train_label,
+    'trend': y_pred,
+    'residuals': yt
+})
+comparision.index = pd.to_datetime(train['timestamp'], unit='ms')
+comparision.iplot()
+
+
+# In[31]:
+
+
+comparision = pd.DataFrame({
+    'label': test_label,
+    'trend': y_pred_test,
+    'residuals': yt_test
+})
+# comparision.index = pd.to_datetime(test['timestamp'], unit='ms')
+comparision.iplot()
+
+
+# In[12]:
+
+
+from src.load_datasets import load_input_dataset
+
+df = load_input_dataset()
+
+df
+
+
+# In[19]:
+
+
+from sktime.forecasting.trend import PolynomialTrendForecaster
+from sktime.transformations.series.detrend import Deseasonalizer, Detrender
+from sklearn.linear_model import LogisticRegression
+
+label = df['close']
+
+degree = 10
+
+# liner detrending
+# regressor = LogisticRegressor()
+forecaster = PolynomialTrendForecaster(degree=degree)
+transformer = Detrender(forecaster=forecaster)
+yt = transformer.fit_transform(label)
+
+# internally, the Detrender uses the in-sample predictions
+# of the PolynomialTrendForecaster
+forecaster = PolynomialTrendForecaster(degree=degree)
+fh_ins = -np.arange(len(label))  # in-sample forecasting horizon
+y_pred = forecaster.fit(label).predict(fh=fh_ins)
+
+comparision = pd.DataFrame({
+    'label': label,
+    'trend': y_pred,
+    'residuals': yt
+})
+comparision.index = pd.to_datetime(df['timestamp'], unit='ms')
+comparision.iplot()
+
+
 # # Load dataset with all ta features
 
 # In[14]:

@@ -32,29 +32,34 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 # # Analyze initial dataset
 
-# In[2]:
+# In[19]:
 
 
-from src.load_datasets import load_datasets
+from src.load_datasets import load_datasets, load_input_dataset
 
-train, test = load_datasets()
+split_count = 3 * 31 * 24 # three monthes in hours
+
+df = load_input_dataset()
+
+train = df[:-split_count]
+test = df[-split_count:]
 
 train
 
 
-# In[3]:
+# In[20]:
 
 
 train.iplot(subplots=True)
 
 
-# In[4]:
+# In[21]:
 
 
 test.iplot(subplots=True)
 
 
-# In[23]:
+# In[22]:
 
 
 from sktime.utils.plotting import plot_series
@@ -64,7 +69,7 @@ test_label = test['close']
 plot_series(train_label)
 
 
-# In[24]:
+# In[23]:
 
 
 from sktime.forecasting.trend import PolynomialTrendForecaster
@@ -80,7 +85,7 @@ yt_test = transformer.transform(test_label)
 yt
 
 
-# In[29]:
+# In[24]:
 
 
 # internally, the Detrender uses the in-sample predictions
@@ -91,13 +96,13 @@ forecaster = forecaster.fit(train_label)
 fh_ins = -np.arange(len(train_label))  # in-sample forecasting horizon
 y_pred = forecaster.predict(fh=fh_ins)
 
-fh_ins = -np.arange(len(train_label)+len(test_label))
-y_pred_test = forecaster.predict(fh=fh_ins)[len(train_label):]
+fh_ins = np.arange(len(test_label))
+y_pred_test = forecaster.predict(fh=fh_ins)
 
 y_pred
 
 
-# In[30]:
+# In[25]:
 
 
 comparision = pd.DataFrame({
@@ -109,19 +114,22 @@ comparision.index = pd.to_datetime(train['timestamp'], unit='ms')
 comparision.iplot()
 
 
-# In[31]:
+# In[26]:
 
 
 comparision = pd.DataFrame({
     'label': test_label,
     'trend': y_pred_test,
     'residuals': yt_test
-})
-# comparision.index = pd.to_datetime(test['timestamp'], unit='ms')
+})[:-1]
+
+len(comparision)
+len(test['timestamp'])
+comparision.index = pd.to_datetime(test['timestamp'], unit='ms')
 comparision.iplot()
 
 
-# In[12]:
+# In[10]:
 
 
 from src.load_datasets import load_input_dataset
@@ -131,7 +139,7 @@ df = load_input_dataset()
 df
 
 
-# In[19]:
+# In[11]:
 
 
 from sktime.forecasting.trend import PolynomialTrendForecaster
@@ -165,7 +173,7 @@ comparision.iplot()
 
 # # Load dataset with all ta features
 
-# In[14]:
+# In[ ]:
 
 
 from src.load_datasets import split_train_test
@@ -180,7 +188,7 @@ df['timestamp'] = pd.to_datetime(df['timestamp'])
 df
 
 
-# In[15]:
+# In[ ]:
 
 
 df[['open', 'close', 'high', 'low', 'volume']][::15].iplot(subplots=True)
@@ -190,19 +198,19 @@ df[['open', 'close', 'high', 'low', 'volume']][::15].iplot(subplots=True)
 # 
 # Will add time related features and select only important
 
-# In[16]:
+# In[ ]:
 
 
 labels = df.pop('close')
 
 
-# In[17]:
+# In[ ]:
 
 
 labels[::15].iplot()
 
 
-# In[18]:
+# In[ ]:
 
 
 df
@@ -210,7 +218,7 @@ df
 
 # ## tsfresh require id column
 
-# In[20]:
+# In[ ]:
 
 
 df['id'] = 1
@@ -218,7 +226,7 @@ df['id'] = 1
 df
 
 
-# In[21]:
+# In[ ]:
 
 
 from tsfresh import extract_relevant_features
@@ -228,7 +236,7 @@ direct_features = extract_relevant_features(df, labels, column_id='id', column_s
 direct_features
 
 
-# In[7]:
+# In[ ]:
 
 
 import scipy.stats as stats
@@ -246,7 +254,7 @@ stats.probplot(close_change, dist='norm', plot=pylab)
 # 
 # #### Firstly define function for display frequiency
 
-# In[4]:
+# In[ ]:
 
 
 import tensorflow as tf
@@ -269,7 +277,7 @@ def plot_log_freaquency(series):
 
 # ### Frequency of price
 
-# In[9]:
+# In[ ]:
 
 
 plot_log_freaquency(train_features['close'])
@@ -293,7 +301,7 @@ plot_log_freaquency(train_features['volume'])
 
 # ### Frequence of transaction volume change 
 
-# In[1]:
+# In[ ]:
 
 
 plot_log_freaquency(train_features['volume'].diff().dropna())
@@ -312,7 +320,7 @@ compare_report.show_notebook()
 
 # ### Training data exploration
 
-# In[3]:
+# In[ ]:
 
 
 train_features[59::60].iplot(subplots=True)
@@ -320,7 +328,7 @@ train_features[59::60].iplot(subplots=True)
 
 # ### Testing data exploration
 
-# In[4]:
+# In[ ]:
 
 
 test_features[59::60].iplot(subplots=True)
@@ -333,7 +341,7 @@ test_features[59::60].iplot(subplots=True)
 # Divide by the max-min deviation
 # 
 
-# In[5]:
+# In[ ]:
 
 
 pd.set_option('float_format', '{:.2f}'.format)
@@ -341,7 +349,7 @@ pd.set_option('float_format', '{:.2f}'.format)
 train_features.describe()
 
 
-# In[6]:
+# In[ ]:
 
 
 test_features.describe()
@@ -352,7 +360,7 @@ test_features.describe()
 # 100 thouthands dollars
 # except of volume
 
-# In[13]:
+# In[ ]:
 
 
 from sklearn.preprocessing import MinMaxScaler
@@ -374,7 +382,7 @@ scaler = MinMaxScaler()
 scaler = scaler.fit(train_fit)
 
 
-# In[18]:
+# In[ ]:
 
 
 print("normalise train dataset...")
@@ -390,7 +398,7 @@ test_normalised.index = test_features.index
 train_normalised.head()
 
 
-# In[19]:
+# In[ ]:
 
 
 train_normalised[59::60].iplot(subplots=True, title="Train")
@@ -398,7 +406,7 @@ train_normalised[59::60].iplot(subplots=True, title="Train")
 test_normalised[59::60].iplot(subplots=True, title="Test")
 
 
-# In[20]:
+# In[ ]:
 
 
 train_in_hours = train_features[59::60]

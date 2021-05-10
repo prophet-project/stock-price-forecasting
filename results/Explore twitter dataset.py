@@ -35,48 +35,48 @@ cufflinks.set_config_file(world_readable=True, theme='pearl')
 
 import pandas as pd
 
-df = pd.read_csv('./data/bitcoin_tweets_from_100_likes.csv')
-df
+tweets_df = pd.read_csv('./data/bitcoin_tweets_from_100_likes.csv')
+tweets_df
 
 
 # In[3]:
 
 
-df.columns
+tweets_df.columns
 
 
 # In[4]:
 
 
-df.info()
+tweets_df.info()
 
 
 # In[5]:
 
 
-df = df[['created_at', 'full_text', 'retweet_count', 'favorite_count', 'reply_count', 'quote_count', 'lang']]
+df = tweets_df[['created_at', 'full_text', 'retweet_count', 'favorite_count', 'reply_count', 'quote_count', 'lang']]
 df
 
 
-# In[7]:
+# In[6]:
 
 
 df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce')
 
 
+# In[7]:
+
+
+df = df.dropna(subset = ["created_at", "full_text"])
+
+
 # In[8]:
-
-
-df.dropna(subset = ["created_at", "full_text"], inplace=True)
-
-
-# In[9]:
 
 
 df.info()
 
 
-# In[10]:
+# In[9]:
 
 
 df['reply_count'] = pd.to_numeric(df['reply_count'], errors='coerce')
@@ -85,25 +85,25 @@ df['quote_count'] = pd.to_numeric(df['quote_count'], errors='coerce')
 df.info()
 
 
+# In[10]:
+
+
+df = df.dropna(subset = ["retweet_count", "favorite_count"])
+
+
 # In[11]:
-
-
-df.dropna(subset = ["retweet_count", "favorite_count"], inplace=True)
-
-
-# In[13]:
 
 
 df.info()
 
 
-# In[14]:
+# In[12]:
 
 
 df['lang'].value_counts().iplot(kind='bar')
 
 
-# In[15]:
+# In[13]:
 
 
 df = df.loc[df['lang'] == 'en']
@@ -111,40 +111,40 @@ df = df[['created_at', 'full_text', 'retweet_count', 'favorite_count', 'reply_co
 df
 
 
-# In[16]:
+# In[14]:
 
 
 df.index = pd.to_datetime(df.pop('created_at'))
 df
 
 
-# In[17]:
+# In[15]:
 
 
 df.isna().sum()
 
 
-# In[19]:
+# In[16]:
 
 
 sdf = df[['retweet_count', 'favorite_count', 'reply_count', 'quote_count']].groupby(pd.Grouper(freq='d')).sum()
 sdf
 
 
-# In[20]:
+# In[17]:
 
 
 sdf = sdf.loc['2016-01-01':]
 sdf
 
 
-# In[33]:
+# In[18]:
 
 
 sdf.iplot(subplots=True)
 
 
-# In[36]:
+# In[19]:
 
 
 import scipy as sc
@@ -156,14 +156,14 @@ sdf_smooth = sdf[(z_scores < 2).all(axis=1)]
 sdf_smooth.iplot(subplots=True)
 
 
-# In[37]:
+# In[20]:
 
 
 sdf_out = sdf[(z_scores >= 2).all(axis=1)]
 sdf_out.iplot(subplots=True)
 
 
-# In[39]:
+# In[21]:
 
 
 dff = df[['retweet_count', 'favorite_count', 'reply_count', 'quote_count']].loc['2016-01-01':]
@@ -174,12 +174,63 @@ dff_smooth = dff[(z_scores < 2).all(axis=1)]
 dff_smooth.groupby(pd.Grouper(freq='d')).sum().iplot(subplots=True)
 
 
-# In[40]:
+# In[22]:
 
 
 dff_out = dff[(z_scores >= 2).all(axis=1)]
 
 dff_out.groupby(pd.Grouper(freq='d')).sum().iplot(subplots=True)
+
+
+# In[36]:
+
+
+z_scores_likes = np.abs(sc.stats.zscore(dff['favorite_count']))
+
+dff_out_likes = dff[(z_scores_likes >= 2)]
+
+dff_out_likes.groupby(pd.Grouper(freq='d')).sum().iplot(subplots=True)
+
+
+# In[37]:
+
+
+dff_out_likes_sorted = dff_out_likes.sort_values(by=['favorite_count'], ascending=False)
+dff_out_likes_sorted
+
+
+# In[38]:
+
+
+# Tweet with most unexpeceted likes
+tweet = df.loc[dff_out_likes_sorted.index[0]]
+tweet
+
+
+# In[39]:
+
+
+tweet.full_text
+
+
+# In[40]:
+
+
+tweets_df.loc[tweets_df['full_text'] == tweet.full_text].iloc[0]
+
+
+# In[41]:
+
+
+for i in range(10):
+    tweet = df.loc[dff_out_likes_sorted.index[i]]
+    print(tweet['favorite_count'], '\n', tweet['full_text'], '\n------')
+
+
+# In[35]:
+
+
+dff.sort_values(by=['favorite_count'], ascending=False)
 
 
 # In[ ]:
